@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front-end Example with AJAX</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Front-end Example with AJAX</h1>
+    <button id="fetchButton">Fetch Data from Backend</button>
+    <button id="postButton">Send Data to Backend</button>
+    <div id="response"></div>
+
+    <!-- เพิ่ม Axios library -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // ฟังก์ชันสำหรับการทำงานเมื่อกดปุ่ม Fetch Data ด้วย Axios
+        function fetchData() {
+            axios.get('http://localhost:3000/api/data')
+                .then(response => {
+                    document.getElementById('response').innerText = JSON.stringify(response.data);
+                    alert(JSON.stringify(response.data))
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // ฟังก์ชันสำหรับการทำงานเมื่อกดปุ่ม Send Data ด้วย Axios
+        function sendData() {
+            axios.post('http://localhost:3000/api/data', { key: 'value' })
+                .then(response => {
+                    document.getElementById('response').innerText = JSON.stringify(response.data);
+                    alert(JSON.stringify(response.data))
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // การเพิ่ม Event Listeners ให้กับปุ่ม
+        document.getElementById('fetchButton').addEventListener('click', fetchData);
+        document.getElementById('postButton').addEventListener('click', sendData);
+    </script>
+</body>
+</html>

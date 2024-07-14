@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+    <link href='https://fonts.googleapis.com/css2?family=Sarabun&display=swap' rel='stylesheet'>
+    <link rel='stylesheet' href='../../css/control/formReport.css' />
+    <link rel="stylesheet" href="../../css/sweetalert2/sweetalert2.min.css" >
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css'>
+
+    <!-- Bootstrap CSS -->
+    <link rel='stylesheet' href='../../css/bootstarp/css/bootstrap.min.css'>
+    <script src='../../script/bootstarp/js/popper.min.js'></script>
+    <script src='../../script/bootstarp/js/bootstrap.min.js'></script> 
+    <style>
+    body {
+    font-family: 'Sarabun', sans-serif;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    }
+    .a4-size {
+        width: 21cm;
+        height: 23.7cm;
+        /* border: 1px solid black; */
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .title {
+        text-align: center;
+        font-size: 18px;
+        /* margin-bottom: 10px; */
+    }
+    .subtitle {
+        text-align: center;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    .textSum {
+        font-size: 18px;
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+        border-top: 1px solid black; /*ลบออก */
+        border-bottom: 1px solid black; /*ลบออก */
+        padding: 5px;
+        text-align: left;
+    }
+    th {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        background-color: #f2f2f2;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    .hidden {
+        display: none;
+    }
+    p {
+        max-width: 1000px; /* กำหนดความกว้างสูงสุดของ <p> */
+        width: 100%; /* กำหนดให้ <p> มีความกว้างเต็มพื้นที่ */
+        padding: 10px; /* ระยะห่างขอบซ้ายขวาของ <p> */
+        line-height: 1.6; /* ระยะห่างระหว่างบรรทัดของเนื้อหาใน <p> */
+    }
+    table p {
+        word-wrap: break-word; /* หรือคุณสามารถใช้ word-break: break-all; */
+        white-space: normal;
+    }
+    textarea {
+        margin-right: 5px;
+    }
+    .dvEvaluation {
+        font-weight: bold;
+        font-size: 18px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    .dvSignature {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        font-size: 16px;
+    }
+    .dvSignature > div {
+        width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */   
+    }
+    .dvFooterForm {
+        width: 100%;
+        text-align: center;
+        margin-top: 5%;
+    }
+    .dvFooterForm {
+        width: 100%;
+        text-align: center;
+        margin-top: 5%;
+    }
+    #displayTextCommentEvaluation {
+        white-space: pre-wrap;
+    }
+    .form-group canvas {
+        border: none;
+        border-bottom: 1px solid #000;
+    }
+    .error {
+        color: red;
+        font-size: 0.9em;
+        display: none;
+    }
+    .canvas-container {
+        border: 1px solid #ccc;
+        position: relative;
+    }
+    .clear-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #f8f8f8;
+        border: 1px solid #ccc;
+        padding: 5px;
+        cursor: pointer;
+    }
+    img {
+        width: 100px;
+        height: 30px;
+    }
+    .underline-dotted {
+        border-bottom: 1px dotted #000;
+        display: inline-block; /* Ensures the dotted underline is correctly applied */
+        margin-bottom: 5px; /* Optional: Adds space between the sections */
+        text-align: center;
+    }
+    </style>
+    <title>แบบฟอร์มประเมิน</title>
+</head>
+<body>
+    <div id='dvFormAssessment'>
+
+    </div>
+
+      <!-- Start Modal สร้างฟอร์ม กรอกข้อมูลลายเซ็น -->
+      <div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signatureModalLabel">กรอกข้อมูลผู้ประเมิน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="evaluator">ผู้ประเมิน (เซ็นชื่อ)</label>
+                        <div class="canvas-container">
+                            <canvas id="signatureCanvas" width="500" height="200"></canvas>
+                            <button class="clear-button" id="clearButton">Clear</button>
+                        </div>
+                        <div id="evaluatorError" class="error">กรุณาเซ็นชื่อ</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="evaluatorText">คำนำหน้าชื่อ (ยศ)</label>
+                        <input type="text" id="evaluatorText" class="form-control" placeholder="กรอกชื่อคำนำหน้าชื่อ">
+                        <div id="evaluatorTextError" class="error">กรุณาใส่ชื่อคำนำหน้าชื่อ</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">ตำแหน่ง</label>
+                        <input type="text" id="position" class="form-control" placeholder="กรอกตำแหน่ง">
+                        <div id="positionError" class="error">กรุณาใส่ตำแหน่ง</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">วันที่</label>
+                        <div class="row">
+                            <div class="col-4">
+                                <input type="text" id="day" class="form-control datepicker-day" placeholder="วัน">
+                                <div id="dayError" class="error">กรุณาใส่วัน</div>
+                            </div>
+                            <div class="col-4">
+                                <input type="text" id="month" class="form-control datepicker-month" placeholder="เดือน">
+                                <div id="monthError" class="error">กรุณาใส่เดือน</div>
+                            </div>
+                            <div class="col-4">
+                                <input type="text" id="year" class="form-control datepicker-year" placeholder="ปี">
+                                <div id="yearError" class="error">กรุณาใส่ปี</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="submitButton" class="btn btn-primary" data-bs-dismiss="modal">บันทึกข้อมูล</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src='../../script/jquery/jquery-3.7.1.js'></script>
+    <script src='../../script/bootstarp/js/bootstrap.min.js'></script>
+    <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
+    <script src='../../script/centerFile.js'></script>
+    <script src='../../script/control/signature.js'></script>
+    <script src='../../script/control/7sides/drawTableEvaluation.js'></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.th.min.js"></script>
+<script>
+    $(document).ready(function() {
+        fnGetDataInternalControl()
+
+        $('.datepicker-day').datepicker({
+                format: 'dd',
+                language: 'th',
+                autoclose: true,
+                todayHighlight: true,
+                minViewMode: 0,
+                maxViewMode: 0,
+            });
+            $('.datepicker-month').datepicker({
+                format: 'MM',
+                language: 'th',
+                autoclose: true,
+                todayHighlight: true,
+                minViewMode: 1,
+                maxViewMode: 1,
+            }).on('changeDate', function(e) {
+                var fullMonthName = $(this).datepicker('getFormattedDate');
+                var shortMonthName = fnConvertMonthToShort(fullMonthName);
+                $(this).val(shortMonthName);
+            });
+            $('.datepicker-year').datepicker({
+                format: 'yyyy',
+                language: 'th',
+                autoclose: true,
+                todayHighlight: true,
+                minViewMode: 2,
+                maxViewMode: 2,
+            });
+});
+
+    function fnGetDataInternalControl() {
+        const data = [
+            {id: '1' , mainControl: 'ด้านการข่าว', listControl: 'แบบสอบถาม' , enControl:'news'},
+            {id: '2' , mainControl: 'ด้านการข่าว', listControl: 'แบบประเมินฯ', enControl:'news'},
+            {id: '3' , mainControl: 'ด้านการข่าว', listControl: 'แบบ ปม.', enControl:'news'}
+        ]
+
+        /* start ส่วนของสิทธิผู้ใช้งาน */
+        var valAccess = fnGetAllUrlParams().authen
+
+        /* end ส่วนของสิทธิผู้ใช้งาน */
+       
+        // call data 
+        fnDrawTableForm(valAccess, data)
+        return data
+    }      
+</script>
+</html>
