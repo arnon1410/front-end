@@ -1,11 +1,11 @@
-function fnSetHeader(dataHeader){
+function fnSetHeader(){
     var strHTML = ''
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>"
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>หัวข้อตรวจสอบ</td>"
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>รายการ</td>"
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>"
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>"
-    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>เอกสาร PDF</td>"
+    // strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>เอกสาร PDF</td>"
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>ลายเซ็น</td>"
     return strHTML
 }
@@ -18,7 +18,6 @@ function fnDrawTable(access,objData) {
      // Get data selete before create table 
     var strHTML = ''
     var group = ['A','B'] //groups
-    var team = 'A'
     var data = objData
  
     strHTML += "<table id='tb_" + group[0] + "' class='table table-hover table-nowrap' width: 100%;>"
@@ -45,7 +44,7 @@ function fnDrawTable(access,objData) {
         strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-notprocess me-1'>ยังไม่ดำเนินการ</span></div></td>"
     }
 
-    strHTML += "<td class='text-center text-center align-middle'>"
+    strHTML += "<td class='text-center text-center align-middle lastTD'>"
     if (data[i].comment) {
         strHTML += "<button id='btnViewComment" + (i + 1) + "' type='button' class='btn btn-success btn-sm'; onclick='fnViewCommentConfig(\"" + data[i].comment + "\")' data-bs-toggle='modal' data-bs-target='#conmentModal' style='margin-right: 5px;'>"
         strHTML += "<i class='las la-comment-alt mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
@@ -68,8 +67,8 @@ function fnDrawTable(access,objData) {
     }
     strHTML += "</td>"
 
+    /*
     strHTML += "<td class='text-center align-middle lastTD'>"
-
     strHTML += "<button id='btnUploadDoc" + (i + 1) + "' type='button' class='btn btn-info btn-sm'; onclick='fnUploadDocConfig(\"" + data[i].username + "\",\"" + data[i].opSideName + "\",\"" + data[i].opFormName + "\")'  data-bs-toggle='modal' data-bs-target='#uploadDocModal' style='margin-right: 5px;'>"
     strHTML += "<i class='las la-upload mr-1' aria-hidden=;'true' style='margin-left:5px'></i><span>อัปโหลด<span>"
     strHTML += "</button>"
@@ -83,9 +82,8 @@ function fnDrawTable(access,objData) {
         strHTML += "<i class='las la-file-pdf mr-1' aria-hidden=;'true' style='margin-left:5px'></i><span>ดูเอกสาร<span>"
         strHTML += "</button>"
     }
-
-
-    strHTML += "</td>"
+    strHTML += "</td>" 
+    */
 
     // Add signature button
     if ( i === 0 ) {
@@ -237,50 +235,50 @@ function fnEditDocConfig (userID, sideID , formID , statusID) {
     }
 }
 
-function fnUploadDocConfig (username, sideName, formName) {
-    var strHTML = ''
-    var strHTML2 = ''
+// function fnUploadDocConfig (username, sideName, formName) {
+//     var strHTML = ''
+//     var strHTML2 = ''
 
-    // draw modal
-    strHTML += " <div class='mb-3'> "
-    strHTML += " <label for='headCheckTopic' class='lableHead'>หัวข้อที่ตรวจสอบ</label> "
-    strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ sideName +"' readonly> "
-    strHTML += " </div> "
+//     // draw modal
+//     strHTML += " <div class='mb-3'> "
+//     strHTML += " <label for='headCheckTopic' class='lableHead'>หัวข้อที่ตรวจสอบ</label> "
+//     strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ sideName +"' readonly> "
+//     strHTML += " </div> "
 
-    strHTML += " <div class='mb-3'> "
-    strHTML += " <label for='headCheckTopic' class='lableHead'>ชื่อรายการเอกสาร</label> "
-    strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ formName +"' readonly> "
-    strHTML += " </div> "
+//     strHTML += " <div class='mb-3'> "
+//     strHTML += " <label for='headCheckTopic' class='lableHead'>ชื่อรายการเอกสาร</label> "
+//     strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ formName +"' readonly> "
+//     strHTML += " </div> "
 
-    strHTML += " <div id='dvuploadfile' class='mb-3'> "
-    strHTML += " <label for='formFile' class='lableHead'>ไฟล์ที่แนบ</label> "
-    strHTML += " <input class='form-control form-control-sm' id='formFile' type='file'> "
-    strHTML += " </div> "
-
-
-    strHTML2 += " <button type='button' class='btn btn-primary'>บันทึกข้อมูล</button> "
-    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "            
+//     strHTML += " <div id='dvuploadfile' class='mb-3'> "
+//     strHTML += " <label for='formFile' class='lableHead'>ไฟล์ที่แนบ</label> "
+//     strHTML += " <input class='form-control form-control-sm' id='formFile' type='file'> "
+//     strHTML += " </div> "
 
 
-    $("#dvBodyUploadDocModal")[0].innerHTML = strHTML
-    $("#dvFooterUploadDocModal")[0].innerHTML = strHTML2
+//     strHTML2 += " <button type='button' class='btn btn-primary'>บันทึกข้อมูล</button> "
+//     strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "            
 
-}
-function fnViewDocConfig (fileName, fileSave , filePath ) {
-    var strFileName = fileName
-    var strFileSave = fileSave
-    var strFilePath = filePath
-    if (strFileName && strFileSave && strFilePath) {
-        // ทำตัว modal ที่ เก็บไฟล์ pdf
 
-    } else {
-        Swal.fire({
-            title: "",
-            text: "กรุณาอัปโหลดเอกสาร เนื่องจากยังไม่มีเอกสารดังกล่าว",
-            icon: "warning"
-        });
-    }
-}
+//     $("#dvBodyUploadDocModal")[0].innerHTML = strHTML
+//     $("#dvFooterUploadDocModal")[0].innerHTML = strHTML2
+
+// }
+// function fnViewDocConfig (fileName, fileSave , filePath ) {
+//     var strFileName = fileName
+//     var strFileSave = fileSave
+//     var strFilePath = filePath
+//     if (strFileName && strFileSave && strFilePath) {
+//         // ทำตัว modal ที่ เก็บไฟล์ pdf
+
+//     } else {
+//         Swal.fire({
+//             title: "",
+//             text: "กรุณาอัปโหลดเอกสาร เนื่องจากยังไม่มีเอกสารดังกล่าว",
+//             icon: "warning"
+//         });
+//     }
+// }
 
 function fnUploadSignatureConfig (username, sideName) {
     var strHTML = ''

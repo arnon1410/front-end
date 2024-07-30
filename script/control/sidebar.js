@@ -2,8 +2,8 @@ function fnSetSidebarMenuConTrol(namePages){
     var strHTML = ''
     var menuItemsMain = [
         { page: 'dashboard', text: 'Dashboard', icon: 'las la-chart-pie' },
-        { page: 'referenceDoc', text: 'เอกสารอ้างอิง', icon: 'las la-file-alt' },
-        { page: 'historicalData', text: 'ข้อมูลย้อนหลัง', icon: 'las la-history' }
+        { page: 'collation', text: 'การสอบทาน', icon: 'las la-award' },
+        { page: 'sendReport', text: 'การจัดส่งรายงาน', icon: 'las la-paper-plane' }
     ];
     var menuItemsForm = [
         { page: 'Appointment', text: 'คำสั่งแต่งตั้งคณะทำงาน', icon: 'las la-file' },

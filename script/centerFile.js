@@ -93,6 +93,21 @@ function fnConvertToThaiNumeralsAndPoint(number) {
     return thaiNumeralsString;
 }
 
+function fnFormatDateToThai(dateSQL) {
+  const thaiMonths = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+  ];
+
+  const dateParts = dateSQL.split('-');
+  const year = parseInt(dateParts[0]) + 543;
+  const shortYear = year.toString().slice(-2);
+  const month = thaiMonths[parseInt(dateParts[1]) - 1];
+  const day = parseInt(dateParts[2]);
+
+  return `${fnConvertToThaiNumeralsAndPoint(day)} / ${fnConvertMonthToShort(month)} / ${fnConvertToThaiNumeralsAndPoint(shortYear)}`;
+}
+
 function fnConvertToArabicNumerals(thaiNumber) {
     const arabicNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const thaiNumerals = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
@@ -105,6 +120,39 @@ function fnConvertMonthToShort(month) {
     var index = monthNames.indexOf(month);
     return index !== -1 ? monthShortName[index] : month;
 }
+
+function fnConvertThaiMonthName(monthNumber) { // convert 07 -> กรกฎาคม
+  const monthNames = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+  ];
+
+  // แปลง monthNumber เป็นเลขจำนวนเต็ม
+  const monthIndex = parseInt(monthNumber, 10);
+
+  if (monthIndex < 1 || monthIndex > 12) {
+      return "เลขเดือนไม่ถูกต้อง";
+  }
+
+  return monthNames[monthIndex - 1];
+}
+
+function fnConvertMonthNumber(monthName) { // convert กรกฎาคม ->  07 
+  const monthNames = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+  ];
+
+  const monthIndex = monthNames.indexOf(monthName);
+
+  if (monthIndex === -1) {
+      return "ชื่อเดือนไม่ถูกต้อง";
+  }
+
+  // เพิ่ม 1 เพราะดัชนีเริ่มต้นจาก 0 แต่เดือนเริ่มต้นจาก 1
+  return (monthIndex + 1).toString().padStart(2, '0');
+}
+
 
 function fnGetParameterByName(name) {
     name = name.replace(/[\[\]]/g, '\\$&');

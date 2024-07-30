@@ -7,12 +7,12 @@
     <link href='https://fonts.googleapis.com/css2?family=Sarabun&display=swap' rel='stylesheet'>
     <link rel='stylesheet' href='../../css/control/formReport.css' />
     <link rel="stylesheet" href="../../css/sweetalert2/sweetalert2.min.css" >
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css'>
 
     <!-- Bootstrap CSS -->
     <link rel='stylesheet' href='../../css/bootstarp/css/bootstrap.min.css'>
-    <script src='../../script/bootstarp/js/popper.min.js'></script>
-    <script src='../../script/bootstarp/js/bootstrap.min.js'></script> 
+
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
@@ -51,9 +51,60 @@
             font-size: 16px;
         }
         .dvSignature > div {
-            width: 350px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */
-            
-            
+            width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */
+        }
+        .dvFooterForm {
+            width: 100%;
+            text-align: center;
+            margin-top: 5%;
+        }
+        .dv-btn-Signature {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 16px;
+        }
+        .dv-btn-Signature > div {
+            width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */   
+        }
+        #displayTextCommentEvaluation {
+            white-space: pre-wrap;
+        }
+        .form-group canvas {
+            border: none;
+            border-bottom: 1px solid #000;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+        }
+        .canvas-container {
+            border: 1px solid #ccc;
+            position: relative;
+        }
+        .clear-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f8f8f8;
+            border: 1px solid #ccc;
+            padding: 5px;
+            cursor: pointer;
+        }
+        img {
+            width: 100px;
+            height: 30px;
+        }
+        .underline-dotted {
+            border-bottom: 2px dotted #000;
+            display: inline-block; /* Ensures the dotted underline is correctly applied */
+            margin-bottom: 5px; /* Optional: Adds space between the sections */
+            text-align: center;
+        }
+        .unit-label {
+            margin-right: 5px; /* Add a small margin between the label and the underlined text */
         }
         table {
             width: 100%;
@@ -176,66 +227,16 @@
     <div class='modal fade' id='chanceRiskModal' tabindex='-1' aria-labelledby='chanceRiskModalLabel' aria-hidden='true'>
     <div class='modal-dialog modal-lg'>
         <div class='modal-content'>
-        <div class='modal-header'>
-            <h1 class='modal-title fs-5' id='chanceRiskModalLabel'>โอกาสที่เกิดความเสี่ยง</h1>
-            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-        </div>
-        <div class='modal-body'>
-        <input type="hidden" id="InputChanceRiskHide" value=''>
-        <table class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col" class='text-center'>โอกาส</th>
-                    <th scope="col" class='text-center'>ความถี่</th>
-                    <th scope="col" class='text-center'>คะแนน</th>
-            
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class='text-center' contenteditable="true">สูงมาก</td>
-                    <td class='text-center' contenteditable="true">มากกว่า 20 ครั้ง/ปี</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValChanceRisk5" name="inputValChanceRisk" value="5"> 5
-                    </td>
-                </tr>
-                <tr>
-                    <td class='text-center' contenteditable="true">สูง</td>
-                    <td class='text-center' contenteditable="true">11 - 20 ครั้ง/ปี</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValChanceRisk4" name="inputValChanceRisk" value="4"> 4
-                    </td>
-                </tr>
-                <tr>
-            
-                    <td class='text-center' contenteditable="true">ปานกลาง</td>
-                    <td class='text-center' contenteditable="true">6 - 10 ครั้ง/ปี</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValChanceRisk3" name="inputValChanceRisk" value="3"> 3
-                    </td>
-                </tr>
-                <tr>
-                    
-                    <td class='text-center' contenteditable="true">น้อย</td>
-                    <td class='text-center' contenteditable="true">3 - 5 ครั้ง/ปี</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValChanceRisk2" name="inputValChanceRisk" value="2"> 2
-                    </td>
-                </tr>
-                <tr>
-                    <td class='text-center' contenteditable="true">น้อยมาก</td>
-                    <td class='text-center' contenteditable="true">3 ครัั้ง/ปี</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValChanceRisk1" name="inputValChanceRisk" value="1"> 1
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <div class='modal-header'>
+                <h1 class='modal-title fs-5' id='chanceRiskModalLabel'>โอกาสที่เกิดความเสี่ยง</h1>
+                <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
             </div>
-        <div class='modal-footer'>
-            <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button>
-            <button type='button' class='btn btn-primary' onclick='fnSaveChanceRiskModal(this)'>บันทึกข้อมูล</button>
-        </div>
+            <div class="modal-body" id="dvBodyModalChanceRiskModal">
+                <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+            </div>
+            <div class="modal-footer" id="dvFooterModalChanceRiskModal">
+                <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+            </div>
         </div>
     </div>
     </div>
@@ -244,68 +245,36 @@
     <div class='modal fade' id='effectRiskModal' tabindex='-1' aria-labelledby='effectRiskModalLabel' aria-hidden='true'>
     <div class='modal-dialog modal-lg'>
         <div class='modal-content'>
-        <div class='modal-header'>
-            <h1 class='modal-title fs-5' id='effectRiskModalLabel'>ผลกระทบความเสี่ยง</h1>
-            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-        </div>
-        <div class='modal-body'>
-        <input type="hidden" id="InputEffectRiskHide">
-        <table class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col" class='text-center'>ผลกระทบ</th>
-                    <th scope="col" class='text-center'>ความเสียหาย</th>
-                    <th scope="col" class='text-center'>คะแนน</th>
-            
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class='text-center'>สูงมาก</td>
-                    <td class='text-center' contenteditable="true">มากกว่า 10 ล้านบาท</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValEffectRisk5" name="inputValEffectRisk" value="5"> 5
-                    </td>
-                </tr>
-                <tr>
-                    <td class='text-center'>สูง</td>
-                    <td class='text-center' contenteditable="true">ระหว่าง 5 แสนบาท - 10 ล้าน</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValEffectRisk4" name="inputValEffectRisk" value="4"> 4
-                    </td>
-                </tr>
-                <tr>
-            
-                    <td class='text-center'>ปานกลาง</td>
-                    <td class='text-center' contenteditable="true">ระหว่าง 1 แสนบาท - 5 แสนบาท</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValEffectRisk3" name="inputValEffectRisk" value="3"> 3
-                    </td>
-                </tr>
-                <tr>
-                    
-                    <td class='text-center'>น้อย</td>
-                    <td class='text-center' contenteditable="true">ระหว่าง 1 หมื่นบาท - 1 แสนบาท</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValEffectRisk2" name="inputValEffectRisk" value="2"> 2
-                    </td>
-                </tr>
-                <tr>
-                    <td class='text-center'>น้อยมาก</td>
-                    <td class='text-center' contenteditable="true">น้อยกว่า 1 หมื่นบาท</td>
-                    <td class='text-center'>
-                        <input type="radio" id="inputValEffectRisk1" name="inputValEffectRisk" value="1"> 1
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <div class='modal-header'>
+                <h1 class='modal-title fs-5' id='effectRiskModalLabel'>ผลกระทบความเสี่ยง</h1>
+                <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
             </div>
-        <div class='modal-footer'>
-            <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button>
-            <button type='button' class='btn btn-primary' onclick='fnSaveEffectRiskModal(this)'>บันทึกข้อมูล</button>
-        </div>
+            <div class="modal-body" id="dvBodyModalEffectRiskModal">
+                <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+            </div>
+            <div class="modal-footer" id="dvFooterModalEffectRiskModal">
+                <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+            </div>
         </div>
     </div>
+    </div>
+
+    <!-- Start Modal สร้างฟอร์ม กรอกข้อมูลชื่อหน่วยงาน -->
+    <div class="modal fade" id="sideNameModal" tabindex="-1" aria-labelledby="sideNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sideNameModalLabel">เพิ่มชื่อหน่วยงาน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodySideNameModal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterSideNameModal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Matrix - ChanceRisk And EffectRisk-->
@@ -373,12 +342,30 @@
         </tbody>
     </table>
             </div>
-        <div class='modal-footer'>
+        <!-- <div class='modal-footer'>
             <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button>
             <button type='button' class='btn btn-primary'>บันทึกข้อมูล</button>
-        </div>
+        </div> -->
         </div>
     </div>
+    </div>
+
+    <!-- Start Modal สร้างฟอร์ม กรอกข้อมูลลายเซ็น -->
+    <div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signatureModalLabel">กรอกข้อมูลผู้ประเมิน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodySignatureModal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterSignatureModal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
     </div>
 </body>
     <!-- Optional JavaScript -->
@@ -386,8 +373,13 @@
     <script src='../../script/jquery/jquery-3.7.1.js'></script>
     <script src='../../script/bootstarp/js/bootstrap.min.js'></script>
     <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.th.min.js"></script>
     <script src='../../script/centerFile.js'></script>
     <script src='../../script/control/7sides/drawTablePerformanceNews.js'></script>
+
+    <!-- เพิ่ม Axios library -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     $(document).ready(function() {
         fnGetDataInternalControl()
@@ -400,9 +392,39 @@
             // Display the value in the modal
             $('#modalValueDisplay').text('The value is: ' + testValue);
         });
-});
+
+        $('.datepicker-day').datepicker({
+            format: 'dd',
+            language: 'th',
+            autoclose: true,
+            todayHighlight: true,
+            minViewMode: 0,
+            maxViewMode: 0,
+        });
+        $('.datepicker-month').datepicker({
+            format: 'MM',
+            language: 'th',
+            autoclose: true,
+            todayHighlight: true,
+            minViewMode: 1,
+            maxViewMode: 1,
+        }).on('changeDate', function(e) {
+            var fullMonthName = $(this).datepicker('getFormattedDate');
+            var shortMonthName = fnConvertMonthToShort(fullMonthName);
+            $(this).val(shortMonthName);
+        });
+        $('.datepicker-year').datepicker({
+            format: 'yyyy',
+            language: 'th',
+            autoclose: true,
+            todayHighlight: true,
+            minViewMode: 2,
+            maxViewMode: 2,
+        });
+    });
 
     function fnGetDataInternalControl() {
+        /* 
         const data = [ // ความเสี่ยง
             {
                 id: '101' ,
@@ -431,24 +453,15 @@
                 improvement: ''
             },
         ]
+        */
 
         /* start ส่วนของสิทธิผู้ใช้งาน */
         var valAccess = fnGetAllUrlParams().authen
-        var strAccess = ''
-        if (valAccess) {
-          if (valAccess == 'user') {
-            strAccess = " หน่วยรับตรวจ<span class='las la-chart-line'></span>"
-        } else {
-            strAccess = " หน่วยตรวจสอบ<span class='las la-chart-line'></span>"
-        }
-
-        document.getElementById("textStatusUser").innerHTML = strAccess
+        var valSides = fnGetAllUrlParams().sides
         /* end ส่วนของสิทธิผู้ใช้งาน */
-        }
        
         // call data 
-        fnDrawTableForm(valAccess, data)
-        return data
+        fnDrawTableForm(valAccess, valSides)
     }
     
 

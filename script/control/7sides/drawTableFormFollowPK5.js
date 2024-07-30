@@ -1,4 +1,4 @@
-function fnSetHeader(dataHeader){
+function fnSetHeader(){
     var strHTML = ''
     strHTML += "<th class='text-center textHeadTable'>ภารกิจตามกฎหมายที่จัดตั้งหน่วยงานของรัฐหรือภารกิจตามแผนการหรือภารกิจอื่น ๆ ที่สำคัญของหน่วยงานของรัฐ/วัตถุประสงค์</th>"
     strHTML += "<th class='text-center textHeadTable'>ความเสี่ยงที่ยังมีอยู่</th>"
@@ -9,66 +9,78 @@ function fnSetHeader(dataHeader){
     return strHTML
 }
 
-function fnDrawTableForm(access,objData,engName) {
+async function fnDrawTableForm(access) {
     if (access == 'admin') {
         // fnGetDataSelect()
     }
      // Get data selete before create table 
     var strHTML = ''
-    var data = objData
-    var NameUnit = 'จร.ทร.'
+    var strYear = ''
+    var strUserId = fnGetCookie("userId")
     var currentYear = new Date().getFullYear();
     var laterYear = new Date().getFullYear() - 1;
-    var currentThaiYear = currentYear + 543;
-    var laterThaiYear = laterYear + 543;
-    var DateFix = 'ณ วันที่ ๑ เดือน ตุลาคม ' + fnConvertToThaiNumeralsAndPoint(laterThaiYear) + ' ถึง วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(currentThaiYear)
+    strYear = currentYear + 543; // หลังจากกรอกข้่อมูลปีที่แล้วเสร็จเปลี่ยนเป็น laterYear
+
+    var dataHighRiskSQL = await fnGetDataResultHighRisk(strUserId, strYear)
+    var dataConPKF5SQL = await fnGetDataResultConPKF5(strUserId)
+
+    var prefixAsessor = dataConPKF5SQL[0].prefixAsessor || ''
+    var signPath = dataConPKF5SQL[0].signPath || ''
+    var position = dataConPKF5SQL[0].position || ''
+    var dateAsessor = dataConPKF5SQL[0].dateAsessor || ''
+    var shortName = dataConPKF5SQL[0].shortName || ''
+    
+    var strCurrentYear = ''
+    var strLasterYear = ''
+    if (dateAsessor) {
+        var dateSplit = dateAsessor.split('-');
+        strCurrentYear = parseInt(dateSplit[0]) + 543
+        strLasterYear = (parseInt(dateSplit[0]) - 1) + 543
+    } else {
+        strCurrentYear = currentYear + 543
+        strLasterYear = laterYear + 543
+    }
+
+    var DateFix = 'ณ วันที่ ๑ เดือน ตุลาคม ' + fnConvertToThaiNumeralsAndPoint(strLasterYear) + ' ถึง วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(strCurrentYear)
     strHTML += " <div class='text-end'>แบบติดตาม ปค.๕</div> "
-    strHTML += " <div class='title'>หน่วยงาน " + NameUnit +  "</div> "
+    strHTML += " <div class='title'>หน่วยงาน " + shortName +  "</div> "
     strHTML += " <div class='title'>รายงานการติดตามการประเมินการควบคุมภายใน</div> "
     strHTML += " <div class='title'>" + DateFix + "</div> "
     strHTML += " <div class='a4-size'> "
-    strHTML += "<table id='tb_" + objData[0].enControl + "'>"
+    strHTML += "<table id='tb_PKF5'>"
     strHTML += "<thead>"
     strHTML += "<tr class='colspan-header'>"
-    strHTML += fnSetHeader(data) 
+    strHTML += fnSetHeader() 
     strHTML += "</tr>"
     strHTML += "</thead>"
     strHTML += "<tbody>"
-    strHTML += fnDrawTablePerformance(data)
+
+    if (dataHighRiskSQL.length > 0) {
+        strHTML += await fnDrawTablePerformance(dataHighRiskSQL)
+    }  else { // ไม่มีข้อมูล
+        strHTML += "<tr>";
+        strHTML += `<td colspan='6' class='text-center align-top' style='width: 100%;'>`;
+        strHTML += ` <span id='spanNotHaveData'>ไม่มีข้อมูลแบบติดตามปค. ๕</span> `;
+        strHTML += "<tr>";
+    }
+   
     strHTML += "</tbody>"
     strHTML += "</table>"
 
-    strHTML += " <div class='dvSignature'> "
-    strHTML += " <div>ชื่อผู้รายงาน...................................................................</div> "
-    strHTML += " <div>ตำแหน่ง.........................................................................</div> "
-    strHTML += " <div>วันที่...............................................................................</div> "
-    
-    strHTML += "<button id='btnEditSignature' type='button' class='btn btn-warning'; onclick='fnEditSignature()' style='display:none;margin: 5px 5px 0px 0px;'>"
-    strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้รายงาน<span>"
-    strHTML += "</button>"
+    strHTML += await fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAsessor)
 
     strHTML += " </div> "
 
     strHTML += " <div class='dvFooterForm'> "
     strHTML += "    <button type='button' class='btn btn-primary' id='btnSaveData' onclick='fnSaveDraftDocument()'>บันทึกฉบับร่าง</button>"
-    strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
+    // strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
     strHTML += " </div> "
 
     $("#dvFormAssessment")[0].innerHTML = strHTML
 }
 
 
-function fnDrawTablePerformance(objData) { /* ด้านการข่าว */
-    var strHTML = "";
-    var data = objData
-
-    strHTML +=  fnDrawDataInTable(data)
-
-    return strHTML;
-
-}
-
-function fnDrawDataInTable(data) {
+async function fnDrawTablePerformance(data) {
     var strHTML = '';
     var tab = '&emsp;&emsp;&emsp;&emsp;';
     const sides = [
@@ -80,8 +92,8 @@ function fnDrawDataInTable(data) {
     ];
 
     sides.forEach((side, index) => {
-        const id_sides = (index + 1).toString();
-        const foundRisks = data.filter(risk => risk.id_sides === id_sides);
+        const idSides = (index + 2).toString(); // + 2 เพราะใน SQL เริ่มต้นด้วย 2
+        const foundRisks = data.filter(risk => risk.idSides == idSides);
 
         if (foundRisks.length > 0) {
             let headRisksContent = [];
@@ -99,7 +111,7 @@ function fnDrawDataInTable(data) {
             strHTML += "<tr>";
             strHTML += `<td rowspan='${foundRisks.length}' id='headRisk${index}' class='text-left align-top' style='width: 25%;'>`;
             strHTML += " <div> ";
-            strHTML += ` <span id='spanHeadRisk${index}' style='font-weight: bold;'>${fnConvertToThaiNumeralsAndPoint(id_sides)}. ${side}</span> `;
+            strHTML += ` <span id='spanHeadRisk${index}' style='font-weight: bold;'>${fnConvertToThaiNumeralsAndPoint(idSides - 1)}. ${side}</span> `;
             strHTML += " </div> ";
             strHTML += " <div> ";
             strHTML += ` <span id='spanHeadRisk${index}' style='font-weight: bold;'>${tab}วัตถุประสงค์</span> `;
@@ -111,32 +123,32 @@ function fnDrawDataInTable(data) {
             strHTML += ` <span id='spanHeadRisk${index}' style='font-weight: bold;'>${tab}กิจกรรม</span> `;
             strHTML += " </div> ";
             strHTML += " <div> ";
-            strHTML += " <div class='tab'> ";
+            strHTML += " <div style='text-indent: 17px;'> ";
             strHTML += ` <span id='spanHeadRisk${index}'>- ${headRisks}</span> `;
             strHTML += " </div> ";
             strHTML += "</td>";
 
             strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-            strHTML += " <div> ";
+            strHTML += " <div style='text-indent: 17px;'> ";
             strHTML += ` <span id='spanRisking${index}'>${foundRisks[0].risking ? foundRisks[0].risking : ''}</span> `;
             strHTML += " </div> ";
             strHTML += "</td>";
 
             if (foundRisks[0].improvementControl) {
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanImprovementControl${index}'>${foundRisks[0].improvementControl}</span> `;
+                strHTML += " <div style='text-indent: 17px;'> ";
+                strHTML += ` <span id='displayTextImprovementControl${index}'>${foundRisks[0].improvementControl}</span> `;
                 strHTML += " </div> ";
                 strHTML += "</td>";
             } else {
                 strHTML += "<td id='ImprovementControl" + index + "' class='text-left align-top' style='width: 12%;'>";
                 strHTML += "<div style='text-align: center;'>";
-                strHTML += "    <textarea id='textImprovementControl" + index + "' name='textImprovementControl" + index + "' rows='6' cols='10'></textarea> ";
+                strHTML += "    <textarea id='textImprovementControl" + index + "' name='textImprovementControl" + index + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
                 strHTML += "</div> ";
                 strHTML += "<div class='text-end'>";
                 strHTML += "    <button class='btn btn-secondary' type='submit' id='submitImprovementControl" + index + "' onclick='fnSubmitText(\"" + index + "\", \"ImprovementControl\")'>ยืนยัน</button>";
                 strHTML += "</div>";
-                strHTML += "<div class='text-start'>";
+                strHTML += "<div class='text-start' style='text-indent: 17px;'>";
                 strHTML += "    <span id='displayTextImprovementControl" + index + "' style='white-space: pre-wrap;'></span>";
                 strHTML += "    <i class='las la-pencil-alt' id='editIconImprovementControl" + index + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "\", \"ImprovementControl\")'></i> ";
                 strHTML += "</div>";
@@ -144,14 +156,14 @@ function fnDrawDataInTable(data) {
             }
             if (foundRisks[0].responsibleAgency) {
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanResponsibleAgency${index}'>${foundRisks[0].responsibleAgency}</span> `;
+                strHTML += " <div class='text-center'> ";
+                strHTML += ` <span id='displayTextResponsibleAgency${index}'>${foundRisks[0].responsibleAgency}</span> `;
                 strHTML += " </div> ";
                 strHTML += "</td>";
             } else {
-                strHTML += "<td id='ResponsibleAgency" + index + "' class='text-left align-top' style='width: 12%;'>";
+                strHTML += "<td id='responsibleAgency" + index + "' class='text-left align-top' style='width: 12%;'>";
                 strHTML += "<div style='text-align: center;'>";
-                strHTML += "    <textarea id='textResponsibleAgency" + index + "' name='textResponsibleAgency" + index + "' rows='6' cols='10'></textarea> ";
+                strHTML += "    <textarea id='textResponsibleAgency" + index + "' name='textResponsibleAgency" + index + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
                 strHTML += "</div> ";
                 strHTML += "<div class='text-end'>";
                 strHTML += "    <button class='btn btn-secondary' type='submit' id='submitResponsibleAgency" + index + "' onclick='fnSubmitText(\"" + index + "\", \"ResponsibleAgency\")'>ยืนยัน</button>";
@@ -165,19 +177,19 @@ function fnDrawDataInTable(data) {
 
             if (foundRisks[0].progressControl) {
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanProgressControl${index}'>${foundRisks[0].progressControl}</span> `;
+                strHTML += " <div class='text-center'> ";
+                strHTML += ` <span id='displayTextProgressControl${index}'>${foundRisks[0].progressControl}</span> `;
                 strHTML += " </div> ";
                 strHTML += "</td>";
             } else {
-                strHTML += "<td id='ProgressControl" + index + "' class='text-left align-top' style='width: 12%;'>";
+                strHTML += "<td id='progressControl" + index + "' class='text-left align-top' style='width: 12%;'>";
                 strHTML += "<div style='text-align: center;'>";
-                strHTML += "    <textarea id='textProgressControl" + index + "' name='textProgressControl" + index + "' rows='6' cols='10'></textarea> ";
+                strHTML += "    <textarea id='textProgressControl" + index + "' name='textProgressControl" + index + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
                 strHTML += "</div> ";
                 strHTML += "<div class='text-end'>";
                 strHTML += "    <button class='btn btn-secondary' type='submit' id='submitProgressControl" + index + "' onclick='fnSubmitText(\"" + index + "\", \"ProgressControl\")'>ยืนยัน</button>";
                 strHTML += "</div>";
-                strHTML += "<div class='text-start'>";
+                strHTML += "<div class='text-center'>";
                 strHTML += "    <span id='displayTextProgressControl" + index + "' style='white-space: pre-wrap;'></span>";
                 strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + index + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "\", \"ProgressControl\")'></i> ";
                 strHTML += "</div>";
@@ -186,19 +198,19 @@ function fnDrawDataInTable(data) {
 
             if (foundRisks[0].solutionsControl) {
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanSolutionsControl${index}'>${foundRisks[0].solutionsControl}</span> `;
+                strHTML += " <div class='text-center'> ";
+                strHTML += ` <span id='displayTextProgressControl${index}'>${foundRisks[0].solutionsControl}</span> `;
                 strHTML += " </div> ";
                 strHTML += "</td>";
             } else {
-                strHTML += "<td id='SolutionsControl" + index + "' class='text-left align-top' style='width: 12%;'>";
+                strHTML += "<td id='solutionsControl" + index + "' class='text-left align-top' style='width: 12%;'>";
                 strHTML += "<div style='text-align: center;'>";
-                strHTML += "    <textarea id='textSolutionsControl" + index + "' name='textSolutionsControl" + index + "' rows='6' cols='10'></textarea> ";
+                strHTML += "    <textarea id='textSolutionsControl" + index + "' name='textSolutionsControl" + index + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
                 strHTML += "</div> ";
                 strHTML += "<div class='text-end'>";
                 strHTML += "    <button class='btn btn-secondary' type='submit' id='submitSolutionsControl" + index + "' onclick='fnSubmitText(\"" + index + "\", \"SolutionsControl\")'>ยืนยัน</button>";
                 strHTML += "</div>";
-                strHTML += "<div class='text-start'>";
+                strHTML += "<div class='text-center'>";
                 strHTML += "    <span id='displayTextSolutionsControl" + index + "' style='white-space: pre-wrap;'></span>";
                 strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + index + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "\", \"SolutionsControl\")'></i> ";
                 strHTML += "</div>";
@@ -213,76 +225,76 @@ function fnDrawDataInTable(data) {
                 strHTML += "<tr>";
 
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanRisking${index}_${i}'>${foundRisks[i].risking ? foundRisks[i].risking : ''}</span> `;
+                strHTML += " <div style='text-indent: 17px;'> ";
+                strHTML += ` <span id='displayTextRisking${index}_${i}'>${foundRisks[i].risking ? foundRisks[i].risking : ''}</span> `;
                 strHTML += " </div> ";
                 strHTML += "</td>";
 
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanExistingControls${index}_${i}'>${foundRisks[i].existingControls ? foundRisks[i].existingControls : ''}</span> `;
+                strHTML += " <div style='text-indent: 17px;'> ";
+                strHTML += ` <span id='displayTextExistingControl${index}_${i}'>${foundRisks[i].existingControl ? foundRisks[i].existingControl : '-'}</span> `;
                 strHTML += " </div> ";
                 strHTML += "</td>";
 
                 if (foundRisks[i].responsibleAgency) {
                     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                    strHTML += " <div> ";
-                    strHTML += ` <span id='spanResponsibleAgency${index}_${i}'>${foundRisks[i].responsibleAgency}</span> `;
+                    strHTML += " <div style='text-indent: 17px;'> ";
+                    strHTML += ` <span id='displayTextResponsibleAgency${index}_${i}'>${foundRisks[i].responsibleAgency}</span> `;
                     strHTML += " </div> ";
                     strHTML += "</td>";
                 } else {
-                    strHTML += "<td id='ResponsibleAgency" + index + "_" + i + "' class='text-left align-top' style='width: 12%;'>";
+                    strHTML += "<td id='responsibleAgency" + index + "_" + i + "' class='text-left align-top' style='width: 12%;'>";
                     strHTML += "<div style='text-align: center;'>";
-                    strHTML += "    <textarea id='textResponsibleAgency" + index + "_" + i + "' name='textResponsibleAgency" + index + "_" + i + "' rows='6' cols='10'></textarea> ";
+                    strHTML += "    <textarea id='textResponsibleAgency" + index + "_" + i + "' name='textResponsibleAgency" + index + "_" + i + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
                     strHTML += "</div> ";
                     strHTML += "<div class='text-end'>";
-                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitResponsibleAgency" + index + "_" + i + "' onclick='fnSubmitText(\"" + index + "_" + i + "\", \"ResponsibleAgency\")'>ยืนยัน</button>";
+                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitResponsibleAgency" + index + "_" + i + "' onclick='fnSubmitText(\"" + index + "_" + i + "\", \"responsibleAgency\")'>ยืนยัน</button>";
                     strHTML += "</div>";
-                    strHTML += "<div class='text-start'>";
+                    strHTML += "<div class='text-center'>";
                     strHTML += "    <span id='displayTextResponsibleAgency" + index + "_" + i + "' style='white-space: pre-wrap;'></span>";
-                    strHTML += "    <i class='las la-pencil-alt' id='editIconResponsibleAgency" + index + "_" + i + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "_" + i + "\", \"ResponsibleAgency\")'></i> ";
+                    strHTML += "    <i class='las la-pencil-alt' id='editIconResponsibleAgency" + index + "_" + i + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "_" + i + "\", \"responsibleAgency\")'></i> ";
                     strHTML += "</div>";
                     strHTML += "</td>";
                 }
 
                 if (foundRisks[i].progressControl) {
                     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                    strHTML += " <div> ";
-                    strHTML += ` <span id='spanprogressControl${index}_${i}'>${foundRisks[i].progressControl}</span> `;
+                    strHTML += " <div style='text-indent: 17px;'> ";
+                    strHTML += ` <span id='displayTextProgressControl${index}_${i}'>${foundRisks[i].progressControl}</span> `;
                     strHTML += " </div> ";
                     strHTML += "</td>";
                 } else {
                     strHTML += "<td id='progressControl" + index + "_" + i + "' class='text-left align-top' style='width: 12%;'>";
                     strHTML += "<div style='text-align: center;'>";
-                    strHTML += "    <textarea id='textprogressControl" + index + "_" + i + "' name='textprogressControl" + index + "_" + i + "' rows='6' cols='10'></textarea> ";
+                    strHTML += "    <textarea id='textProgressControl" + index + "_" + i + "' name='textProgressControl" + index + "_" + i + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
                     strHTML += "</div> ";
                     strHTML += "<div class='text-end'>";
-                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitprogressControl" + index + "_" + i + "' onclick='fnSubmitText(\"" + index + "_" + i + "\", \"progressControl\")'>ยืนยัน</button>";
+                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitProgressControl" + index + "_" + i + "' onclick='fnSubmitText(\"" + index + "_" + i + "\", \"progressControl\")'>ยืนยัน</button>";
                     strHTML += "</div>";
-                    strHTML += "<div class='text-start'>";
-                    strHTML += "    <span id='displayTextprogressControl" + index + "_" + i + "' style='white-space: pre-wrap;'></span>";
-                    strHTML += "    <i class='las la-pencil-alt' id='editIconprogressControl" + index + "_" + i + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "_" + i + "\", \"progressControl\")'></i> ";
+                    strHTML += "<div class='text-center'>";
+                    strHTML += "    <span id='displayTextProgressControl" + index + "_" + i + "' style='white-space: pre-wrap;'></span>";
+                    strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + index + "_" + i + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "_" + i + "\", \"progressControl\")'></i> ";
                     strHTML += "</div>";
                     strHTML += "</td>";
                 }
 
                 if (foundRisks[i].solutionsControl) {
                     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                    strHTML += " <div> ";
-                    strHTML += ` <span id='spanSolutionsControl${index}_${i}'>${foundRisks[i].SolutionsControl}</span> `;
+                    strHTML += " <div style='text-indent: 17px;'> ";
+                    strHTML += ` <span id='displayTextSolutionsControl${index}_${i}'>${foundRisks[i].SolutionsControl}</span> `;
                     strHTML += " </div> ";
                     strHTML += "</td>";
                 } else {
-                    strHTML += "<td id='SolutionsControl" + index + "_" + i + "' class='text-left align-top' style='width: 12%;'>";
+                    strHTML += "<td id='solutionsControl" + index + "_" + i + "' class='text-left align-top' style='width: 12%;'>";
                     strHTML += "<div style='text-align: center;'>";
-                    strHTML += "    <textarea id='textSolutionsControl" + index + "_" + i + "' name='textSolutionsControl" + index + "_" + i + "' rows='6' cols='10'></textarea> ";
+                    strHTML += "    <textarea id='textSolutionsControl" + index + "_" + i + "' name='textSolutionsControl" + index + "_" + i + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
                     strHTML += "</div> ";
                     strHTML += "<div class='text-end'>";
-                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitSolutionsControl" + index + "_" + i + "' onclick='fnSubmitText(\"" + index + "_" + i + "\", \"SolutionsControl\")'>ยืนยัน</button>";
+                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitSolutionsControl" + index + "_" + i + "' onclick='fnSubmitText(\"" + index + "_" + i + "\", \"solutionsControl\")'>ยืนยัน</button>";
                     strHTML += "</div>";
-                    strHTML += "<div class='text-start'>";
+                    strHTML += "<div class='text-center'>";
                     strHTML += "    <span id='displayTextSolutionsControl" + index + "_" + i + "' style='white-space: pre-wrap;'></span>";
-                    strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + index + "_" + i + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "_" + i + "\", \"SolutionsControl\")'></i> ";
+                    strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + index + "_" + i + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + index + "_" + i + "\", \"solutionsControl\")'></i> ";
                     strHTML += "</div>";
                     strHTML += "</td>";
                 }
@@ -293,6 +305,85 @@ function fnDrawDataInTable(data) {
     });
 
     return strHTML;
+}
+
+async function fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAsessor) {
+    var strHTML = ''
+
+    strHTML += " <div id='dvSignature' class='dvSignature'> "
+    if (prefixAsessor) {
+        strHTML += `<div>ลายมือชื่อ: <span style="width: 197px;" class="underline-dotted">${prefixAsessor} <img src="${signPath ? signPath : ''}" alt="ลายเซ็น" /></span></div>`
+    } else {
+        strHTML += " <div>ชื่อลายมือชื่อ..............................................</div> "
+    }
+
+    if (position) {
+        strHTML += `<div><div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
+    } else {
+        strHTML += " <div>ตำแหน่ง.....................................................</div> "
+    }
+
+    if (dateAsessor) {
+        strHTML += `<div>วันที่: <span style="width: 232px;" class="underline-dotted">${fnFormatDateToThai(dateAsessor)}</span></div>`
+    } else {
+        strHTML += " <div>วันที่...........................................................</div> "
+    }
+    strHTML += " </div> "
+    strHTML += " </div> "
+    // btn -> fnDrawModalSignature 
+    strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
+    strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalSignature(\"" + prefixAsessor + "\", \"" + signPath + "\", \"" + position + "\", \"" + dateAsessor + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'> "
+    strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลลายมือชื่อ<span> "
+    strHTML += "    </button> "
+    strHTML += " </div> "
+    return strHTML
+}
+
+async function fnGetDataResultHighRisk(userId, strYear) {
+    var dataSend = {
+        userId: userId,
+        strYear: strYear
+    }
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultHighRisk', dataSend)
+        var res = response.data
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultConPKF5(userId) {
+    var dataSend = {
+        userId: userId
+    }
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPKF5', dataSend)
+        var res = response.data
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
 }
 
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
@@ -309,12 +400,12 @@ function fnSubmitText(index, sides) {
         button = document.getElementById('submitImprovementControl' + index);
         displayText = document.getElementById('displayTextImprovementControl' + index);
         editIcon = document.getElementById('editIconImprovementControl'+ index);
-    } else if (sides == 'ResponsibleAgency') {
+    } else if (sides == 'responsibleAgency') {
         textarea = document.getElementById('textResponsibleAgency' + index);
         button = document.getElementById('submitResponsibleAgency' + index);
         displayText = document.getElementById('displayTextResponsibleAgency' + index)
         editIcon = document.getElementById('editIconResponsibleAgency'+ index);
-    } else if (sides == 'ProgressControl') {
+    } else if (sides == 'progressControl') {
         textarea = document.getElementById('textProgressControl' + index);
         button = document.getElementById('submitProgressControl' + index);
         displayText = document.getElementById('displayTextProgressControl' + index); 
@@ -382,171 +473,216 @@ function fnEditText(index, sides) {
     textarea.value = displayText.innerText.trim();
 }
 
-/*
-function fnDrawTableForm(access,objData,engName) {
-    if (access == 'admin') {
-        // fnGetDataSelect()
-    }
-     // Get data selete before create table 
+/* start ส่วนของลายเซ็นฯ */
+function fnDrawModalSignature(strPrefixAsessor, strSignPath, strPosition, strDateAsessor) {
     var strHTML = ''
-    var data = objData
-    var NameUnit = 'จร.ทร.'
-    var currentYear = new Date().getFullYear();
-    var currentThaiYear = currentYear + 543;
-    // var DateFix = 'ณ วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(currentThaiYear)
-    strHTML += " <div class='text-end'>แบบติดตาม ปค.๕</div> "
-    strHTML += " <div class='title'>หน่วยงาน......." + NameUnit +  ".......</div> "
-    strHTML += " <div class='title'>รายงานการติดตามการประเมินการควบคุมภายใน</div> "
-    strHTML += " <div class='title'>ตั้งแต่วันที่.......เดือน..............พ.ศ.............. ถึง วันที่.......เดือน..............พ.ศ..............</div> "
-    strHTML += " <div class='a4-size'> "
-    strHTML += "<table id='tb_" + objData[0].enControl + "'>"
-    strHTML += "<thead>"
-    strHTML += "<tr class='colspan-header'>"
-    strHTML += fnSetHeader(data) 
-    strHTML += "</tr>"
-    strHTML += "</thead>"
-    strHTML += "<tbody>"
-    strHTML += fnDrawTableFollowPK5(data)
-    strHTML += "</tbody>"
-    strHTML += "</table>"
-
-    strHTML += " <div class='dvSignature'> "
-    strHTML += " <div>ชื่อผู้รายงาน...................................................................</div> "
-    strHTML += " <div>ตำแหน่ง.........................................................................</div> "
-    strHTML += " <div>วันที่...............................................................................</div> "
+    var strHTML2 = ''
+    var strFormatDate = ''
+    var strDay = ''
+    var strMonth = ''
+    var strYear = ''
     
-    strHTML += "<button id='btnEditSignature' type='button' class='btn btn-warning'; onclick='fnEditSignature()' style='display:none;margin: 5px 5px 0px 0px;'>"
-    strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้รายงาน<span>"
-    strHTML += "</button>"
+    if (strDateAsessor) {
+        strFormatDate = strDateAsessor.split('-')
+        strYear = strFormatDate[0]
+        strMonth = fnConvertThaiMonthName(strFormatDate[1])
+        strDay = strFormatDate[2]
+    }
 
+    // draw modal
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='evaluator'>ลายมือชื่อ (เซ็นชื่อ)</label> "
+    strHTML += " <div class='canvas-container'> "
+    strHTML += "     <canvas id='signatureCanvas' width='460' height='200'></canvas> "
+    strHTML += "     <button class='clear-button' id='clearButton'>Clear</button> "
     strHTML += " </div> "
-
-    strHTML += " <div class='dvFooterForm'> "
-    strHTML += "    <button type='button' class='btn btn-primary' id='btnSaveData' onclick='fnSaveDraftDocument()'>บันทึกฉบับร่าง</button>"
-    strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
+    strHTML += " <div id='evaluatorError' class='error'>กรุณาเซ็นชื่อ</div> "
     strHTML += " </div> "
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='prefixAsessor'>คำนำหน้าชื่อ (ยศ)</label> "
+    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + strPrefixAsessor + "' > "
+    strHTML += " <div id='prefixAsessorError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> "
+    strHTML += " </div> "
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='position'>ตำแหน่ง</label> "
+    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + strPosition + "'> "
+    strHTML += " <div id='positionError' class='error'>กรุณาใส่ตำแหน่ง</div> "
+    strHTML += " </div> "
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='date'>วันที่</label> "
+    strHTML += " <div class='row'> "
+    strHTML += "     <div class='col-4'> "
+    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + strDay + "'> "
+    strHTML += "         <div id='dayError' class='error'>กรุณาใส่วัน</div> "
+    strHTML += "     </div> "
+    strHTML += "     <div class='col-4'> "
+    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + strMonth + "'> "
+    strHTML += "         <div id='monthError' class='error'>กรุณาใส่เดือน</div> "
+    strHTML += "     </div> "
+    strHTML += "     <div class='col-4'> "
+    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + strYear + "'> "
+    strHTML += "         <div id='yearError' class='error'>กรุณาใส่ปี</div> "
+    strHTML += "     </div> "
+    strHTML += " </div> "
+    strHTML += " </div> "
+ 
+    strHTML2 += " <button type='button' id='submitSignatureButton' class='btn btn-primary'>บันทึกข้อมูล</button> "
+    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "
+       
+    $("#dvBodySignatureModal").html(strHTML)
+    $("#dvFooterSignatureModal").html(strHTML2)
 
-    $("#dvFormAssessment")[0].innerHTML = strHTML
+    fnInitializeCanvas(strSignPath)
+
+    $('.datepicker-day').datepicker({
+        format: 'dd',
+        language: 'th',
+        autoclose: true,
+        todayHighlight: true,
+        minViewMode: 0,
+        maxViewMode: 0,
+    });
+    $('.datepicker-month').datepicker({
+        format: 'MM',
+        language: 'th',
+        autoclose: true,
+        todayHighlight: true,
+        minViewMode: 1,
+        maxViewMode: 1,
+    }).on('changeDate', function(e) {
+        var fullMonthName = $(this).datepicker('getFormattedDate');
+        var shortMonthName = fnConvertMonthToShort(fullMonthName);
+        $(this).val(shortMonthName);
+    });
+    $('.datepicker-year').datepicker({
+        format: 'yyyy',
+        language: 'th',
+        autoclose: true,
+        todayHighlight: true,
+        minViewMode: 2,
+        maxViewMode: 2,
+    });
 }
 
+ function fnInitializeCanvas(initialDataUrl) {
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
 
-function fnDrawTableFollowPK5(objData) {
-    var strHTML = "";
-    var data = objData // ยังไม่ได้ใช้
-    strHTML += "<tr>";
+    // ตั้งค่าเริ่มต้นของ canvas ด้วยภาพจาก data URL
+    if (initialDataUrl) {
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = initialDataUrl;
+    }
 
-    strHTML += fnDrawCellTable('Misstion', data.oldMisstion, data.oldStillRisk, 'commentMisstion',30,33);
-    strHTML += fnDrawCellTable('StillRisk', data.oldStillRisk, data.oldStillRisk, 'commentStillRisk',14,13);
-    strHTML += fnDrawCellTable('ImproveControl', data.oldImproveControl, data.oldImproveControl, 'commentImproveControl',14,13);
-    strHTML += fnDrawCellTable('ResponeAgency', data.oldResponeAgency, data.oldResponeAgency, 'commentResponeAgency',14,13);
-    strHTML += fnDrawCellTable('Progress', data.oldProgress, data.oldProgress, 'commentProgress',14,13);
-    strHTML += fnDrawCellTable('Problem', data.oldProblem, data.oldProblem, 'commentProblem',14,13);
+    ctx.lineWidth = 3; // เพิ่มความหนาของเส้น
+    ctx.strokeStyle = "#000000"; // เปลี่ยนสีเส้นเป็นสีดำ
 
-    strHTML += "</tr>";
-    return strHTML;
+    canvas.addEventListener('mousedown', (e) => {
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (drawing) {
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        drawing = false;
+    });
+
+    canvas.addEventListener('mouseout', () => {
+        drawing = false;
+    });
+
+    document.getElementById('clearButton').addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById('submitSignatureButton').addEventListener('click', fnSubmitSignature);
 }
 
+function fnValidateSignature() {
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return canvasData.data.some(channel => channel !== 0);
+}
 
-function fnDrawCellTable(id, condition, text, commentId, sizeTD,sizeTextarea) {
-    let cellHTML = `<td id='${id}' class='text-left align-top' style='width: ${sizeTD}%;'>`;
+function fnValidateForm() {
+    let isValid = true;
 
-    if (condition) {
-        cellHTML += `<span class='text-left' id='displayText${id}'>${text}</span>`;
+    // Validate prefixAsessor
+    const prefixAsessor = document.getElementById('prefixAsessor').value;
+    if (!prefixAsessor) {
+        document.getElementById('prefixAsessorError').style.display = 'block';
+        isValid = false;
     } else {
-        cellHTML += `
-            <div>
-                <textarea id='${commentId}' name='${commentId}' rows='4' cols='${sizeTextarea}'></textarea>
-            </div>
-            <div class='text-end'>
-                <button class='btn btn-secondary' type='submit' id='submitButton${id}' onclick='fnSubmitText("${id}")'>ยืนยัน</button>
-            </div>
-            <div class='text-start'>
-                <span id='displayText${id}' style='white-space: pre-wrap;'></span>
-                <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
-            </div>
+        document.getElementById('prefixAsessorError').style.display = 'none';
+    }
+
+    // Validate position
+    const position = document.getElementById('position').value;
+    if (!position) {
+        document.getElementById('positionError').style.display = 'block';
+        isValid = false;
+    } else {
+        document.getElementById('positionError').style.display = 'none';
+    }
+
+    // Validate date
+    const day = document.getElementById('day').value;
+    const month = document.getElementById('month').value;
+    const year = document.getElementById('year').value;
+
+    if (!day || !month || !year) {
+        if (!day) document.getElementById('dayError').style.display = 'block';
+        if (!month) document.getElementById('monthError').style.display = 'block';
+        if (!year) document.getElementById('yearError').style.display = 'block';
+        isValid = false;
+    } else {
+        document.getElementById('dayError').style.display = 'none';
+        document.getElementById('monthError').style.display = 'none';
+        document.getElementById('yearError').style.display = 'none';
+    }
+
+    return isValid;
+}
+
+function fnSubmitSignature() {
+    if (fnValidateForm()) {
+        const resultContainer = document.getElementById('dvSignature');
+
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        const signPath = canvas.toDataURL();
+
+        const prefixAsessor = document.getElementById('prefixAsessor').value;
+        const position = document.getElementById('position').value;
+        const day = document.getElementById('day').value;
+        const month= document.getElementById('month').value;
+        const year = document.getElementById('year').value;
+
+        const positionText = position ? position : '................................................';
+        const buddhistYear = fnConvertToBuddhistYear(year);
+        const formatDate = `${year}-${fnConvertMonthNumber(month)}-${day}`
+        const dateText = `${fnFormatDateToThai(formatDate)}`;
+
+        let strHTML = `
+            <div>ลายมือชื่อ: <span style="width: 197px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
+            <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
+            <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
         `;
-    }
 
-    cellHTML += "</td>";
-    return cellHTML;
-}
-
-function fnSubmitText(id) {
-    var textarea = document.getElementById('comment' +id);
-    var button = document.getElementById('submitButton' + id);
-    var displayText = document.getElementById('displayText' + id);
-    var editIcon = document.getElementById('editIcon' + id);
-    var tab = '&emsp;'
-    var format = ''
-
-    if (textarea.value) {
-        format = textarea.value.replace(/\n/g, '<br>');
-        displayText.innerHTML = tab + format
-
-        textarea.style.display = 'none';
-        button.style.display = 'none';
-        editIcon.style.display = 'inline';
-    } else {
-        Swal.fire({
-            title: "",
-            text: "กรุณากรอกข้อมูลให้ครบถ้วน",
-            icon: "warning"
-        });
+        resultContainer.innerHTML = strHTML;
+        $('#signatureModal').modal('hide');
     }
 }
-
-function fnEditText(id) {
-    const textarea = document.getElementById('comment' + id);
-    const button = document.getElementById('submitButton' + id);
-    const editIcon = document.getElementById('editIcon' + id);
-
-    textarea.style.display = 'inline';
-    button.style.display = 'inline';
-
-    editIcon.style.display = 'none';
-
-    textarea.value = document.getElementById('displayText' + id).innerText.trim();
-}
-
-function fnSaveDraftDocument() {
-    Swal.fire({
-        title: "",
-        text: "คุณต้องการบันทึกฉบับร่างใช่หรือไม่?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "บันทึกข้อมูล",
-        cancelButtonText: "ยกเลิก"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: "",
-            text: "บันทึกข้อมูลสำเร็จ",
-            icon: "success"
-          });
-        }
-      });
-}
-
-function fnExportDocument() {
-    Swal.fire({
-        title: "",
-        text: "คุณต้องการ Export เอกสารใช่หรือไม่?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "บันทึกข้อมูล",
-        cancelButtonText: "ยกเลิก"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: "",
-            text: "บันทึกข้อมูลสำเร็จ",
-            icon: "success"
-          });
-        }
-      });
-}
-*/
+/* end ส่วนของลายเซ็นฯ */

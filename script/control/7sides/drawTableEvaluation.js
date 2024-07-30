@@ -1,51 +1,74 @@
-function fnSetHeader(dataHeader){
+function fnSetHeader(){
     var strHTML = ''
     strHTML += "<th class='text-center textHeadTable' style='width: 50%;'>จุดที่ควรประเมิน</th>"
     strHTML += "<th class='text-center textHeadTable' style='width: 50%;'>ความเห็น/คำอธิบาย</th>"
     return strHTML
 }
-function fnDrawTableForm(access,objData) {
+async function fnDrawTableForm(access,valSides) {
     if (access == 'admin') {
         // fnGetDataSelect()
     }
-     // Get data selete before create table 
+    var strSides = valSides
+    var arrSides = [
+        {id:1,  key: 'branchpersonal', NameSides: 'ด้านการกำลังพล'},
+        {id:2,  key: 'branchoperation',NameSides: 'ด้านการยุทธการ'},
+        {id:3,  key: 'branchnews',NameSides: 'ด้านการข่าว'},
+        {id:4,  key: 'branchlogistics',NameSides: 'ด้านส่งกำลังบำรุง'},
+        {id:5,  key: 'branchcommunication',NameSides: 'ด้านสื่อสาร'},
+        {id:6,  key: 'branchtechnology',NameSides: 'ด้านระบบเทคโนโลยีในการบริหารจัดการ'},
+        {id:7,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน'},
+        {id:8,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ'},
+        {id:9,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี'},
+        {id:10, key: 'branchoperation',NameSides: 'ด้านพัสดุและทรัพย์สิน'},
+    ];
+
+    var index = arrSides.findIndex(item => item.key === strSides);
+    var idSideFix = arrSides[index].id + 1 // บวก 1 เนื่องจากใน database ด้านกำลังพล id เริ่มต้นที่ 2
+    
+    /* start call data ส่วนชื่อหน่วยงาน ส่วนสรุป และลายเซ็น */
+
+    var strUserId = fnGetCookie("userId")
+    var dataConASMSQL = await fnGetDataResultConASM(strUserId, idSideFix)
+    var descConASM = dataConASMSQL[0].descConASM || ''
+    var prefixAsessor = dataConASMSQL[0].prefixAsessor || ''
+    var signPath = dataConASMSQL[0].signPath || ''
+    var position = dataConASMSQL[0].position || ''
+    var dateAsessor = dataConASMSQL[0].dateAsessor || ''
+
+    /* end call data ส่วนชื่อหน่วยงาน ส่วนสรุป และลายเซ็น */
+
+    /* start Get data selete before create table  */
     var strHTML = ''
-    var data = objData
-    var NameUnit = 'จร.ทร.'
+    var nameUnit = dataConASMSQL[0].nameUnit ? dataConASMSQL[0].nameUnit : ' (ระบุชื่อหน่วยงาน) '
     var currentYear = new Date().getFullYear();
     var currentThaiYear = currentYear + 543;
     var DateFix = 'ณ วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(currentThaiYear)
-    strHTML += " <div class='title'>หน่วยงาน......." + NameUnit +  ".......</div> "
-    strHTML += " <div class='title'>แบบประเมินองค์ประกอบของการควบคุมภายใน" + objData[0].mainControl + "</div> "
+    strHTML += " <div class='title'><span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted'>" + nameUnit + "</span> "
+    strHTML += " <button id='btnEditSideName' type='button' class='btn btn-warning btn-sm' onclick='fnEditSidesName(\"" + nameUnit + "\")' data-bs-toggle='modal' data-bs-target='#sideNameModal'> "
+    strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true'></i>"
+    strHTML += "    </button> "
+    strHTML += " </div> "
+    strHTML += " <div class='title'>แบบประเมินองค์ประกอบของการควบคุมภายใน</div> "
+    strHTML += " <div class='title'>" +  arrSides[index].NameSides + "</div> "
     strHTML += " <div class='title'>" + DateFix + "</div> "
     strHTML += " <div class='a4-size'> "
-    strHTML += "<table id='tb_" + objData[0].engName + "'>"
+    strHTML += "<table id='tb_" + valSides + "'>"
     strHTML += "<thead>"
     strHTML += "<tr>"
-    strHTML += fnSetHeader(data) 
+    strHTML += fnSetHeader() 
     strHTML += "</tr>"
     strHTML += "</thead>"
     strHTML += "<tbody>"
-    strHTML += fnDrawTableAssessmentForm()
+    strHTML += await fnDrawTableAssessmentForm(strUserId, idSideFix)
     strHTML += "</tbody>"
     strHTML += "</table>"
-    strHTML += fnDrawCommentDivEvaluation()
-    strHTML += " <div id='dvSignature' class='dvSignature'> "
-    strHTML += " <div>ผู้ประเมิน..............................................</div> "
-    strHTML += " <div>ตำแหน่ง................................................</div> "
-    strHTML += " <div>วันที่...........เดือน..............พ.ศ...............</div> "
-    strHTML += " </div> "
-
-    strHTML += " <div id='dv-btn-Signature' class='dvSignature' > "
-    strHTML += "<button id='btnEditSignature' type='button' class='btn btn-warning'; data-bs-toggle='modal' data-bs-target='#signatureModal' style='margin: 5px 5px 0px 0px;'>"
-    strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span>"
-    strHTML += "</button>"
-    strHTML += " </div> "
+    strHTML += await fnDrawCommentDivEvaluation(descConASM,prefixAsessor,signPath,position,dateAsessor)
 
     strHTML += " <div class='dvFooterForm'> "
     strHTML += "    <button type='button' class='btn btn-primary' id='btnSaveData' onclick='fnSaveDraftDocument()'>บันทึกฉบับร่าง</button>"
-    strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
+    // strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
     strHTML += " </div> "
+    /* end Get data selete before create table  */
 
    // strHTML += "<button id='checkButton'>เช็คสถานะ</button>"
 
@@ -69,38 +92,23 @@ function createCheckboxAndTextArea(id) {
 }
 
 
-function fnDrawTableAssessmentForm() { /* ด้านการข่าว */
+async function fnDrawTableAssessmentForm(strUserId, idSideFix) { /* ด้านการข่าว */
     var strHTML = "";
-
-    const maintext  = [ // หัวข้อหลัก
-    {id:101, text:"๑. สภาพแวดล้อมการควบคุม" , description:"สภาพแวดล้อมการควบคุมเป็นปัจจัยพื้นฐานในการดำเนินงานที่ส่งผลให้มีการนำการควบคุมภายในมาปฏิบัติในหน่วยงาน ฝ่ายบริหารและผู้บังคับบัญชาจะต้องสร้างบรรยากาศในทุกระดับ ตระหนักถึงความสำคัญของการควบคุมภายใน รวมทั้งการดำเนินงานที่คาดหวังได้ สภาพแวดล้อมการควบคุมเป็นพื้นฐานสำคัญที่จะส่งผลกระทบต่อองค์ประกอบของการควบคุมภายในอื่น ๆ"},
-    {id:102, text:"๒. การประเมินความเสี่ยง" , description:"การประเมินความเสี่ยงเป็นกระบวนการที่ดำเนินการอย่างต่อเนื่องและเป็นประจำ เพื่อระบุและวิเคราะห์ความเสี่ยงที่มีผลกระทบต่อการบรรลุวัตถุประสงค์ของหน่วยงาน รวมถึงกำหนดวิธีการจัดการความเสี่ยงนั้น ฝ่ายบริหารควรคำนึงถึงการเปลี่ยนแปลงของสภาพแวดล้อมภายนอกและภารกิจภายในทั้งหมดที่มีผลต่อการบรรลุวัตถุประสงค์ของหน่วยงาน"},
-    {id:103, text:"๓. กิจกรรมควบคุมความเสี่ยง", description:"กิจกรรมการควบคุมเป็นการปฏิบัติที่กำหนดไว้ในโยบายและกระบวนการดำเนินงาน เพื่อให้มั่นใจว่าจะลดหรือควบคุมความเสี่ยงให้สามารถบรรลุวัตถุประสงค์ กิจกรรมตวบตุมควรได้รับการนำไปปฏิบัติทั่วทุกระดับในหน่วยงานในกระบวนการปฏิบัติงานขั้นตอนการดำเนินงานต่าง ๆ รวมถึงการนำเทคโนโลยีม่ใช้ในการดำเนินงาน"},
-    {id:104, text:"๔. สารสนเทศและการสื่อสาร", description:"สารสนเทศเป็นสิ่งจำเป็นสำหรับหน่วยงานที่จะช่วยให้มีการดำเนินการตามการควบคุมภายในที่กำหนด เพื่อสนับสนุนให้บรรลุวัตถุประสงค์ของหน่วยงาน การสื่อสารเกิดขึ้นได้ทั้งจากภายในและภายนอก และเป็นช่องทางเพื่อให้ทราบถึงสารสนเทศที่สำคัญในการควบคุมการดำเนินงานของหน่วยงาน การสื่อสารจะช่วยให้บุคลากรในหน่วยงานมีความเข้าใจถึงความรับผิดชอบและความสำคัญของการควบคุมภายในที่มีต่อการบรรลุวัตถุประสงค์"},
-    {id:105, text:"๕. กิจกรรมการติดตามผล", description:"กิจกรรมการติดตามผลเป็นการประเมินผลระหว่างการปฏิบัติงาน การประเมินผลเป็นรายครั้ง หรือเป็นการประเมินผลทั้งสองวิธีร่วมกัน เพื่อให้เกิดความมั่นใจว่าได้มีการปฏิบัติตามหลักการ ในแต่ละองค์ประกอบของการควบคุมภายในทั้ง ๕ องค์ประกอบ กรณีที่ผลการประเมินการควบคุมภายในจะก่อให้เกิดความเสียหายต่อหน่วยงานให้รายงานต่อฝ่ายบริหารและผู้บังคับบัญชา อย่างทันเวลา"},
-    ]
-    const subtext = [ // หัวข้อย่อย
-    {id:101, text:"๑.๑ หน่วยงานแสดงให้เห็นถึงการยึดมั่นในคุณค่าของความซื่อตรงและจริยธรรม", id_head: 101}, 
-    {id:102, text:"๑.๒ หน่วยงานแสดงให้เห็นถึงความเป็นอิสระจากฝ่ายบริหารและมีหน้าที่กำกับดูแลให้มีการพัฒนาหรือปรับปรุงการควบคุมภายใน รวมถึงการดำเนินการเกี่ยวกับการควบคุมภายใน", id_head: 101},
-    {id:103, text:"๑.๓ หน่วยงานมีการจัดโครงสร้างองค์กร สายการบังคับบัญชา อำนาจหน้าที่และความรับผิดชอบที่เหมาะสมในการบรรลุวัตถุประสงค์ของหน่วยงาน", id_head: 101},
-    {id:104, text:"๑.๔ หน่วยงานแสดงให้เห็นถึงความมุ่งมั่นในการสร้างแรงจูงใจ พัฒนาและรักษาบุคลากรที่มีความรู้ ความสามารถที่สอดคล้องกับวัตถุประสงค์ของหน่วยงาน", id_head: 101},
-    {id:105, text:"๑.๕ หน่วยงานมีการกำหนดให้บุคลากรมีหน้าที่และความรับผิดชอบต่อผลการปฏิบัติงานตามระบบการควบคุมภายใน เพื่อบรรลุวัตถุประสงค์ของหน่วยงาน", id_head: 101},
-    {id:106, text:"๒.๑ หน่วยงานระบุวัตถุประสงค์การควบคุมภายในของการปฏิบัติงานให้สอดคล้องกับวัตถุประสงค์ของหน่วยไว้อย่างชัดเจนและเพียงพอที่จะสามารถระบุและประเมินความเสี่ยงที่เกี่ยวข้องกับวัตถุประสงค์", id_head: 102},
-    {id:107, text:"๒.๒ หน่วยงานมีการระบุความเสี่ยงที่มีผลต่อการบรรลุวัตถุประสงค์การควบคุมภายในอย่างครอบคลุมและวิเคราะห์ความเสี่ยง เพื่อกำหนดวิธีจัดการความเสี่ยงนั้น", id_head: 102},
-    {id:108, text:"๒.๓ หน่วยงานมีการพิจารณาโอกาสที่อาจเกิดการทุจริต เพื่อประกอบการประเมินความเสี่ยงที่ส่งผลต่อการบรรลุวัตถุประสงค์", id_head: 102},
-    {id:109, text:"๒.๔ หน่วยงานมีการระบุและประเมินการเปลี่ยนแปลงที่อาจมีผลกระทบอย่างมีนัยสำคัญต่อระบบการควบคุมภายใน", id_head: 102},
-    {id:110, text:"๓.๑ หน่วยงานมีการระบุและพัฒนากิจกรรมการควบคุม เพื่อลดความเสี่ยงในการบรรลุวัตถุประสงค์ให้อยู่ในระดับที่ยอมรับได้", id_head: 103},
-    {id:111, text:"๓.๒ หน่วยงานมีการระบุและพัฒนากิจกรรมการควบคุมทั่วไปด้านเทคโนโลยี เพื่อสนับสนุนการบรรลุวัตถุประสงค์", id_head: 103},
-    {id:112, text:"๓.๓ หน่วยงานมีการจัดให้กิจกรรมการควบคุมโดยกำหนดไว้ในนโยบาย ประกอบด้วยผลสำเร็จที่คาดหวังและขั้นตอนการปฏิบัติงาน เพื่อนำนโยบายไปสู่การปฏิบัติจริง", id_head: 103},
-    {id:113, text:"๔.๑ หน่วยงานมีการจัดทำหรือจัดหาและใช้สารสนเทศที่เกี่ยวข้องและมีคุณภาพ เพื่อสนับสนุนให้มีการปฏิบัติตามการควบคุมภายในที่กำหนด", id_head: 104},
-    {id:114, text:"๔.๒ หน่วยงานมีการสื่อสารภายในที่เกี่ยวข้องกับสารสนเทศรวมถึงวัตถุประสงค์และความรับผิดชอบที่มีต่อการควบคุมภายใน ซึ่งมีความจำเป็นในการสนับสนุนให้มีการปฏิบัติตามการควบคุมภายในที่กำหนด", id_head: 104},
-    {id:115, text:"๔.๓ หน่วยงานมีการสื่อสารกับบุคคลภายนอกเกี่ยวกับเรื่องที่มีผลกระทบต่อการปฏิบัติตามการควบคุมภายในที่กำหนด", id_head: 104},
-    {id:116, text:"๕.๑ หน่วยงานมีการพัฒนาและดำเนินการประเมินผลระหว่างการปฏิบัติงาน และหรือการประเมินผลเป็นรายครั้งตามที่กำหนด เพื่อให้เกิดความมั่นใจว่าได้มีการปฏิบัติตามองค์ประกอบของการควบคุมภายใน", id_head: 105},
-    {id:117, text:"๕.๒ หน่วยงานมีการประเมินผลและสื่อสารข้อบกพร่องหรือจุดอ่อนของการควบคุมภายในอย่างทันเวลาต่อฝ่ายบริหารหรือผู้บังคับบัญชา เพื่อให้ผู้รับผิดชอบสามารถแก้ไขได้อย่างเหมาะสม", id_head: 105},
-    ]
 
     // สร้าง array สำหรับเก็บผลลัพธ์ที่จัดเรียง
     let result = [];
+    var maintext = fnGetCollectDataEvalution('maintext')
+    var subtext = fnGetCollectDataEvalution('subtext')
+    var index = 0
+    var dataSQL = await fnGetDataResultASM(strUserId,idSideFix)
+    
+    var combinedSubtext = subtext.map(formItem => {
+        var items = dataSQL[index++];
+        return {
+            ...formItem,
+            descResultASM: items.descResultASM
+        };
+    });
 
     var getdata = [1] // ถ้ามีความเสี่ยง
     var valRisk = getdata
@@ -111,7 +119,7 @@ function fnDrawTableAssessmentForm() { /* ด้านการข่าว */
             result.push(main);
 
             // หาหัวข้อย่อยที่ตรงกับหัวข้อหลัก
-            subtext.forEach(sub => {
+            combinedSubtext.forEach(sub => {
                 if (sub.id_head === main.id) {
                     // เพิ่มหัวข้อย่อยในผลลัพธ์
                     result.push(sub);
@@ -125,7 +133,7 @@ function fnDrawTableAssessmentForm() { /* ด้านการข่าว */
                 result.push(main);
 
                 // หาหัวข้อย่อยที่ตรงกับหัวข้อหลัก
-                subtext.forEach(sub => {
+                combinedSubtext.forEach(sub => {
                     if (sub.id_head === main.id) {
                         // เพิ่มหัวข้อย่อยในผลลัพธ์
                         result.push(sub);
@@ -138,7 +146,7 @@ function fnDrawTableAssessmentForm() { /* ด้านการข่าว */
                 if (result[i].description) {
                     strHTML += "<tr style='width: 50%;'><td>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
                 } else {
-                    strHTML += "<tr style='width: 50%;'><td>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + createTextAreaAndButton(result[i].id) + "</td></tr>";
+                    strHTML += "<tr style='width: 50%;'><td>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + fnCreateTextAreaAndButton(result[i].id, result[i].descResultASM) + "</td></tr>";
                 }
             }
         }
@@ -149,29 +157,88 @@ function fnDrawTableAssessmentForm() { /* ด้านการข่าว */
 }
 
 
-function createTextAreaAndButton(id) {
-    return "<div style='display:flex;'>" +
-    "<textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='30'></textarea>" +
-    "<button class='btn btn-secondary' type='submit' id='submitButton" + id + "' onclick='submitText(" + id + ")'>ยืนยัน</button>" +
-    "</div>"+
-    "<div style='display:flex;'>" +
-    "<span class='text-left' id='displayText" + id + "'></span>" +
-    "<i class='las la-pencil-alt' id='editIcon" + id + "' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + id + "\")'></i>" +
-    "</div>"
+function fnCreateTextAreaAndButton(id, description) {
+    var strHTML = ''
+    if (description) {
+        strHTML += " <div style='display:flex;'> "
+        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='30' style='display:none;'></textarea> "
+        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(" + id + ")' style='display:none;'>ยืนยัน</button> "
+        strHTML += " </div> "
+        strHTML += " <div style='display:flex;'> "
+        strHTML += " <span class='text-left' id='displayText" + id + "' style='text-indent: 19px;white-space: pre-wrap;'>" + description + "</span> "
+        strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + id + "\")'></i> "
+        strHTML += " </div> "
+    } else {
+        strHTML += " <div style='display:flex;'> "
+        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='30'></textarea> "
+        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(" + id + ")'>ยืนยัน</button> "
+        strHTML += " </div> "
+        strHTML += " <div style='display:flex;'> "
+        strHTML += " <span class='text-left' id='displayText" + id + "' style='text-indent: 19px;white-space: pre-wrap;'></span> "
+        strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + id + "\")'></i> "
+        strHTML += " </div> "
+    }
+    return  strHTML
 }
 
+async function fnGetDataResultASM(userId, sideId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId
+    }
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultASM', dataSend)
+        var res = response.data
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultConASM(userId, sideId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId
+    }
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConASM', dataSend)
+        var res = response.data
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
-function submitText(id) {
+function fnSubmitText(id) {
     var textarea = document.getElementById('comment_' + id);
     var button = document.getElementById('submitButton' + id);
     var displayText = document.getElementById('displayText' + id);
     var editIcon = document.getElementById('editIcon' + id);
-    var tab = '&emsp;&emsp;'
     var format = ''
 
     if (textarea.value) {
         format = textarea.value.replace(/\n/g, '<br>');
-        displayText.innerHTML = tab + format
+        displayText.innerHTML = format
 
         /* ซ่อน textarea และปุ่ม */
         textarea.style.display = 'none';
@@ -203,21 +270,60 @@ function fnEditText(id) {
     textarea.value = document.getElementById('displayText' + id).innerText.trim();
 }
 
-function fnDrawCommentDivEvaluation() {
+async function fnDrawCommentDivEvaluation(descConASM,prefixAsessor,signPath,position,dateAsessor) {
+    
     var strHTML = ''
     strHTML += " <div class='dvEvaluation'>ผลการประเมินโดยรวม</div> "
-    strHTML += " <div> "
-    strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83'></textarea> "
+    if (descConASM) {
+        strHTML += " <div> "
+        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style='display:none;'></textarea> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-end'> "
+        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEvaluation' onclick='fnSubmitTextCommentEvaluation()' style='display:none; width: 100px;'>ยืนยัน</button> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-start' style='text-indent: 19px;'> "
+        strHTML += " <span id='displayTextCommentEvaluation' style='white-space: pre-wrap;'>" + descConASM + "</span> "
+        strHTML += " <i class='las la-pencil-alt' id='editIconCommentEvaluation' style='cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditTextCommentEvaluation()'></i> "
+        strHTML += " </div> "
+    } else {
+        strHTML += " <div> "
+        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83'></textarea> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-end'> "
+        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEvaluation' onclick='fnSubmitTextCommentEvaluation()' style='width: 100px;'>ยืนยัน</button> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-start' style='text-indent: 19px;'> "
+        strHTML += " <span id='displayTextCommentEvaluation' style='white-space: pre-wrap;'></span> "
+        strHTML += " <i class='las la-pencil-alt' id='editIconCommentEvaluation' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditTextCommentEvaluation()'></i> "
+        strHTML += " </div> "
+    }
+
+    strHTML += " <div id='dvSignature' class='dvSignature'> "
+    if (prefixAsessor) {
+        strHTML += `<div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${prefixAsessor} <img src="${signPath ? signPath : ''}" alt="ลายเซ็น" /></span></div>`
+    } else {
+        strHTML += " <div>ชื่อผู้ประเมิน..............................................</div> "
+    }
+
+    if (position) {
+        strHTML += `<div><div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
+    } else {
+        strHTML += " <div>ตำแหน่ง.....................................................</div> "
+    }
+
+    if (dateAsessor) {
+        strHTML += `<div>วันที่: <span style="width: 232px;" class="underline-dotted">${fnFormatDateToThai(dateAsessor)}</span></div>`
+    } else {
+        strHTML += " <div>วันที่...........................................................</div> "
+    }
     strHTML += " </div> "
-    strHTML += " <div class='text-end'> "
-    strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEvaluation' onclick='fnSubmitTextCommentEvaluation()' style='width: 100px;'>ยืนยัน</button> "
     strHTML += " </div> "
-    strHTML += " <div class='text-start'> "
-    strHTML += " <span id='displayTextCommentEvaluation' style='white-space: pre-wrap;'></span> "
-    strHTML += " <i class='las la-pencil-alt' id='editIconCommentEvaluation' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditTextCommentEvaluation()'></i> "
+    // btn -> fnDrawModalSignature 
+    strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
+    strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalSignature(\"" + prefixAsessor + "\", \"" + signPath + "\", \"" + position + "\", \"" + dateAsessor + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'> "
+    strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
+    strHTML += "    </button> "
     strHTML += " </div> "
-    // strHTML += " <span id='spanResultEvaluation'> ทรภ.๒ มีการควบคุมภายในด้านการข่าว ที่เพียงพอและเหม่าะสม.มีการรักษาความปลอดภัยเกี่ยวกับสถานที่และการปฏิบัติการด้านการข่าว รวมทั้งข้อมูลข่าวสารลับมีประสิทธิภาพเพียงพอต่อการรักษาความปลอดภัยเกี่ยวกับบุคคล มีแนวทางการบริหารจัดการเพียงพอให้การปฏิบัติงานด้านการข่าว กำลังพลมีเพียงพอที่จะปฏิบัติงานด้านการข่าว มีความรู้ความชำนาญในการวิเคราะห์ข่าวและปฏิบัติตามกฎระเบียบข้อบังคับหรือมาตรการเกี่ยวกับการรักษา ความปลอดภัยโดยเคร่งครัด ทั้งนี้ ในส่วนของเครื่องมือและอุปกรณ์ที่ใช้ในงาน ด้านการข่าว พบว่า.เครื่องมือ/อุปกรณ์ในการรวบรวมข้อมูลด้านการข่าวยังมีความไม่ทันสมัยและมีประสิทธิภาพไม่เพียงพอต่อการปฏิบัติงาน. จำเป็นต้องปรับปรุงการควบคุมภายในให้ดีขึ้น โดยการจัดหาเครื่องมือ/อุปกรณ์เพิ่มเติม เพื่อให้การดำเนินการรวบรวมข้อมูลด้านการข่าวมีประสิทธิภาพเพียงพอต่อการปฏิบัติงาน</div></span> "
-    
     return strHTML
 }
 
@@ -226,12 +332,11 @@ function fnSubmitTextCommentEvaluation() {
     var button = document.getElementById('submitButtonCommentEvaluation');
     var displayText = document.getElementById('displayTextCommentEvaluation');
     var editIcon = document.getElementById('editIconCommentEvaluation');
-    var tab = '&emsp;'
     var format = ''
 
     if (textarea.value) {
         format = textarea.value.replace(/\n/g, '<br>');
-        displayText.innerHTML = tab + format
+        displayText.innerHTML = format
 
         /* ซ่อน textarea และปุ่ม */
         textarea.style.display = 'none';
@@ -306,3 +411,269 @@ function fnExportDocument() {
       });
 }
 
+ function fnDrawModalSignature(strPrefixAsessor, strSignPath, strPosition, strDateAsessor) {
+    var strHTML = ''
+    var strHTML2 = ''
+    var strFormatDate = ''
+    var strDay = ''
+    var strMonth = ''
+    var strYear = ''
+    
+    if (strDateAsessor) {
+        strFormatDate = strDateAsessor.split('-')
+        strYear = strFormatDate[0]
+        strMonth = strFormatDate[1]
+        strDay = strFormatDate[2]
+    }
+
+    // draw modal
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='evaluator'>ผู้ประเมิน (เซ็นชื่อ)</label> "
+    strHTML += " <div class='canvas-container'> "
+    strHTML += "     <canvas id='signatureCanvas' width='460' height='200'></canvas> "
+    strHTML += "     <button class='clear-button' id='clearButton'>Clear</button> "
+    strHTML += " </div> "
+    strHTML += " <div id='evaluatorError' class='error'>กรุณาเซ็นชื่อ</div> "
+    strHTML += " </div> "
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='prefixAsessor'>คำนำหน้าชื่อ (ยศ)</label> "
+    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + strPrefixAsessor + "' > "
+    strHTML += " <div id='prefixAsessorError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> "
+    strHTML += " </div> "
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='position'>ตำแหน่ง</label> "
+    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + strPosition + "'> "
+    strHTML += " <div id='positionError' class='error'>กรุณาใส่ตำแหน่ง</div> "
+    strHTML += " </div> "
+    strHTML += " <div class='form-group'> "
+    strHTML += " <label for='date'>วันที่</label> "
+    strHTML += " <div class='row'> "
+    strHTML += "     <div class='col-4'> "
+    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + strDay + "'> "
+    strHTML += "         <div id='dayError' class='error'>กรุณาใส่วัน</div> "
+    strHTML += "     </div> "
+    strHTML += "     <div class='col-4'> "
+    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + strMonth + "'> "
+    strHTML += "         <div id='monthError' class='error'>กรุณาใส่เดือน</div> "
+    strHTML += "     </div> "
+    strHTML += "     <div class='col-4'> "
+    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + strYear + "'> "
+    strHTML += "         <div id='yearError' class='error'>กรุณาใส่ปี</div> "
+    strHTML += "     </div> "
+    strHTML += " </div> "
+    strHTML += " </div> "
+ 
+    strHTML2 += " <button type='button' id='submitSignatureButton' class='btn btn-primary'>บันทึกข้อมูล</button> "
+    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "
+       
+    $("#dvBodySignatureModal").html(strHTML)
+    $("#dvFooterSignatureModal").html(strHTML2)
+
+    fnInitializeCanvas(strSignPath)
+
+    $('.datepicker-day').datepicker({
+        format: 'dd',
+        language: 'th',
+        autoclose: true,
+        todayHighlight: true,
+        minViewMode: 0,
+        maxViewMode: 0,
+    });
+    $('.datepicker-month').datepicker({
+        format: 'MM',
+        language: 'th',
+        autoclose: true,
+        todayHighlight: true,
+        minViewMode: 1,
+        maxViewMode: 1,
+    }).on('changeDate', function(e) {
+        var fullMonthName = $(this).datepicker('getFormattedDate');
+        var shortMonthName = fnConvertMonthToShort(fullMonthName);
+        $(this).val(shortMonthName);
+    });
+    $('.datepicker-year').datepicker({
+        format: 'yyyy',
+        language: 'th',
+        autoclose: true,
+        todayHighlight: true,
+        minViewMode: 2,
+        maxViewMode: 2,
+    });
+}
+
+ function fnInitializeCanvas(initialDataUrl) {
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    // ตั้งค่าเริ่มต้นของ canvas ด้วยภาพจาก data URL
+    if (initialDataUrl) {
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = initialDataUrl;
+    }
+
+    ctx.lineWidth = 3; // เพิ่มความหนาของเส้น
+    ctx.strokeStyle = "#000000"; // เปลี่ยนสีเส้นเป็นสีดำ
+
+    canvas.addEventListener('mousedown', (e) => {
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (drawing) {
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        drawing = false;
+    });
+
+    canvas.addEventListener('mouseout', () => {
+        drawing = false;
+    });
+
+    document.getElementById('clearButton').addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById('submitSignatureButton').addEventListener('click', fnSubmitSignature);
+}
+
+function fnValidateSignature() {
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return canvasData.data.some(channel => channel !== 0);
+}
+
+function fnValidateForm() {
+    let isValid = true;
+
+    // Validate prefixAsessor
+    const prefixAsessor = document.getElementById('prefixAsessor').value;
+    if (!prefixAsessor) {
+        document.getElementById('prefixAsessorError').style.display = 'block';
+        isValid = false;
+    } else {
+        document.getElementById('prefixAsessorError').style.display = 'none';
+    }
+
+    // Validate position
+    const position = document.getElementById('position').value;
+    if (!position) {
+        document.getElementById('positionError').style.display = 'block';
+        isValid = false;
+    } else {
+        document.getElementById('positionError').style.display = 'none';
+    }
+
+    // Validate date
+    const day = document.getElementById('day').value;
+    const month = document.getElementById('month').value;
+    const year = document.getElementById('year').value;
+
+    if (!day || !month || !year) {
+        if (!day) document.getElementById('dayError').style.display = 'block';
+        if (!month) document.getElementById('monthError').style.display = 'block';
+        if (!year) document.getElementById('yearError').style.display = 'block';
+        isValid = false;
+    } else {
+        document.getElementById('dayError').style.display = 'none';
+        document.getElementById('monthError').style.display = 'none';
+        document.getElementById('yearError').style.display = 'none';
+    }
+
+    return isValid;
+}
+
+function fnSubmitSignature() {
+    if (fnValidateForm()) {
+        const resultContainer = document.getElementById('dvSignature');
+
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        const signPath = canvas.toDataURL();
+
+        const prefixAsessor = document.getElementById('prefixAsessor').value;
+        const position = document.getElementById('position').value;
+        const day = document.getElementById('day').value;
+        const month = document.getElementById('month').value;
+        console.log(month)
+        const year = document.getElementById('year').value;
+
+        const positionText = position ? position : '................................................';
+        const buddhistYear = fnConvertToBuddhistYear(year);
+        const shortYear = buddhistYear.toString().slice(-2);
+        const dateText = `${fnConvertToThaiNumeralsAndPoint(day)} / ${fnConvertMonthToShort(month)} / ${fnConvertToThaiNumeralsAndPoint(shortYear)}`;
+
+        let strHTML = `
+            <div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
+            <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
+            <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
+        `;
+
+        resultContainer.innerHTML = strHTML;
+        // $('#signatureModal').modal('hide');
+    }
+}
+
+
+
+/* end ส่วนของลายเซ็นฯ */
+
+
+/* start ส่วนแก้ชื่อหน่วยงาน*/
+
+function fnEditSidesName (nameUnit) {
+    var strHTML = ''
+    var strHTML2 = ''
+        // draw modal    
+        strHTML += " <div class='form-group'> "
+        strHTML += " <label for='inputNameSides'>ชื่อหน่วยงาน</label> "
+        strHTML += " <input type='text' id='inputNameSides' class='form-control' placeholder='กรอกชื่อหน่วยงาน' value='" + (nameUnit || '') + "'> "
+        strHTML += " <div id='nameSidesError' class='error'>กรุณาใส่หน่วยงาน</div> "
+ 
+        strHTML2 += " <button type='button' id='submitSideNameButton' class='btn btn-primary'>บันทึกข้อมูล</button> "
+        strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "
+       
+        $("#dvBodySideNameModal")[0].innerHTML = strHTML
+        $("#dvFooterSideNameModal")[0].innerHTML = strHTML2      
+
+        document.getElementById('submitSideNameButton').addEventListener('click', fnSubmitSideName);
+ }
+
+ function fnSubmitSideName () {
+    if (fnValidateNameUnitForm()) {
+        const strNameUnit = document.getElementById('spanNameUnit')
+        const inputNameSides = document.getElementById('inputNameSides').value;
+
+        strNameUnit.innerText = inputNameSides;
+        $('#sideNameModal').modal('hide');
+    
+    }
+
+ }
+
+ function fnValidateNameUnitForm() {
+    let isValid = true;
+
+    // Validate evaluator text
+    const inputNameSides = document.getElementById('inputNameSides').value;
+    if (!inputNameSides) {
+        document.getElementById('nameSidesError').style.display = 'block';
+        isValid = false;
+    } else {
+        document.getElementById('nameSidesError').style.display = 'none';
+    }
+
+    return isValid;
+}
+
+/* end ส่วนแก้ชื่อหน่วยงาน*/

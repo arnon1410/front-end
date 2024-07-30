@@ -64,8 +64,6 @@
     }
     .dvSignature > div {
         width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */
-        
-        
     }
     .dvPointSumEachSides {
         /* align-items: flex-end; */
@@ -280,11 +278,11 @@
         cursor: pointer;
     }
     img {
-        width: 100px;
+        width: 130px;
         height: 30px;
     }
     .underline-dotted {
-        border-bottom: 1px dotted #000;
+        border-bottom: 2px dotted #000;
         display: inline-block; /* Ensures the dotted underline is correctly applied */
         margin-bottom: 5px; /* Optional: Adds space between the sections */
         text-align: center;
@@ -362,8 +360,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.th.min.js"></script>
     <script src='../../script/centerFile.js'></script>
     <script src='../../script/control/signature.js'></script>
+    <script src='../../script/control/data/data_Questionaire.js'></script>
     <script src='../../script/control/7sides/drawTableFormNews.js'></script>
-    <script src='../../script/control/7sides/data_testQ.js'></script>    <!-- Data test ลบออกเมื่อสร้างเดต้าเบส -->
 
     <!-- เพิ่ม Axios library -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -372,11 +370,11 @@
     $(document).ready(function() {
         fnGetDataInternalControl()
 
-    $('input[type="checkbox"]').click(function(event) {
+    $('body').on('click', 'input[type="checkbox"]', function(event) {
         var checkboxes = $(this).closest('tr').find('input[type="checkbox"]');
-        //เช็คเพิ่ม กรณีของสรุป
         checkboxes.not(this).prop('checked', false); // ยกเลิก Checkbox อื่นทั้งหมดในแถวเดียวกัน
     });
+
     $('#checkButton').click(function() {
         var checkedColumns = [];
 
@@ -476,8 +474,8 @@
 
         // ลบออกด้วย
         // call data 
-        var dataTest = fncollectDataTest(valSides)
-        fnDrawTableForm(valAccess, valSides, dataTest) // dataTest -> objDataQuestion
+        var objDataQuestion = fnGetCollectDataQuestionaire(valSides)
+        fnDrawTableForm(valAccess, valSides, objDataQuestion) // dataTest -> objDataQuestion
         // return data
     }      
 </script>

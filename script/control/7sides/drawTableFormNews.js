@@ -19,7 +19,8 @@ async function fnDrawTableForm(access,valSides,objData) {
     if (access == 'admin') {
         // fnGetDataSelect()
     }
-     // Get data selete before create table 
+
+    /* Get data selete before create table */
     var strHTML = ''
     var data = objData
     var strSides = valSides
@@ -62,89 +63,88 @@ async function fnDrawTableForm(access,valSides,objData) {
     strHTML += fnDrawTableReportAssessmentOther(strSides, arrSides, data)
     strHTML += "</tbody>"
     strHTML += "</table>"
-    strHTML += fnDrawCommentDivEvaluation(arrSides[index].NameSides)
-
-    var evaluatorText = 'นอ.'
-    var evaluatorDataURL = 'data:image/png;base64,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'
-    var position = 'รอง.ผอ.กตค.จร.ทร'
-    var day = '01'
-    var month = 'กรกฎาคม'
-    var year = '2567'
-    var buddhistYear = fnConvertToBuddhistYear(year);
-    var shortYear = buddhistYear.toString().slice(-2);
-    var dateText = `${fnConvertToThaiNumeralsAndPoint(day)} / ${fnConvertMonthToShort(month)} / ${fnConvertToThaiNumeralsAndPoint(shortYear)}`;
-    
-    strHTML += " <div id='dvSignature' class='dvSignature'> "
-    if (!evaluatorText) {
-        strHTML += " <div>ผู้ประเมิน: <span style='width: 200px;' class='underline-dotted'>" + evaluatorText + "<img src='" + evaluatorDataURL + "' alt='ลายเซ็น' /></span></div> "
-    } else {
-        strHTML += " <div>ชื่อผู้ประเมิน..............................................</div> "
-    }
-
-    if (!position) {
-        strHTML += " <div>ตำแหน่ง: <span style='width: 205px;' class='underline-dotted'>" + position + "</span></div> "
-    } else {
-        strHTML += " <div>ตำแหน่ง.....................................................</div> "
-    }
-
-    if (!day && !month && !year) {
-        strHTML += " <div>วันที่: <span style='width: 232px;' class='underline-dotted'>" + dateText + "</span></div> "
-    } else {
-        strHTML += " <div>ตำแหน่ง.....................................................</div> "
-    }
-    
-    
-    strHTML += " </div> "
-    strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
-    strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalSignature()' data-bs-toggle='modal' data-bs-target='#signatureModal'> "
-    strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
-    strHTML += "    </button> "
-    strHTML += " </div> "
-    //  <img src="" alt="ลายเซ็น">
+    strHTML += await fnDrawCommentDivEvaluation(arrSides[index].NameSides, idSideFix)
 
     strHTML += " <div class='dvFooterForm'> "
     // strHTML += "    <button type='submit' class='btn btn-primary' id='btnSaveData' onclick='fnSaveDraftDocument(" + objData[0].mainControl + ")'>บันทึกฉบับร่าง</button>"
     strHTML += "    <button type='submit' class='btn btn-primary' id='btnSaveData'>บันทึกฉบับร่าง</button>"
-    strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
+    // strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
     strHTML += " </form> "
     strHTML += " </div> "
     $("#dvFormReport")[0].innerHTML = strHTML
 }
 
-function fnCreateInputRadioAndSpan(text, index, validate) {
-    var strHTML = ""
-    if (validate && validate == '1') {
-        strHTML += "<div style='display:flex;'>"
-        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='1' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this)'/>"
-        strHTML += "<span>" + text + "</span>"
-        strHTML += "</div>"
-    } else { // กรณีไม่เพียงพอ 
-        strHTML += "<div style='display:flex;margin-bottom: 10px;'>"
-        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='0' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this)'/>"
-        strHTML += "<span>" + text + "</span>"
-        strHTML += "</div>"
-        strHTML += "<div style='display:flex;'>"
-        strHTML += "<textarea id='commentSum" + index + "_" + validate + "' name='commentSum" + index + "_" + validate + "' rows='2' cols='33' style='display:none'></textarea>"
-        strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='submitButtonSum" + index + "_" + validate + "' onclick='fnSubmitTextSum(\"" + index + "_" + validate + "\")' style='display:none'>ยืนยัน</button>"
-        strHTML += "</div>"
-        strHTML += "<div style='display:flex;'> "
-        strHTML += "<p class='text-left pComment' id='displayTextSum" + index + "_" + validate + "' style='white-space: pre-wrap;'></p>"
-        strHTML += "<i class='las la-pencil-alt' id='editIconSum" + index + "_" + validate + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum(\"" + index + "_" + validate + "\")'></i>"
-        strHTML += "</div>"
-     //
+function fnCreateInputRadioAndSpan(text, index, validate, isradio, description) {
+    var strHTML = "";
+    var strRadio = isradio ? 'checked' : '';
+
+    if (validate && validate === '1') {
+        strHTML += "<div style='display:flex;'>";
+        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='1' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this)' " + strRadio + "/>";
+        strHTML += "<span>" + text + "</span>";
+        strHTML += "</div>";
+    } else { // กรณีไม่เพียงพอ
+        strHTML += "<div style='display:flex;margin-bottom: 10px;'>";
+        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='0' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this)' " + strRadio + "/>";
+        strHTML += "<span>" + text + "</span>";
+        strHTML += "</div>";
+        if (isradio == '0' && description) { // 
+            strHTML += "<div style='display:flex;'>";
+            strHTML += "<textarea id='commentSum" + index + "_" + validate + "' name='commentSum" + index + "_" + validate + "' rows='2' cols='33' style='display:none;'></textarea>";
+            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='submitButtonSum" + index + "_" + validate + "' style='display:none;'>ยืนยัน</button>";
+            strHTML += "</div>";
+            strHTML += "<div style='display:flex;'>";
+            strHTML += "<p class='text-left pComment' id='displayTextSum" + index + "_" + validate + "' style='text-indent: 19px; white-space: pre-wrap;'>" + description + "</p>";
+            strHTML += "<i class='las la-pencil-alt' id='editIconSum" + index + "_" + validate + "' style='cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum(\"" + index + "_" + validate + "\", \"" + (description || '') + "\")'></i>";
+            strHTML += "</div>";
+        } else {
+            strHTML += "<div style='display:flex;'>";
+            strHTML += "<textarea id='commentSum" + index + "_" + validate + "' name='commentSum" + index + "_" + validate + "' rows='2' cols='33'></textarea>";
+            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='submitButtonSum" + index + "_" + validate + "'>ยืนยัน</button>";
+            strHTML += "</div>";
+            strHTML += "<div style='display:flex;'>";
+            strHTML += "<p class='text-left pComment' id='displayTextSum" + index + "_" + validate + "' style='text-indent: 19px; white-space: pre-wrap;'></p>";
+            strHTML += "<i class='las la-pencil-alt' id='editIconSum" + index + "_" + validate + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum(\"" + index + "_" + validate + "\", \"" + (description || '') + "\")'></i>";
+            strHTML += "</div>";
+            
+        }
     }
-    return strHTML
+
+    // เรียกฟังก์ชัน fnAddEventListenersSum เมื่อ element ถูกสร้างใน DOM
+    fnObserveElementCreation(`submitButtonSum${index}_${validate}`, () => {
+        fnAddEventListenersSum(`${index}_${validate}`);
+    });
+
+    return strHTML;
+}
+
+function fnObserveElementCreation(elementId, callback) {
+    // 1.	ใช้ MutationObserver เพื่อเฝ้าดูการเปลี่ยนแปลงใน DOM
+	// 2.	ใช้ setTimeout ให้มั่นใจว่าโค้ดจะรันหลังจาก DOM ถูกอัปเดต
+    const observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+            if (mutation.type === 'childList') {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    observer.disconnect();
+                    callback();
+                }
+            }
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 
 async function fnDrawTableReportAssessment(data, idSideFix) {
     var strHTML = "" ;
     var strUserId = fnGetCookie("userId")
     var dataControl = data
-    //console.log(dataControl)
     var dataCheckbox = await fnGetDataResultQR(strUserId, idSideFix) // call function 
-
+    var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix) // call function 
     var checkboxIndex = 0;
-
+    var radioIndex = 0;
+    
     var combinedArray = dataControl.map(formItem => {
         if (formItem.ischeckbox === 1 && checkboxIndex < dataCheckbox.length) {
             var checkboxData = dataCheckbox[checkboxIndex++];
@@ -156,10 +156,23 @@ async function fnDrawTableReportAssessment(data, idSideFix) {
                 fileSave: checkboxData.fileSave,
                 filePath: checkboxData.filePath
             };
+        } else if (formItem.isradio === 1 && radioIndex < dataRadio.length) {
+            var radioData = dataRadio[radioIndex];
+            if (radioData.radio == formItem.value) {
+                return {
+                    ...formItem,
+                    radio: radioData.radio,
+                    descResultEndQR: radioData.descResultEndQR
+                };
+            } else {
+                return formItem;
+            }
         } else {
             return formItem;
         }
     });
+    // console.log(combinedArray);
+    
     
     /* แถวที่มี Checkbox และ TextArea */
     function fnCreateCheckboxAndTextAreaRow(id_control, text, id, size, ischeckbox, description, filename, filesave, filepath ) {
@@ -168,28 +181,24 @@ async function fnDrawTableReportAssessment(data, idSideFix) {
         var haveDataChecked = ischeckbox === 'y' ? 'checked' : '';
         var nothaveDataChecked = ischeckbox === 'n' ? 'checked' : '';
         var notAppDataChecked = ischeckbox === 'na' ? 'checked' : '';
-    
-        // Function to toggle the textarea
-    
-        strHTML2 += " <tr> ";
-        strHTML2 += "<td style='width: 55%;text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
-        strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'> ";
-        strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox' name='haveData_" + id + "' onchange='fnToggleTextarea(\"btnUploadDoc" + id + "\",\"btnViewDoc" + id + "\",\"comment_" + id + "\",\"submitButton" + id + "\", this, \"1\",\"" + id + "\")' " +  haveDataChecked + "/>";
-        strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label> ";
+
+        strHTML2 += "<tr>";
+        strHTML2 += "<td style='width: 55%; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
+        strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
+        strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox' name='haveData_" + id + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + filename + "\", \"" + filesave + "\", \"" + filepath + "\")' " + haveDataChecked + "/>";
+        strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label>";
         strHTML2 += "</td>";
-        strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'> ";
-        strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='nothaveData_" + id + "' onchange='fnToggleTextarea(\"btnUploadDoc" + id + "\",\"btnViewDoc" + id + "\",\"comment_" + id + "\",\"submitButton" + id + "\", this, \"2\",\"" + id + "\")' " + nothaveDataChecked + "/>";
-        strHTML2 += "<label for='nothaveData_" + id + "' id='lablenothaveData_" + id + "' class='hidden' style='width: 4%;'>&#10005;</label> ";
-        strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox' name='notAppData_" + id + "' onchange='fnToggleTextarea(\"btnUploadDoc" + id + "\",\"btnViewDoc" + id + "\",\"comment_" + id + "\",\"submitButton" + id + "\", this, \"3\",\"" + id + "\")' " + notAppDataChecked + "/>";
-        strHTML2 += "<label for='notAppData_" + id + "' id='lablenotAppData_" + id + "' class='hidden' style='width: 4%;'>NA</label> ";
+        strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
+        strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='nothaveData_" + id + "' onchange='fnToggleTextarea(this, \"2\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + filename + "\", \"" + filesave + "\", \"" + filepath + "\")' " + nothaveDataChecked + "/>";
+        strHTML2 += "<label for='nothaveData_" + id + "' id='lablenothaveData_" + id + "' class='hidden' style='width: 4%;'>&#10005;</label>";
+        strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox' name='notAppData_" + id + "' onchange='fnToggleTextarea(this, \"3\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + filename + "\", \"" + filesave + "\", \"" + filepath + "\")' " + notAppDataChecked + "/>";
+        strHTML2 += "<label for='notAppData_" + id + "' id='lablenotAppData_" + id + "' class='hidden' style='width: 4%;'>NA</label>";
         strHTML2 += "</td>";
-        strHTML2 += "<td style='width: 29%;'>" + fncreateTextAreaAndButton(text, id, ischeckbox, description, filename, filesave, filepath ) + "</td>";
+        strHTML2 += "<td style='width: 29%;'>" + fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, filesave, filepath) + "</td>";
         strHTML2 += "</tr>";
-    
+
         return strHTML2;
     }
-    
-
     
     for (var i = 0; i < combinedArray .length; i++) {
         var item = combinedArray [i];
@@ -223,15 +232,15 @@ async function fnDrawTableReportAssessment(data, idSideFix) {
                 }
             } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
                 if (item.id_innercontrol) { // 1
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, '26%', item.checkbox, item.descResultQR , item.fileName, item.fileSave, item.filePath);
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.fileSave  ? item.fileSave : '', item.filePath  ? item.filePath : '');
                 } else if (item.id_subcontrol) {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, '12%', item.checkbox, item.descResultQR , item.fileName, item.filePath);
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.fileSave  ? item.fileSave : '', item.filePath  ? item.filePath : '');
                 } else {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, '17px', item.checkbox, item.descResultQR , item.fileName, item.filePath);
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.fileSave  ? item.fileSave : '', item.filePath  ? item.filePath : '');
                 }
             }
-
         }
+
     }
 
 
@@ -309,6 +318,21 @@ function fnDrawTableReportAssessmentFix (data) {  /* ด้านยุทธก
                     }
                 }
             }
+
+            // เพิ่ม Event Listener ให้กับปุ่มที่สร้างขึ้นใหม่ในแต่ละรอบของ loop
+            document.getElementById(`submitButton${id}`).addEventListener('click', function(event) {
+                fnSubmitText(id, event);
+            });
+
+            // เพิ่ม Event Listener ให้กับปุ่มที่สร้างขึ้นใหม่ในแต่ละรอบของ loop
+            document.getElementById(`submitButtonSum${id}`).addEventListener('click', function(event) {
+                fnSubmitTextSum(id, event);
+            });
+
+            // เพิ่ม Event Listener ให้กับปุ่มที่สร้างขึ้นใหม่ในแต่ละรอบของ loop
+            document.getElementById(`submitButtonSum${id}`).addEventListener('click', function(event) {
+                fnSubmitTextSum(id, event);
+            });
         }
     }
     return strHTML;
@@ -341,6 +365,88 @@ function fnDrawTableReportAssessmentOther(strSides, data, arrObj) {
     
 }
 
+async function fnDrawCommentDivEvaluation(data, idSideFix) {
+    var strHTML = ''
+    var strUserId = fnGetCookie("userId")
+    var dataSummary = await fnGetDataResultCONQR(strUserId, idSideFix)
+    var descConQR = dataSummary[0].descConQR || ''
+    var prefixAsessor = dataSummary[0].prefixAsessor || ''
+    var signPath = dataSummary[0].signPath || ''
+    var position = dataSummary[0].position || ''
+    var dateAsessor = dataSummary[0].dateAsessor || ''
+
+    strHTML += " <div class='dvEvaluation'>สรุป : การควบคุมภายใน" + data + "</div> "
+    if (descConQR) {
+        strHTML += " <div> "
+        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style='display:none;'></textarea> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-end'> "
+        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEV' style='display:none; width: 100px;'>ยืนยัน</button> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-start' style='text-indent:4%'> "
+        strHTML += " <span id='displayTextCommentEV' style=' white-space: pre-wrap;'> " + descConQR + " </span> "
+        strHTML += " <i class='las la-pencil-alt' id='editIconCommentEV' style='cursor:pointer; margin-left: 10px;' onclick='fnEditTextCommentEV()'></i> "
+        strHTML += " </div> "
+    } else {
+        strHTML += " <div> "
+        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style=''></textarea> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-end'> "
+        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEV' style='width: 100px;'>ยืนยัน</button> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-start'> "
+        strHTML += " <span id='displayTextCommentEV' style='white-space: pre-wrap;'></span> "
+        strHTML += " <i class='las la-pencil-alt' id='editIconCommentEV' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditTextCommentEV()'></i> "
+        strHTML += " </div> "
+    }
+
+    strHTML += " <div id='dvSignature' class='dvSignature'> "
+    if (prefixAsessor) {
+        strHTML += `<div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${prefixAsessor} <img src="${signPath ? signPath : ''}" alt="ลายเซ็น" /></span></div>`
+    } else {
+        strHTML += " <div>ชื่อผู้ประเมิน..............................................</div> "
+    }
+
+    if (position) {
+        strHTML += `<div><div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
+    } else {
+        strHTML += " <div>ตำแหน่ง.....................................................</div> "
+    }
+
+    if (dateAsessor) {
+        strHTML += `<div>วันที่: <span style="width: 232px;" class="underline-dotted">${fnFormatDateToThai(dateAsessor)}</span></div>`
+    } else {
+        strHTML += " <div>วันที่...........................................................</div> "
+    }
+    strHTML += " </div> "
+    strHTML += " </div> "
+    // btn -> fnDrawModalSignature 
+    strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
+    strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalSignature(\"" + prefixAsessor + "\", \"" + signPath + "\", \"" + position + "\", \"" + dateAsessor + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'> "
+    strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
+    strHTML += "    </button> "
+    strHTML += " </div> "
+
+
+    // ใช้ MutationObserver เพื่อตรวจจับการสร้างปุ่มและเพิ่ม event listener
+    const observer = new MutationObserver((mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                const button = document.getElementById('submitButtonCommentEV');
+                if (button) {
+                    fnAddEventListenersCommentEV();
+                    observer.disconnect(); // หยุดการตรวจจับเมื่อพบปุ่มแล้ว
+                }
+            }
+        }
+    });
+
+    // เริ่มการตรวจจับ
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return strHTML;
+}
+
 async function fnGetDataResultQR(userId, sideId) {
     var dataSend = {
         userId: userId,
@@ -365,7 +471,52 @@ async function fnGetDataResultQR(userId, sideId) {
     }
 }
 
+async function fnGetDataResultEndQR(userId, sideId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId
+    }
 
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultEndQR', dataSend)
+        var res = response.data
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultCONQR(userId, sideId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId
+    }
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConQR', dataSend)
+        var res = response.data
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
 
 function fnMapValueToCallFunction(items) {
     // ตรวจสอบว่า items เป็น object หรือ array
@@ -373,14 +524,14 @@ function fnMapValueToCallFunction(items) {
         // ฟังก์ชันในการกรองและอัปเดตข้อมูลถ้าเป็น array
         items = items.map(item => {
             if (item.sum_id !== null && item.sum_id !== undefined) {
-                item.text = fnCreateInputRadioAndSpan(item.text, item.head_id, item.value);
+                item.text = fnCreateInputRadioAndSpan(item.text, item.head_id, item.value, (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''));
             }
             return item;
         });
     } else if (items && typeof items === 'object') {
         // ฟังก์ชันในการอัปเดตข้อมูลถ้าเป็น object
         if (items.sum_id !== null && items.sum_id !== undefined) {
-            items.text = fnCreateInputRadioAndSpan(items.text, items.head_id, items.value);
+            items.text = fnCreateInputRadioAndSpan(items.text, items.head_id, items.value, (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''));
         }
         return items;
     } else {
@@ -388,102 +539,186 @@ function fnMapValueToCallFunction(items) {
     }
 }
 
-
-function fncreateTextAreaAndButton(text, id, ischeckbox, description, filename, filesave, filepath ) {
+function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, filesave, filepath ) {
     var strHTML = ''
     if (ischeckbox == 'y') {
-        
-        // if (filename && filesave && filepath) { // ถ้ามีไฟล์แนบมา 
-        if (1 == 1) {
-            strHTML += " <div id='dvUploadDoc" + id + "' class='text-center align-middle' style='display: flex;justify-content: center;'>  "
-            strHTML += " <button id='btnUploadDoc" + id + "' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig(\"" + text + "\",\"" + id + "\")'  data-bs-toggle='modal' data-bs-target='#relateDocumentModal'> "
-            strHTML += " <i class='las la-search' aria-hidden='true'></i><span>อัปโหลด</span> "
-            strHTML += " </button> "
-            strHTML += " <button id='btnViewDoc" + id + "' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig(\"" + text + "\",\"" + id + "\",\"" + filename + "\",\"" + filesave + "\",\"" + filepath + "\")' > "
-            strHTML += " <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span> "
-            strHTML += " </button> "
-            strHTML += " </div> "
-        } else if (description) {  // ถ้ามีการกรอกคำอธิบายมา 
-            strHTML += " <div style='display:flex; align-items: center;'> "
-            strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='15' style='display:none'></textarea> "
-            strHTML += " <button class='btn btn-secondary btn-sm' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(\"" + id + "\")' style='display:none'>ยืนยัน</button> "
-            strHTML += " </div> "
-            strHTML += " <div style='display:flex; align-items: center;'>  "
-            strHTML += " <p class='text-left pComment' id='displayText" + id + "' style='white-space: pre-wrap;'>" + description + "</p> "
-            strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + id + "\")'></i> "
-            strHTML += " </div> "
-
+  
+        if (filename && filesave && filepath) { // ถ้ามีไฟล์แนบมา
+            
+            strHTML += `
+                <div style='display:flex; align-items: center;'>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                    <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
+                </div>
+                <div style='display:flex; align-items: center;'>
+                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'></p>
+                    <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
+                </div>
+                <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                        <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
+                    </button>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    </button>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
+                    </button>
+                </div>
+            `;
+        } else if (description) { // ถ้ามีการกรอกคำอธิบายมา 
+            strHTML += `
+                <div style='display:flex; align-items: center;'>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                    <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
+                </div>
+                <div style='display:flex; align-items: center;'>
+                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description}</p>
+                    <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
+                </div>
+                <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' style='display:none;' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                        <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
+                    </button>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    </button>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
+                    </button>
+                </div>
+            `;
+ 
         } else { // แสดงปุ่มอัปโหลด กับ กรอกข้อมูล
-            strHTML += " <div id='dvUploadDoc" + id + "' class='text-center align-middle' style='display: flex;justify-content: center;'>  "
-            strHTML += " <button id='btnUploadDoc" + id + "' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig(\"" + text + "\",\"" + id + "\")'  data-bs-toggle='modal' data-bs-target='#relateDocumentModal'> "
-            strHTML += " <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span> "
-            strHTML += " </button> "
-            strHTML += " <button id='btnFillDoc" + id + "' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig(\"" + text + "\",\"" + id + "\")' > "
-            strHTML += " <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span> "
-            strHTML += " </button> "
-            strHTML += " </div> "
+            strHTML += `
+                <div style='display:flex; align-items: center;'>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                    <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
+                </div>
+                <div style='display:flex; align-items: center;'>
+                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
+                </div>
+                <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                        <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
+                    </button>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    </button>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
+                    </button>
+                </div>
+            `;
         }
-
-
-    } else if (ischeckbox == 'n') {
+    } else if (ischeckbox == 'n' || ischeckbox == 'na') {
         if (description) { // ถ้า description ไม่ใช่ค่าว่าง
-            strHTML += " <div style='display:flex; align-items: center;'> "
-            strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='15' style='display:none'></textarea> "
-            strHTML += " <button class='btn btn-secondary btn-sm' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(\"" + id + "\")' style='display:none'>ยืนยัน</button> "
-            strHTML += " </div> "
-            strHTML += " <div style='display:flex; align-items: center;'>  "
-            strHTML += " <p class='text-left pComment' id='displayText" + id + "' style='white-space: pre-wrap;'>" + description + "</p> "
-            strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + id + "\")'></i> "
-            strHTML += " </div> "
-        } else { // แสดงปุ่มอัปโหลด กับ กรอกข้อมูล
-            strHTML += " <div id='dvUploadDoc" + id + "' class='text-center align-middle' style='display: flex;justify-content: center;'>  "
-            strHTML += " <button id='btnUploadDoc" + id + "' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig(\"" + text + "\",\"" + id + "\")'  data-bs-toggle='modal' data-bs-target='#relateDocumentModal'> "
-            strHTML += " <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span> "
-            strHTML += " </button> "
-            strHTML += " <button id='btnFillDoc" + id + "' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig(\"" + text + "\",\"" + id + "\")' > "
-            strHTML += " <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span> "
-            strHTML += " </button> "
-            strHTML += " </div> "
+            strHTML += `
+                <div style='display:flex; align-items: center;'>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                    <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
+                </div>
+                <div style='display:flex; align-items: center;'>
+                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
+                </div>
+                <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
+                        <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
+                    </button>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    </button>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
+                    </button>
+                </div>
+        `;
+        } else {  // แสดง Textarea และ ปุ่มยืนยืน
+            strHTML += `
+                <div style='display:flex; align-items: center;'>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15'></textarea>
+                    <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}'>ยืนยัน</button>
+                </div>
+                <div style='display:flex; align-items: center;'>
+                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
+                </div>
+                <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
+                        <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
+                    </button>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    </button>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                        <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
+                    </button>
+                </div>
+        `;
+        fnAddEventListeners(id)
         }
-    } else if (ischeckbox == 'na') {
-        if (description) { // ถ้า description ไม่ใช่ค่าว่าง
-            strHTML += " <div style='display:flex; align-items: center;'> "
-            strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='15' style='display:none'></textarea> "
-            strHTML += " <button class='btn btn-secondary btn-sm' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(\"" + id + "\")' style='display:none'>ยืนยัน</button> "
-            strHTML += " </div> "
-            strHTML += " <div style='display:flex; align-items: center;'>  "
-            strHTML += " <p class='text-left pComment' id='displayText" + id + "' style='white-space: pre-wrap;'>" + description + "</p> "
-            strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + id + "\")'></i> "
-            strHTML += " </div> "
-        } else { // แสดงปุ่มอัปโหลด กับ กรอกข้อมูล
-            strHTML += " <div id='dvUploadDoc" + id + "' class='text-center align-middle' style='display: flex;justify-content: center;'>  "
-            strHTML += " <button id='btnUploadDoc" + id + "' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig(\"" + text + "\",\"" + id + "\")'  data-bs-toggle='modal' data-bs-target='#relateDocumentModal'> "
-            strHTML += " <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span> "
-            strHTML += " </button> "
-            strHTML += " <button id='btnFillDoc" + id + "' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig(\"" + text + "\",\"" + id + "\")' > "
-            strHTML += " <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span> "
-            strHTML += " </button> "
-            strHTML += " </div> "
-        }
-    } else { // ถ้า ischeckbox เป็นค่า NULL 
-        strHTML += " <div style='display:flex; align-items: center;'> "
-        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='15' style='display:none'></textarea> "
-        strHTML += " <button class='btn btn-secondary btn-sm' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(\"" + id + "\")' style='display:none'>ยืนยัน</button> "
-        strHTML += " </div> "
-        strHTML += " <div style='display:flex; align-items: center;'>  "
-        strHTML += " <p class='text-left pComment' id='displayText" + id + "' style='white-space: pre-wrap;'></p> "
-        strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + id + "\")'></i> "
-        strHTML += " </div> "
-        strHTML += " <div id='dvUploadDoc" + id + "' class='text-center align-middle' style='display: flex;justify-content: center;'>  "
-        strHTML += " <button id='btnUploadDoc" + id + "' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig(\"" + text + "\",\"" + id + "\")' style='display:none;' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'> "
-        strHTML += " <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span> "
-        strHTML += " </button> "
-        strHTML += " <button id='btnFillDoc" + id + "' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig(\"" + text + "\",\"" + id + "\")' style='display:none;'> "
-        strHTML += " <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span> "
-        strHTML += " </button> "
-        strHTML += " </div> "
+    }  else { // ถ้า ischeckbox เป็นค่า NULL 
+        strHTML += `
+            <div style='display:flex; align-items: center;'>
+                <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
+            </div>
+            <div style='display:flex; align-items: center;'>
+                <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
+            </div>
+            <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
+                <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
+                    <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
+                </button>
+                <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
+                    <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                </button>
+                <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                    <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
+                </button>
+            </div>
+        `;
     }
+    
     return strHTML;
+
+
+}
+
+
+function fnAddEventListeners(id) {
+    const button = document.getElementById(`submitButton${id}`);
+    if (button) {
+        button.addEventListener('click', function(event) {
+            fnSubmitText(id, event);
+        });
+    } else {
+        console.error(`Element with id submitButton${id} not found.`);
+    }
+}
+
+function fnAddEventListenersSum(id) {
+    const button = document.getElementById(`submitButtonSum${id}`);
+    if (button) {
+        button.addEventListener('click', function(event) {
+            fnSubmitTextSum(id, event);
+        });
+    } else {
+        console.error(`Element with id submitButtonSum${id} not found.`);
+    }
+}
+function fnAddEventListenersCommentEV() {
+    const button = document.getElementById('submitButtonCommentEV');
+    if (button) {
+        button.addEventListener('click', function(event) {
+            fnSubmitTextCommentEV(event);
+        });
+    } else {
+        console.error('Element with id submitButtonCommentEV not found.');
+    }
 }
 
 function fnUploadDocConfig (text, id) {
@@ -505,6 +740,7 @@ function fnChangeToFillDocConfig(text, id) {
     document.getElementById(`comment_${id}`).style.display = 'block';
     document.getElementById(`submitButton${id}`).style.display = 'block';
     document.getElementById(`displayText${id}`).style.display = 'block';
+    fnAddEventListeners(id)
 }
 
 function fnGetDataModal(strtext, id) {
@@ -547,9 +783,6 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
     var strHTML2 = ''
     
     if (sides == 'branchoperation') {
-
-    } else { // ด้านที่เหลือ
-
         strHTML += " <div class='form-group mb-3'> "
         strHTML += "     <label for='headCheckTopic'>ด้านของกิจกรรม</label> "
         strHTML += "     <input type='text' id='headCheckTopic' class='form-control lableHead' value='" + nameSides + "' style='background: darkgray;' readonly> "
@@ -573,6 +806,9 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
         strHTML += "     <label for='nameActivity2'>รายการกิจกรรม 2</label> "
         strHTML += "     <input type='text' id='nameActivity2' class='form-control lableHead'> "
         strHTML += " </div> "
+    } else { // ด้านที่เหลือ
+
+      
     
         // draw modal
         strHTML += " <div class='mb-3'> "
@@ -612,8 +848,19 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
 
  }
 
- function fnDrawModalSignature () {
+ function fnDrawModalSignature (strPrefixAsessor,strSignPath, strPosition, strDateAsessor) {
     var strHTML = ''
+    var strFormatDate = ''
+    var strDay = ''
+    var strMonth = ''
+    var strYear = ''
+    if (strDateAsessor) {
+        strFormatDate = strDateAsessor.split('-')
+        strYear = strFormatDate[0]
+        strMonth = strFormatDate[1]
+        strDay = strFormatDate[2]
+    }
+
     var strHTML2 = ''
         // draw modal
         strHTML += " <div class='form-group'> "
@@ -625,28 +872,28 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
         strHTML += " <div id='evaluatorError' class='error'>กรุณาเซ็นชื่อ</div> "
         strHTML += " </div> "
         strHTML += " <div class='form-group'> "
-        strHTML += " <label for='evaluatorText'>คำนำหน้าชื่อ (ยศ)</label> "
-        strHTML += " <input type='text' id='evaluatorText' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='นอ.'> "
-        strHTML += " <div id='evaluatorTextError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> "
+        strHTML += " <label for='prefixAsessor'>คำนำหน้าชื่อ (ยศ)</label> "
+        strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + strPrefixAsessor + "' > "
+        strHTML += " <div id='prefixAsessorError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> "
         strHTML += " </div> "
         strHTML += " <div class='form-group'> "
         strHTML += " <label for='position'>ตำแหน่ง</label> "
-        strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='ผอ.กตค.จร.ทร'> "
+        strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + strPosition + "'> "
         strHTML += " <div id='positionError' class='error'>กรุณาใส่ตำแหน่ง</div> "
         strHTML += " </div> "
         strHTML += " <div class='form-group'> "
         strHTML += " <label for='date'>วันที่</label> "
         strHTML += " <div class='row'> "
         strHTML += "     <div class='col-4'> "
-        strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='01'> "
+        strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + strDay + "'> "
         strHTML += "         <div id='dayError' class='error'>กรุณาใส่วัน</div> "
         strHTML += "     </div> "
         strHTML += "     <div class='col-4'> "
-        strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='กรกฎาคม'> "
+        strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + strMonth + "'> "
         strHTML += "         <div id='monthError' class='error'>กรุณาใส่เดือน</div> "
         strHTML += "     </div> "
         strHTML += "     <div class='col-4'> "
-        strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี'value='2024'> "
+        strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี'value='" + strYear + "'> "
         strHTML += "         <div id='yearError' class='error'>กรุณาใส่ปี</div> "
         strHTML += "     </div> "
         strHTML += " </div> "
@@ -658,7 +905,7 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
         $("#dvBodySignatureModal")[0].innerHTML = strHTML
         $("#dvFooterSignatureModal")[0].innerHTML = strHTML2
 
-        fnInitializeCanvas()
+        fnInitializeCanvas(strSignPath)
 
         $('.datepicker-day').datepicker({
             format: 'dd',
@@ -691,10 +938,19 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
 
  }
 
- function fnInitializeCanvas() {
+ function fnInitializeCanvas(initialDataUrl) {
     const canvas = document.getElementById('signatureCanvas');
     const ctx = canvas.getContext('2d');
     let drawing = false;
+
+    // ตั้งค่าเริ่มต้นของ canvas ด้วยภาพจาก data URL
+    if (initialDataUrl) {
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = initialDataUrl;
+    }
 
     ctx.lineWidth = 3; // เพิ่มความหนาของเส้น
     ctx.strokeStyle = "#000000"; // เปลี่ยนสีเส้นเป็นสีดำ
@@ -746,12 +1002,12 @@ function fnValidateForm() {
     }
 
     // Validate evaluator text
-    const evaluatorText = document.getElementById('evaluatorText').value;
-    if (!evaluatorText) {
-        document.getElementById('evaluatorTextError').style.display = 'block';
+    const prefixAsessor = document.getElementById('prefixAsessor').value;
+    if (!prefixAsessor) {
+        document.getElementById('prefixAsessorError').style.display = 'block';
         isValid = false;
     } else {
-        document.getElementById('evaluatorTextError').style.display = 'none';
+        document.getElementById('prefixAsessorError').style.display = 'none';
     }
 
     // Validate position
@@ -788,9 +1044,9 @@ function fnSubmitSignature() {
 
         const canvas = document.getElementById('signatureCanvas');
         const ctx = canvas.getContext('2d');
-        const evaluatorDataURL = canvas.toDataURL();
+        const signPath = canvas.toDataURL();
 
-        const evaluatorText = document.getElementById('evaluatorText').value;
+        const prefixAsessor = document.getElementById('prefixAsessor').value;
         const position = document.getElementById('position').value;
         const day = document.getElementById('day').value;
         const month = document.getElementById('month').value;
@@ -802,13 +1058,13 @@ function fnSubmitSignature() {
         const dateText = `${fnConvertToThaiNumeralsAndPoint(day)} / ${fnConvertMonthToShort(month)} / ${fnConvertToThaiNumeralsAndPoint(shortYear)}`;
 
         let strHTML = `
-            <div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${evaluatorText} <img src="${evaluatorDataURL}" alt="ลายเซ็น" /></span></div>
+            <div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
             <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
             <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
         `;
 
         resultContainer.innerHTML = strHTML;
-        $('#signatureModal').modal('hide');
+        // $('#signatureModal').modal('hide');
     }
 }
 
@@ -864,7 +1120,6 @@ function fnAddNewRowFromModal() {
     ]);
 
     globalTest = globalTest.concat(testarr)
-    // console.log(testarr)
     // Draw the updated table and update the HTML
     var updatedTableHTML = fnDrawTableReportAssessment(testarr);
     $('#dvFormReport tbody').append(updatedTableHTML);
@@ -878,52 +1133,202 @@ function fnAddNewRowFromModal() {
 
 
 }
-    
-    
 
-function fnToggleTextarea(btnUpdload,btnViewDoc,textareaId,buttonsId ,checkbox, coloums, id) {
-    const btnUpdloads = document.getElementById(btnUpdload);
-    const btnViewDocs = document.getElementById(btnViewDoc);
-    const textarea = document.getElementById(textareaId);
-    const buttons = document.getElementById(buttonsId);
-    const displayText = document.getElementById('displayText' + id);
-    const editIcon = document.getElementById('editIcon' + id);
-    console.log(coloums)
-    if (coloums == 2) {
-        if (textarea && buttons) {
-            btnUpdloads.style.display = 'none';
-            btnViewDocs.style.display = 'none';
-            textarea.style.display = checkbox.checked ? 'block' : 'none';
-            textarea.value = '';
-            buttons.style.display  = checkbox.checked ? 'block' : 'none';
-            displayText.style.display = checkbox.checked ? 'block' : 'none';
-            displayText.innerText = '';
+function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, filename, filesave, filepath) {
+    var strCheckbox = ischeckbox // เช็คเพิ่ม กรณี 
+    var btnUploads = document.getElementById('btnUploadDoc' + id);
+    var btnViewDoc = document.getElementById('btnViewDoc' + id);
+    var btnFillDoc = document.getElementById('btnFillDoc' + id);
+    var textareaComment = document.getElementById('comment_' + id);
+    var btnSubmit = document.getElementById('submitButton'+ id);
+    var displayText = document.getElementById('displayText' + id);
+    var editIcon = document.getElementById('editIcon' + id);
+    if (coloums == 1) { // กด checkbox แรก
+        if (strCheckbox == 'y') {
+            if (filename && filesave && filepath) {
+                btnUploads.style.display = checkbox.checked ? 'block' : 'none';
+                btnViewDoc.style.display = checkbox.checked ? 'block' : 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = 'none';
+                displayText.style.display  = 'none';
+                displayText.innerHTML = '';
+                editIcon.style.display = 'none';
+            } else if (description) {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = 'none';
+                displayText.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.innerHTML = description;
+                editIcon.style.display = checkbox.checked ? 'block' : 'none';
+            } else {
+                btnUploads.style.display = checkbox.checked ? 'block' : 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = checkbox.checked ? 'block' : 'none';
+                textareaComment.style.display = 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = 'none';
+                displayText.style.display  = 'none';
+                displayText.innerHTML = '';
+                editIcon.style.display = 'none';
+            }
+
+        } else if (strCheckbox == 'n' || strCheckbox == 'na' ) {
+            if (description) {
+                btnUploads.style.display = checkbox.checked ? 'block' : 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = checkbox.checked ? 'block' : 'none';
+                textareaComment.style.display = 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = 'none';
+                displayText.style.display = 'none';
+                displayText.innerText = '';
+                editIcon.style.display = 'none';
+            } else {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.style.display = checkbox.checked ? 'block' : 'none';
+                displayText.innerText = '';
+                editIcon.style.display = 'none';
+                fnAddEventListeners(id)
+            }
+        } else {
+            btnUploads.style.display = checkbox.checked ? 'block' : 'none';
+            btnViewDoc.style.display = 'none';
+            btnFillDoc.style.display = checkbox.checked ? 'block' : 'none';
+            textareaComment.style.display = 'none';
+            textareaComment.value = '';
+            btnSubmit.style.display  = 'none';
+            displayText.style.display  = 'none';
+            displayText.innerHTML = '';
             editIcon.style.display = 'none';
         }
-    } else if (coloums == 3) {
-        if (textarea && buttons) {
-            btnUpdloads.style.display = 'none';
-            btnViewDocs.style.display = 'none';
-            textarea.style.display = checkbox.checked ? 'block' : 'none';
-            textarea.value = '';
-            buttons.style.display  = checkbox.checked ? 'block' : 'none';
+    } else if (coloums == 2) {  // กด checkbox สอง    
+        if (strCheckbox == 'y') {
+            if (filename && filesave && filepath) {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.style.display  = '';
+                displayText.innerHTML = '';
+                editIcon.style.display = 'none';
+                fnAddEventListeners(id)
+            } else if (description) {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = 'none';
+                displayText.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.innerHTML = description;
+                editIcon.style.display = checkbox.checked ? 'block' : 'none';
+            } else {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.style.display  = '';
+                displayText.innerHTML = '';
+                editIcon.style.display = 'none';
+                fnAddEventListeners(id)
+            }
+        } else if (strCheckbox == 'n' || strCheckbox == 'na' ) {
+            btnUploads.style.display = 'none';
+            btnViewDoc.style.display = 'none';
+            btnFillDoc.style.display = 'none';
+            textareaComment.style.display = 'none';
+            textareaComment.value = '';
+            btnSubmit.style.display  = 'none';
             displayText.style.display = checkbox.checked ? 'block' : 'none';
-            displayText.innerText = '';
+            displayText.innerText = description;
+            editIcon.style.display = checkbox.checked ? 'block' : 'none';
+        } else {
+            btnUploads.style.display = 'none';
+            btnViewDoc.style.display = 'none';
+            btnFillDoc.style.display = 'none';
+            textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+            textareaComment.value = '';
+            btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
+            displayText.style.display  = '';
+            displayText.innerHTML = '';
             editIcon.style.display = 'none';
+            fnAddEventListeners(id)
         }
+    } else {  // กด checkbox สาม
+        if (strCheckbox == 'y') {
+            if (filename && filesave && filepath) {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.style.display  = '';
+                displayText.innerHTML = '';
+                editIcon.style.display = 'none';
+                fnAddEventListeners(id)
+            } else if (description) {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = 'none';
+                displayText.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.innerHTML = description;
+                editIcon.style.display = checkbox.checked ? 'block' : 'none';
+            } else {
+                btnUploads.style.display = 'none';
+                btnViewDoc.style.display = 'none';
+                btnFillDoc.style.display = 'none';
+                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+                textareaComment.value = '';
+                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
+                displayText.style.display  = '';
+                displayText.innerHTML = '';
+                editIcon.style.display = 'none';
+                fnAddEventListeners(id)
+            }
+        } else if (strCheckbox == 'n' || strCheckbox == 'na' ) {
+            btnUploads.style.display = 'none';
+            btnViewDoc.style.display = 'none';
+            btnFillDoc.style.display = 'none';
+            textareaComment.style.display = 'none';
+            textareaComment.value = '';
+            btnSubmit.style.display  = 'none';
+            displayText.style.display = checkbox.checked ? 'block' : 'none';
+            displayText.innerText = description;
+            editIcon.style.display = checkbox.checked ? 'block' : 'none';
+        } else {
+            btnUploads.style.display = 'none';
+            btnViewDoc.style.display = 'none';
+            btnFillDoc.style.display = 'none';
+            textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+            textareaComment.value = '';
+            btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
+            displayText.style.display  = '';
+            displayText.innerHTML = '';
+            editIcon.style.display = 'none';
+            fnAddEventListeners(id)
 
-    } else { // col1
-        btnUpdloads.style.display = checkbox.checked ? '' : 'none';
-        btnViewDocs.style.display = checkbox.checked ? '' : 'none';
-        textarea.style.display = 'none';
-        textarea.value = '';
-        buttons.style.display  = 'none';
-        displayText.style.display  = 'none';
-        displayText.innerHTML = '';
-        editIcon.style.display = 'none';
-
+        }
     }
 }
+
 function fnToggleTextSum(val, val2) {
     var textarea = '';
     var button = '';
@@ -935,7 +1340,6 @@ function fnToggleTextSum(val, val2) {
     textarea = document.getElementById('commentSum' + newVal);
     button = document.getElementById('submitButtonSum' + newVal);
     displayText = document.getElementById('displayTextSum' + newVal);
-
     if (val2.value == 1) {
         textarea.style.display = 'none';
         button.style.display  = 'none';
@@ -952,17 +1356,19 @@ function fnToggleTextSum(val, val2) {
 }
 
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
-function fnSubmitText(id) {
+function fnSubmitText(id, event) {
+    event.preventDefault(); // ป้องกันการส่งฟอร์ม
+
     const textarea = document.getElementById('comment_' + id);
     const button = document.getElementById('submitButton' + id);
     const displayText = document.getElementById('displayText' + id);
     const editIcon = document.getElementById('editIcon' + id);
     const tab = '&emsp;';
-    let format = ''
+    let format = '';
 
     if (textarea.value) {
         format = textarea.value.replace(/\n/g, '<br>');
-        displayText.innerHTML = tab + format
+        displayText.innerHTML = tab + format;
 
         /* ซ่อน textarea และปุ่ม */
         textarea.style.display = 'none';
@@ -980,7 +1386,9 @@ function fnSubmitText(id) {
 }
 
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
-function fnSubmitTextSum(val) {
+function fnSubmitTextSum(val, event) {
+
+    event.preventDefault(); // ป้องกันการส่งฟอร์ม
 
     const textarea = document.getElementById('commentSum' + val);
     const button = document.getElementById('submitButtonSum' + val);
@@ -1013,6 +1421,10 @@ function fnEditText(id) {
     const button = document.getElementById('submitButton' + id);
     const editIcon = document.getElementById('editIcon' + id);
 
+    if (button) {
+        fnAddEventListeners(id)
+    }
+
     /* แสดง textarea และปุ่ม */
     textarea.style.display = 'inline';
     button.style.display = 'inline';
@@ -1029,6 +1441,9 @@ function fnEditTextSum(val) {
     const button = document.getElementById('submitButtonSum' + val);
     const editIcon = document.getElementById('editIconSum' + val);
 
+    if (button) {
+        fnAddEventListenersSum(val)
+    }
     /* แสดง textarea และปุ่ม */
     textarea.style.display = 'inline';
     button.style.display = 'inline';
@@ -1040,42 +1455,25 @@ function fnEditTextSum(val) {
     textarea.value = document.getElementById('displayTextSum' + val).innerText.trim();
 }
 
+function fnSubmitTextCommentEV(event) {
+    event.preventDefault(); // ป้องกันการส่งฟอร์ม
 
-function fnDrawCommentDivEvaluation(data) {
-    var strHTML = ''
-    strHTML += " <div class='dvEvaluation'>สรุป : การควบคุมภายใน"+data+"</div> "
-    strHTML += " <div> "
-    strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83'></textarea> "
-    strHTML += " </div> "
-    strHTML += " <div class='text-end'> "
-    strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEvaluation' onclick='fnSubmitTextCommentEvaluation()' style='width: 100px;'>ยืนยัน</button> "
-    strHTML += " </div> "
-    strHTML += " <div class='text-start'> "
-    strHTML += " <span id='displayTextCommentEvaluation' style='white-space: pre-wrap;'></span> "
-    strHTML += " <i class='las la-pencil-alt' id='editIconCommentEvaluation' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditTextCommentEvaluation()'></i> "
-    strHTML += " </div> "
-    // strHTML += " <span id='spanResultEvaluation'> ทรภ.๒ มีการควบคุมภายในด้านการข่าว ที่เพียงพอและเหม่าะสม.มีการรักษาความปลอดภัยเกี่ยวกับสถานที่และการปฏิบัติการด้านการข่าว รวมทั้งข้อมูลข่าวสารลับมีประสิทธิภาพเพียงพอต่อการรักษาความปลอดภัยเกี่ยวกับบุคคล มีแนวทางการบริหารจัดการเพียงพอให้การปฏิบัติงานด้านการข่าว กำลังพลมีเพียงพอที่จะปฏิบัติงานด้านการข่าว มีความรู้ความชำนาญในการวิเคราะห์ข่าวและปฏิบัติตามกฎระเบียบข้อบังคับหรือมาตรการเกี่ยวกับการรักษา ความปลอดภัยโดยเคร่งครัด ทั้งนี้ ในส่วนของเครื่องมือและอุปกรณ์ที่ใช้ในงาน ด้านการข่าว พบว่า.เครื่องมือ/อุปกรณ์ในการรวบรวมข้อมูลด้านการข่าวยังมีความไม่ทันสมัยและมีประสิทธิภาพไม่เพียงพอต่อการปฏิบัติงาน. จำเป็นต้องปรับปรุงการควบคุมภายในให้ดีขึ้น โดยการจัดหาเครื่องมือ/อุปกรณ์เพิ่มเติม เพื่อให้การดำเนินการรวบรวมข้อมูลด้านการข่าวมีประสิทธิภาพเพียงพอต่อการปฏิบัติงาน</div></span> "
-    
-    return strHTML
-}
-
-function fnSubmitTextCommentEvaluation() {
     var textarea = document.getElementById('commentEvaluation');
-    var button = document.getElementById('submitButtonCommentEvaluation');
-    var displayText = document.getElementById('displayTextCommentEvaluation');
-    var editIcon = document.getElementById('editIconCommentEvaluation');
-    var tab = '&emsp;'
-    var format = ''
+    var button = document.getElementById('submitButtonCommentEV');
+    var displayText = document.getElementById('displayTextCommentEV');
+    var editIcon = document.getElementById('editIconCommentEV');
+    var tab = '&emsp;';
+    var format = '';
 
     if (textarea.value) {
         format = textarea.value.replace(/\n/g, '<br>');
-        displayText.innerHTML = tab + format
+        displayText.innerHTML = tab + format;
 
-        /* ซ่อน textarea และปุ่ม */
+        // ซ่อน textarea และปุ่ม
         textarea.style.display = 'none';
-        button.style.display = 'none'; 
-        
-        /* ซ่อนไอคอนแก้ไข */
+        button.style.display = 'none';
+
+        // แสดงไอคอนแก้ไข
         editIcon.style.display = 'inline';
     } else {
         Swal.fire({
@@ -1084,13 +1482,12 @@ function fnSubmitTextCommentEvaluation() {
             icon: "warning"
         });
     }
-
 }
 
-function fnEditTextCommentEvaluation() {
+function fnEditTextCommentEV() {
     const textarea = document.getElementById('commentEvaluation');
-    const button = document.getElementById('submitButtonCommentEvaluation');
-    const editIcon = document.getElementById('editIconCommentEvaluation');
+    const button = document.getElementById('submitButtonCommentEV');
+    const editIcon = document.getElementById('editIconCommentEV');
 
     /* แสดง textarea และปุ่ม */
     textarea.style.display = 'inline';
@@ -1100,7 +1497,7 @@ function fnEditTextCommentEvaluation() {
     editIcon.style.display = 'none';
 
     /* เติมข้อความที่จะแก้ไขใน textarea */
-    textarea.value = document.getElementById('displayTextCommentEvaluation').innerText.trim();
+    textarea.value = document.getElementById('displayTextCommentEV').innerText.trim();
 }
 
 function fnSaveDraftDocument() {
