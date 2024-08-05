@@ -57,7 +57,7 @@ async function fnDrawTableForm(access,valSides,objData) {
     if (valSides == 'branchOperation') { // ถ้าเป็นด้านยุทธการจะเรียก function นี้
         strHTML += fnDrawTableReportAssessmentFix(data)
     } else {
-        strHTML += await fnDrawTableReportAssessment(data, idSideFix)
+        strHTML += await fnDrawTableReportAssessment(data, idSideFix, arrSides[index].NameSides)
     }
 
     strHTML += fnDrawTableReportAssessmentOther(strSides, arrSides, data)
@@ -136,7 +136,7 @@ function fnObserveElementCreation(elementId, callback) {
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
-async function fnDrawTableReportAssessment(data, idSideFix) {
+async function fnDrawTableReportAssessment(data, idSideFix, nameSides) {
     var strHTML = "" ;
     var strUserId = fnGetCookie("userId")
     var dataControl = data
@@ -150,11 +150,10 @@ async function fnDrawTableReportAssessment(data, idSideFix) {
             var checkboxData = dataCheckbox[checkboxIndex++];
             return {
                 ...formItem,
+                idQR: checkboxData.id,
                 checkbox: checkboxData.checkbox,
                 descResultQR: checkboxData.descResultQR,
-                fileName: checkboxData.fileName,
-                fileSave: checkboxData.fileSave,
-                filePath: checkboxData.filePath
+                fileName: checkboxData.fileName
             };
         } else if (formItem.isradio === 1 && radioIndex < dataRadio.length) {
             var radioData = dataRadio[radioIndex];
@@ -175,7 +174,7 @@ async function fnDrawTableReportAssessment(data, idSideFix) {
     
     
     /* แถวที่มี Checkbox และ TextArea */
-    function fnCreateCheckboxAndTextAreaRow(id_control, text, id, size, ischeckbox, description, filename, filesave, filepath ) {
+    function fnCreateCheckboxAndTextAreaRow(id_control, text, id, size, ischeckbox, description, fileName, idQR) {
         // Determine which checkbox should be checked
         var strHTML2 = '';
         var haveDataChecked = ischeckbox === 'y' ? 'checked' : '';
@@ -185,16 +184,16 @@ async function fnDrawTableReportAssessment(data, idSideFix) {
         strHTML2 += "<tr>";
         strHTML2 += "<td style='width: 55%; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
         strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
-        strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox' name='haveData_" + id + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + filename + "\", \"" + filesave + "\", \"" + filepath + "\")' " + haveDataChecked + "/>";
+        strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox' name='haveData_" + id + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + haveDataChecked + "/>";
         strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label>";
         strHTML2 += "</td>";
         strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
-        strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='nothaveData_" + id + "' onchange='fnToggleTextarea(this, \"2\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + filename + "\", \"" + filesave + "\", \"" + filepath + "\")' " + nothaveDataChecked + "/>";
+        strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='nothaveData_" + id + "' onchange='fnToggleTextarea(this, \"2\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + nothaveDataChecked + "/>";
         strHTML2 += "<label for='nothaveData_" + id + "' id='lablenothaveData_" + id + "' class='hidden' style='width: 4%;'>&#10005;</label>";
-        strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox' name='notAppData_" + id + "' onchange='fnToggleTextarea(this, \"3\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + filename + "\", \"" + filesave + "\", \"" + filepath + "\")' " + notAppDataChecked + "/>";
+        strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox' name='notAppData_" + id + "' onchange='fnToggleTextarea(this, \"3\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + notAppDataChecked + "/>";
         strHTML2 += "<label for='notAppData_" + id + "' id='lablenotAppData_" + id + "' class='hidden' style='width: 4%;'>NA</label>";
         strHTML2 += "</td>";
-        strHTML2 += "<td style='width: 29%;'>" + fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, filesave, filepath) + "</td>";
+        strHTML2 += "<td style='width: 29%;'>" + fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, nameSides, idQR) + "</td>";
         strHTML2 += "</tr>";
 
         return strHTML2;
@@ -232,11 +231,11 @@ async function fnDrawTableReportAssessment(data, idSideFix) {
                 }
             } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
                 if (item.id_innercontrol) { // 1
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.fileSave  ? item.fileSave : '', item.filePath  ? item.filePath : '');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '');
                 } else if (item.id_subcontrol) {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.fileSave  ? item.fileSave : '', item.filePath  ? item.filePath : '');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '');
                 } else {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.fileSave  ? item.fileSave : '', item.filePath  ? item.filePath : '');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '');
                 }
             }
         }
@@ -539,11 +538,11 @@ function fnMapValueToCallFunction(items) {
     }
 }
 
-function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, filesave, filepath ) {
+function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, nameSides, idQR) {
     var strHTML = ''
     if (ischeckbox == 'y') {
   
-        if (filename && filesave && filepath) { // ถ้ามีไฟล์แนบมา
+        if (fileName) { // ถ้ามีไฟล์แนบมา
             
             strHTML += `
                 <div style='display:flex; align-items: center;'>
@@ -551,15 +550,15 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, 
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'></p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'></p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
-                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")'>
-                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")'>
+                        <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
                     <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
@@ -573,15 +572,15 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, 
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' style='display:none;' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' style='display:none;' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
-                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
-                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
+                        <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
                     <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
@@ -596,15 +595,15 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, 
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
-                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
-                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
+                        <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
                     <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
@@ -620,15 +619,15 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, 
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
-                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
-                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
+                        <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
                     <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
@@ -642,15 +641,15 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, 
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
-                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
-                        <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
+                        <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
                     <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
@@ -666,15 +665,15 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, filename, 
                 <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
             </div>
             <div style='display:flex; align-items: center;'>
-                <p class='text-left pComment' id='displayText${id}' style='white-space: pre-wrap;'>${description ? description : ''}</p>
+                <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
                 <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
             </div>
             <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
+                <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                     <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                 </button>
-                <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${filename}", "${filesave}", "${filepath}")' style='display:none;'>
-                    <i class='las la-pen' aria-hidden='true'></i><span>ดูเอกสาร</span>
+                <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
+                    <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                 </button>
                 <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
                     <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
@@ -721,17 +720,99 @@ function fnAddEventListenersCommentEV() {
     }
 }
 
-function fnUploadDocConfig (text, id) {
+function fnUploadDocConfig (text, id, nameSides, idQR) {
+    var strHTML = ''
+    var strHTML2 = ''
     var strtext = text
-    fnGetDataModal(strtext, id);
+    // draw modal
+    strHTML += " <div class='mb-3'> "
+    strHTML += " <label for='headCheckTopic' class='lableHead'>หัวข้อที่ตรวจสอบ</label> "
+    strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ nameSides +"' style='background: darkgray;' readonly> "
+    strHTML += " </div> "
+
+    strHTML += " <div class='mb-3'> "
+    strHTML += " <label for='nameMenuCheck' class='lableHead'>ชื่อรายการที่ตรวจสอบ</label> "
+    
+    strHTML += "<input type='text' class='form-control' id='nameMenuCheckTopic' value='"+ strtext +"' style='background: darkgray;' readonly>"
+    strHTML += " </div> "
+
+    strHTML += " <div id='dvtypefile' class='mb-3'> "
+    strHTML += " <label for='formFile' class='lableHead'>ประเภทชั้นความลับของเอกสาร</label> "
+    strHTML += " <select id='selectTypeSecret' class='form-select' aria-label='Default select example'> "
+    strHTML += " <option value='show' selected>ลับ</option> "
+    strHTML += " <option value='verySecret'>ลับมาก</option> "
+    strHTML += " <option value='mostSecret'>ลับที่สุด</option> "
+    strHTML += " </select> "
+    strHTML += " </div> "
+
+    strHTML += " <div id='dvuploadfile' class='mb-3'> "
+    strHTML += " <label for='formFile' class='lableHead'>ไฟล์ที่แนบ</label> "
+    strHTML += " <input class='form-control form-control-sm' id='formFile' type='file' accept='.doc, .docx, .pdf'> "
+
+    strHTML += " </div> "
+
+
+    strHTML2 += " <button id='btnSaveDataUpload' type='button' class='btn btn-primary'>บันทึกข้อมูล</button> "
+    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "            
+
+
+    $("#dvBodyModalRelateDocumentModal")[0].innerHTML = strHTML
+    $("#dvFooterModalRelateDocumentModal")[0].innerHTML = strHTML2
+
+    $('#selectTypeSecret').change(function() {
+        // console.log($(this).val())
+        if ($(this).val() === 'show') {
+            $('#dvuploadfile').removeClass('hidden');
+        } else {
+            $('#dvuploadfile').addClass('hidden');
+        }
+    });
+
+    $('#btnSaveDataUpload').on('click', function() {
+        fnSaveDataUploadDocument(id, idQR);
+    });
 }
 
-function fnViewDocConfig (text, id, filename, filesave, filepath) { 
-    Swal.fire({
-        title: '',
-        text: 'EXPORT เอกสาร' + text,
-        icon: 'error'
-    })
+async function fnViewDocConfig(text, id, idQR) {
+    try {
+        const response = await axios.post("http://localhost:3000/api/store/fnGetFileDocPDF", {
+            idQR: idQR,
+            username: fnGetCookie("username") || ''
+        }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const res = response.data;
+        if (res && res.image) {
+            // แปลง Base64 string เป็น Blob
+            const byteCharacters = atob(res.image.split(',')[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // เปิดไฟล์ PDF ในแท็บใหม่
+            window.open(pdfUrl, "_blank");
+        } else {
+            Swal.fire({
+                title: "",
+                text: "ไม่พบไฟล์เอกสาร",
+                icon: "error"
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire({
+            title: "",
+            text: "เกิดข้อผิดพลาดในการดึงไฟล์เอกสาร",
+            icon: "error"
+        });
+    }
 }
 
 function fnChangeToFillDocConfig(text, id) {
@@ -743,39 +824,125 @@ function fnChangeToFillDocConfig(text, id) {
     fnAddEventListeners(id)
 }
 
-function fnGetDataModal(strtext, id) {
+function fnGetDataModal(strtext, id, nameSides) {
     // var arrData = fnGetDataInternalControl(id) // call function get data
-    var arrData = [{id:1 , mainControl: 'ด้านการข่าว'}]
-    var strHTML = ''
-    var strHTML2 = ''
+ 
+}
 
-    // draw modal
-    strHTML += " <div class='mb-3'> "
-    strHTML += " <label for='headCheckTopic' class='lableHead'>หัวข้อที่ตรวจสอบ</label> "
-    strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ arrData[0].mainControl +"' readonly> "
-    strHTML += " </div> "
+function fnSaveDataUploadDocument(id, idQR) {
+    var selectInput = $("#selectTypeSecret").val()
+    var checkbox = ''
+    var displayText = ''
+    var editIcon = ''
+    if (selectInput == 'verySecret') {
+        $('#relateDocumentModal').modal('hide');
 
-    strHTML += " <div class='mb-3'> "
-    strHTML += " <label for='nameMenuCheck' class='lableHead'>ชื่อรายการที่ตรวจสอบ</label> "
-    
-    strHTML += "<input type='text' class='form-control' id='nameMenuCheckTopic' value='"+ strtext +"' readonly>"
-    strHTML += " </div> "
+        checkbox = $('#checkbox' + id);
+        displayText = $('#displayText' + id);
+        editIcon = $('#editIcon' + id);
+        displayText.css('display', 'block');
+        editIcon.css('display', 'block');
+        displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับมาก');
+        
+        $('#btnUploadDoc'+ id).hide();
+        $('#btnFillDoc'+ id).hide();
+        
+    } else if (selectInput == 'mostSecret') {
+        $('#relateDocumentModal').modal('hide');
 
-    strHTML += " <div id='dvuploadfile' class='mb-3'> "
-    strHTML += " <label for='formFile' class='lableHead'>ไฟล์ที่แนบ</label> "
-    strHTML += " <input class='form-control form-control-sm' id='formFile' type='file'> "
-    strHTML += " </div> "
+        checkbox = $('#checkbox' + id);
+        displayText = $('#displayText' + id);
+        editIcon = $('#editIcon' + id);
+        displayText.css('display', 'block');
+        editIcon.css('display', 'block');
+        displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับที่สุด');
+        
+        $('#btnUploadDoc'+ id).hide();
+        $('#btnFillDoc'+ id).hide();
+    } else { // กรณีที่มีไฟล์แนบ
+        $('#relateDocumentModal').modal('hide');
+        Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const resSQL = await fnSetFileDocPDF(idQR);
+                    if (resSQL) {
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        });
+                        $('#btnViewDoc' + id).show();
+                        $('#btnFillDoc' + id).hide();
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง ",
+                            icon: "error"
+                        });
+                    }
 
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    }
+}
 
-    strHTML2 += " <button type='button' class='btn btn-primary'>บันทึกข้อมูล</button> "
-    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "            
+function fnSetFileDocPDF(idQR) {
+    const inputFile = document.getElementById('formFile');
+    const file = inputFile.files[0];
+    if (!file) {
+        Swal.fire({
+            title: "",
+            text: "กรุณาเลือกไฟล์ก่อน",
+            icon: "warning"
+        });
+        return;
+    }
 
+    const fileName = file.name;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
 
-    $("#dvBodyModalRelateDocumentModal")[0].innerHTML = strHTML
-    $("#dvFooterModalrelateDocumentModal")[0].innerHTML = strHTML2
-    
-    // fnChangeSizeSelect("slNameRates") //ปรับขนาด select
-    
+    return new Promise((resolve, reject) => {
+        reader.onload = async function () {
+            try {
+                const response = await axios.post("http://localhost:3000/api/store/fnSetFileDocPDF", {
+                    idQR: idQR,
+                    username: fnGetCookie("username") || '',
+                    image: reader.result,
+                    fileName: fileName
+                }, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                inputFile.value = ""; // ล้าง input file หลังอัพโหลดเสร็จ
+                const res = response.data;
+                if (res) {
+                    resolve(res);
+                }
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        };
+
+        reader.onerror = function () {
+            console.error(reader.error);
+            reject(reader.error);
+        };
+    });
 }
 
 function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
@@ -1134,7 +1301,7 @@ function fnAddNewRowFromModal() {
 
 }
 
-function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, filename, filesave, filepath) {
+function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, fileName) {
     var strCheckbox = ischeckbox // เช็คเพิ่ม กรณี 
     var btnUploads = document.getElementById('btnUploadDoc' + id);
     var btnViewDoc = document.getElementById('btnViewDoc' + id);
@@ -1145,7 +1312,7 @@ function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, filena
     var editIcon = document.getElementById('editIcon' + id);
     if (coloums == 1) { // กด checkbox แรก
         if (strCheckbox == 'y') {
-            if (filename && filesave && filepath) {
+            if (fileName) {
                 btnUploads.style.display = checkbox.checked ? 'block' : 'none';
                 btnViewDoc.style.display = checkbox.checked ? 'block' : 'none';
                 btnFillDoc.style.display = 'none';
@@ -1213,7 +1380,7 @@ function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, filena
         }
     } else if (coloums == 2) {  // กด checkbox สอง    
         if (strCheckbox == 'y') {
-            if (filename && filesave && filepath) {
+            if (fileName) {
                 btnUploads.style.display = 'none';
                 btnViewDoc.style.display = 'none';
                 btnFillDoc.style.display = 'none';
@@ -1270,7 +1437,7 @@ function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, filena
         }
     } else {  // กด checkbox สาม
         if (strCheckbox == 'y') {
-            if (filename && filesave && filepath) {
+            if (fileName) {
                 btnUploads.style.display = 'none';
                 btnViewDoc.style.display = 'none';
                 btnFillDoc.style.display = 'none';

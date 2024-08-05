@@ -15,6 +15,9 @@
 
     <title>ด้านกำลังพล</title>
     <style>
+        .hidden {
+          display: none;
+        }
         th {
 
         }
@@ -126,7 +129,7 @@
             <div class="card shadow border-0">
                 <div class="card-header">
                     <!-- Start Selete Content -->
-                    <div class="container" id="dvHeadSelectAssessment">
+                    <div id="dvHeadSelectAssessment">
 
                     </div>
                     <!-- Start Table Content -->
@@ -233,7 +236,14 @@
     $(document).ready(function() {
         fnSetSidebarMenuConTrol('branchPersonal')
         fnCreateBtnTabForm('branchPersonal')
-        fnGetDataInternalControl()
+
+        var valUserRole = fnGetCookie("userRole") || '';
+        var valSideId = '2'
+        fnGetDataInternalControl(valUserRole ,valSideId)
+
+        if (valUserRole == 'admin') {
+          fnGetDataSelect(valUserRole ,valSideId)
+        }
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
@@ -269,12 +279,9 @@
     //     }
     // })
 
-    function fnGetDataInternalControl() {
+    function fnGetDataInternalControl(valUserRole, valSideId) {
       
       var valUserId = fnGetCookie("userId") || '';
-      var valSideId = '2'
-      var valUserRole = fnGetCookie("userRole") || '';
-
       if (valUserId) {      
         var data = {
           userId: valUserId,
@@ -284,8 +291,8 @@
         .then(response => {
           var result = response.data
           if (result) {
-            // call data 
-            fnDrawTable(valUserRole, result)
+            // call data
+            fnDrawTable(valUserRole, valSideId, result)
             return result
           }
         })

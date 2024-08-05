@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View PDF</title>
+</head>
+<body style="margin:0">
+    <iframe id="pdfViewer" width="100%" height="100%" style="border:none;"></iframe>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const pdfData = sessionStorage.getItem("pdfData");
+            if (pdfData) {
+                const iframe = document.getElementById("pdfViewer");
+                iframe.src = pdfData;
+                sessionStorage.removeItem("pdfData"); // ลบข้อมูลออกจาก SessionStorage เพื่อไม่ให้เกิดปัญหาความปลอดภัย
+            } else {
+                alert("No PDF data found.");
+            }
+        });
+    </script>
+</body>
+</html>
