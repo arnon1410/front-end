@@ -19,11 +19,12 @@ async function fnDrawTableForm(access) {
     var strUserId = fnGetCookie("userId")
     var dataHighRiskSQL = await fnGetDataResultHighRisk(strUserId)
     var dataConPK5SQL = await fnGetDataResultConPK5(strUserId)
-    var prefixAsessor = dataConPK5SQL[0].prefixAsessor || ''
-    var signPath = dataConPK5SQL[0].signPath || ''
-    var position = dataConPK5SQL[0].position || ''
-    var dateAsessor = dataConPK5SQL[0].dateAsessor || ''
-    var shortName = dataConPK5SQL[0].shortName || ''
+    // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
+    var prefixAsessor = (dataConPK5SQL && dataConPK5SQL.length > 0) ? dataConPK5SQL[0].prefixAsessor : '';
+    var signPath = (dataConPK5SQL && dataConPK5SQL.length > 0) ? dataConPK5SQL[0].signPath : '';
+    var position = (dataConPK5SQL && dataConPK5SQL.length > 0) ? dataConPK5SQL[0].position : '';
+    var dateAsessor = (dataConPK5SQL && dataConPK5SQL.length > 0) ? dataConPK5SQL[0].dateAsessor : '';
+    var shortName = (dataConPK5SQL && dataConPK5SQL.length > 0) ? dataConPK5SQL[0].shortName : '';
     
     var strYear = ''
     if (dateAsessor) {

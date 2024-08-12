@@ -41,10 +41,11 @@ async function fnDrawTableForm(access,valSides) {
     var dataPFMEVSQL = await fnGetDataResultPFMEV(strUserId, idSideFix)
 
     var dataSummary = await fnGetDataResultConPFMEV(strUserId, idSideFix)
-    var prefixAsessor = dataSummary[0].prefixAsessor || ''
-    var signPath = dataSummary[0].signPath || ''
-    var position = dataSummary[0].position || ''
-    var dateAsessor = dataSummary[0].dateAsessor || ''
+    // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
+    var prefixAsessor = (dataSummary && dataSummary.length > 0) ? dataSummary[0].prefixAsessor : '';
+    var signPath = (dataSummary && dataSummary.length > 0) ? dataSummary[0].signPath : '';
+    var position = (dataSummary && dataSummary.length > 0) ? dataSummary[0].position : '';
+    var dateAsessor = (dataSummary && dataSummary.length > 0) ? dataSummary[0].dateAsessor : '';
 
     var strHTML = ''
     var nameUnit = dataSummary[0].nameUnit ? dataSummary[0].nameUnit : ' (ระบุชื่อหน่วยงาน) '

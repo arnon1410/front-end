@@ -29,11 +29,13 @@ async function fnDrawTableForm(access,valSides) {
 
     var strUserId = fnGetCookie("userId")
     var dataConASMSQL = await fnGetDataResultConASM(strUserId, idSideFix)
-    var descConASM = dataConASMSQL[0].descConASM || ''
-    var prefixAsessor = dataConASMSQL[0].prefixAsessor || ''
-    var signPath = dataConASMSQL[0].signPath || ''
-    var position = dataConASMSQL[0].position || ''
-    var dateAsessor = dataConASMSQL[0].dateAsessor || ''
+    
+    // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
+    var descConASM = (dataConASMSQL && dataConASMSQL.length > 0) ? dataConASMSQL[0].descConASM : '';
+    var prefixAsessor = (dataConASMSQL && dataConASMSQL.length > 0) ? dataConASMSQL[0].prefixAsessor : '';
+    var signPath = (dataConASMSQL && dataConASMSQL.length > 0) ? dataConASMSQL[0].signPath : '';
+    var position = (dataConASMSQL && dataConASMSQL.length > 0) ? dataConASMSQL[0].position : '';
+    var dateAsessor = (dataConASMSQL && dataConASMSQL.length > 0) ? dataConASMSQL[0].dateAsessor : '';
 
     /* end call data ส่วนชื่อหน่วยงาน ส่วนสรุป และลายเซ็น */
 

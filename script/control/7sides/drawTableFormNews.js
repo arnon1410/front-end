@@ -17,7 +17,7 @@ function fnSetHeader(){
 }
 async function fnDrawTableForm(access,valSides,objData) {
     if (access == 'admin') {
-        // fnGetDataSelect()
+        fnGetDataSelect()
     }
 
     /* Get data selete before create table */
@@ -40,6 +40,7 @@ async function fnDrawTableForm(access,valSides,objData) {
     ];
 
     var index = arrSides.findIndex(item => item.key === strSides);
+    var strUserId = fnGetCookie("userId")
     var idSideFix = arrSides[index].id + 1 // บวก 1 เนื่องจากใน database ด้านกำลังพล id เริ่มต้นที่ 2  
 
 
@@ -57,41 +58,80 @@ async function fnDrawTableForm(access,valSides,objData) {
     if (valSides == 'branchOperation') { // ถ้าเป็นด้านยุทธการจะเรียก function นี้
         strHTML += fnDrawTableReportAssessmentFix(data)
     } else {
-        strHTML += await fnDrawTableReportAssessment(data, idSideFix, arrSides[index].NameSides)
+        strHTML += await fnDrawTableReportAssessment(data, strUserId, idSideFix, arrSides[index].NameSides)
     }
-
-    strHTML += fnDrawTableReportAssessmentOther(strSides, arrSides, data)
+    strHTML += await fnDrawTableReportAssessmentOther(strSides, arrSides, strUserId, idSideFix, valSides)
     strHTML += "</tbody>"
     strHTML += "</table>"
-    strHTML += await fnDrawCommentDivEvaluation(arrSides[index].NameSides, idSideFix)
+    strHTML += await fnDrawCommentDivEvaluation(arrSides[index].NameSides, strUserId, idSideFix)
 
     strHTML += " <div class='dvFooterForm'> "
-    // strHTML += "    <button type='submit' class='btn btn-primary' id='btnSaveData' onclick='fnSaveDraftDocument(" + objData[0].mainControl + ")'>บันทึกฉบับร่าง</button>"
     strHTML += "    <button type='submit' class='btn btn-primary' id='btnSaveData'>บันทึกฉบับร่าง</button>"
     // strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF' onclick='fnExportDocument()'>Export PDF</button>"
     strHTML += " </form> "
     strHTML += " </div> "
     $("#dvFormReport")[0].innerHTML = strHTML
+
+    fnAddSaveButtonEventListener()
+    
 }
 
-function fnCreateInputRadioAndSpan(text, index, validate, isradio, description) {
-    var strHTML = "";
-    var strRadio = isradio ? 'checked' : '';
+function fnSaveFormData(id, event) {
+    event.preventDefault(); // ป้องกันการส่งฟอร์ม
+    console.log('rrrr')
+    var checkedCheckboxes = $('input[type="checkbox"]:checked');
+    checkedCheckboxes.each(function() {
+        console.log($(this).val());  // แสดงค่า (value) ของ checkbox ที่ถูกเลือก
+    });
+    // var checkedColumns = [];
+    //     var rows = $('table tr').slice(1); // ไม่นับแถวหัวข้อ
+        
+    //     var uncheckedRows = [];
+    //     rows.each(function() {
+    //         var checkboxes = $(this).find('input[type="checkbox"]');
+    //         var isChecked = false;
+            
+    //         checkboxes.each(function() {
+    //             if ($(this).prop('checked')) {
+    //                 isChecked = true;
+    //                 return false; // ออกจากการวน loop ของ checkboxes
+    //             }
+    //         });
+            
+    //         if (!isChecked) {
+    //             uncheckedRows.push($(this).index() + 1); // เก็บหมายเลขแถวที่ไม่ได้เช็ค
+    //         }
+    //     });
+            
+    //     if (uncheckedRows.length > 0) {
+    //         // alert('กรุณาเลือก checkbox ในแถวที่: ' + uncheckedRows.join(', '));
+    //     } else { // ติ้กถูกหมดแล้ว
+    //         $('input[type="checkbox"]:checked').each(function() {
+    //             $(this).hide(); // ซ่อน input ที่ถูกกด
+    //             $(this).siblings('label').show(); // แสดง label ในช่องนั้น
+    //         });
+    //         var uncheckedCheckboxes = $('input[type="checkbox"]:not(:checked)');
+            
+    //     }
+}
 
-    if (validate && validate === '1') {
+function fnCreateInputRadioAndSpan(text, index, validate, isradio, description, isdisabled) {
+    var strHTML = "";
+    var isCheckedRadio = isradio ? 'checked' : '';
+    if (validate && validate == '1') {
         strHTML += "<div style='display:flex;'>";
-        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='1' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this)' " + strRadio + "/>";
+        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='1' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this, \"" + description + "\")' " + isCheckedRadio + " " + isdisabled + " />";
         strHTML += "<span>" + text + "</span>";
         strHTML += "</div>";
     } else { // กรณีไม่เพียงพอ
         strHTML += "<div style='display:flex;margin-bottom: 10px;'>";
-        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='0' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this)' " + strRadio + "/>";
+        strHTML += "<input type='radio' id='inputRadioSumOfSide" + index + "_" + validate + "' name='inputRadioSumOfSide" + index + "' style='margin: 5px 10px 0px 0px;' value='0' onchange='fnToggleTextSum(\"" + index + "_" + validate + "\", this, \"" + description + "\")' " + isCheckedRadio + "/>";
         strHTML += "<span>" + text + "</span>";
         strHTML += "</div>";
         if (isradio == '0' && description) { // 
             strHTML += "<div style='display:flex;'>";
-            strHTML += "<textarea id='commentSum" + index + "_" + validate + "' name='commentSum" + index + "_" + validate + "' rows='2' cols='33' style='display:none;'></textarea>";
-            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='submitButtonSum" + index + "_" + validate + "' style='display:none;'>ยืนยัน</button>";
+            strHTML += "<textarea id='commentSum" + index + "_" + validate + "' name='commentSum" + index + "_" + validate + "' rows='2' cols='33' value='' style='display:none;'></textarea>";
+            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='btnSubmitSum" + index + "_" + validate + "' style='display:none;'>ยืนยัน</button>";
             strHTML += "</div>";
             strHTML += "<div style='display:flex;'>";
             strHTML += "<p class='text-left pComment' id='displayTextSum" + index + "_" + validate + "' style='text-indent: 19px; white-space: pre-wrap;'>" + description + "</p>";
@@ -99,8 +139,8 @@ function fnCreateInputRadioAndSpan(text, index, validate, isradio, description) 
             strHTML += "</div>";
         } else {
             strHTML += "<div style='display:flex;'>";
-            strHTML += "<textarea id='commentSum" + index + "_" + validate + "' name='commentSum" + index + "_" + validate + "' rows='2' cols='33'></textarea>";
-            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='submitButtonSum" + index + "_" + validate + "'>ยืนยัน</button>";
+            strHTML += "<textarea id='commentSum" + index + "_" + validate + "' name='commentSum" + index + "_" + validate + "' rows='2' cols='33' value='' style='display:none;'></textarea>";
+            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='btnSubmitSum" + index + "_" + validate + "' style='display:none;'>ยืนยัน</button>";
             strHTML += "</div>";
             strHTML += "<div style='display:flex;'>";
             strHTML += "<p class='text-left pComment' id='displayTextSum" + index + "_" + validate + "' style='text-indent: 19px; white-space: pre-wrap;'></p>";
@@ -111,20 +151,18 @@ function fnCreateInputRadioAndSpan(text, index, validate, isradio, description) 
     }
 
     // เรียกฟังก์ชัน fnAddEventListenersSum เมื่อ element ถูกสร้างใน DOM
-    fnObserveElementCreation(`submitButtonSum${index}_${validate}`, () => {
+    fnObserveElementCreation(`btnSubmitSum${index}_${validate}`, () => {
         fnAddEventListenersSum(`${index}_${validate}`);
     });
 
     return strHTML;
 }
 
-function fnObserveElementCreation(elementId, callback) {
-    // 1.	ใช้ MutationObserver เพื่อเฝ้าดูการเปลี่ยนแปลงใน DOM
-	// 2.	ใช้ setTimeout ให้มั่นใจว่าโค้ดจะรันหลังจาก DOM ถูกอัปเดต
-    const observer = new MutationObserver((mutations) => {
-        for (let mutation of mutations) {
+function fnObserveElementCreation(id, callback) {
+    const observer = new MutationObserver((mutationsList, observer) => {
+        for (let mutation of mutationsList) {
             if (mutation.type === 'childList') {
-                const element = document.getElementById(elementId);
+                const element = document.getElementById(id);
                 if (element) {
                     observer.disconnect();
                     callback();
@@ -136,9 +174,8 @@ function fnObserveElementCreation(elementId, callback) {
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
-async function fnDrawTableReportAssessment(data, idSideFix, nameSides) {
+async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides) {
     var strHTML = "" ;
-    var strUserId = fnGetCookie("userId")
     var dataControl = data
     var dataCheckbox = await fnGetDataResultQR(strUserId, idSideFix) // call function 
     var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix) // call function 
@@ -155,9 +192,9 @@ async function fnDrawTableReportAssessment(data, idSideFix, nameSides) {
                 descResultQR: checkboxData.descResultQR,
                 fileName: checkboxData.fileName
             };
-        } else if (formItem.isradio === 1 && radioIndex < dataRadio.length) {
+        } else if ((formItem.sum_id && formItem.head_id) && radioIndex < dataRadio.length) {
             var radioData = dataRadio[radioIndex];
-            if (radioData.radio == formItem.value) {
+            if (radioData.radio == formItem.value && radioData.headID == formItem.head_id) {
                 return {
                     ...formItem,
                     radio: radioData.radio,
@@ -170,38 +207,10 @@ async function fnDrawTableReportAssessment(data, idSideFix, nameSides) {
             return formItem;
         }
     });
-    // console.log(combinedArray);
-    
-    
-    /* แถวที่มี Checkbox และ TextArea */
-    function fnCreateCheckboxAndTextAreaRow(id_control, text, id, size, ischeckbox, description, fileName, idQR) {
-        // Determine which checkbox should be checked
-        var strHTML2 = '';
-        var haveDataChecked = ischeckbox === 'y' ? 'checked' : '';
-        var nothaveDataChecked = ischeckbox === 'n' ? 'checked' : '';
-        var notAppDataChecked = ischeckbox === 'na' ? 'checked' : '';
-
-        strHTML2 += "<tr>";
-        strHTML2 += "<td style='width: 55%; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
-        strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
-        strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox' name='haveData_" + id + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + haveDataChecked + "/>";
-        strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label>";
-        strHTML2 += "</td>";
-        strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
-        strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='nothaveData_" + id + "' onchange='fnToggleTextarea(this, \"2\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + nothaveDataChecked + "/>";
-        strHTML2 += "<label for='nothaveData_" + id + "' id='lablenothaveData_" + id + "' class='hidden' style='width: 4%;'>&#10005;</label>";
-        strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox' name='notAppData_" + id + "' onchange='fnToggleTextarea(this, \"3\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + notAppDataChecked + "/>";
-        strHTML2 += "<label for='notAppData_" + id + "' id='lablenotAppData_" + id + "' class='hidden' style='width: 4%;'>NA</label>";
-        strHTML2 += "</td>";
-        strHTML2 += "<td style='width: 29%;'>" + fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, nameSides, idQR) + "</td>";
-        strHTML2 += "</tr>";
-
-        return strHTML2;
-    }
-    
+    //console.log(combinedArray);   
     for (var i = 0; i < combinedArray .length; i++) {
         var item = combinedArray [i];
-        if (item.maincontrol_id !== undefined || item.sum_id !== undefined) {
+        if (item.mainControl_id !== undefined || item.sum_id !== undefined) {
             if (item.sum_id && item.value) { // ส่วนสรุป
                 strSumDetail = fnMapValueToCallFunction(item)
                 if (item.value == 0) {// ใส่เส้น ล่างตาราง
@@ -218,8 +227,8 @@ async function fnDrawTableReportAssessment(data, idSideFix, nameSides) {
                 if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
                     strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                 }
-                if (item.Object_name) { // เพื่อ ......
-                    strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-style: italic;'>" + item.Object_name + "</td><td></td><td></td><td></td></tr>";
+                if (item.objectName) { // เพื่อ ......
+                    strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-style: italic;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                 }
             }
         } else { // หัวข้อย่อยทั้งหมด
@@ -231,21 +240,45 @@ async function fnDrawTableReportAssessment(data, idSideFix, nameSides) {
                 }
             } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
                 if (item.id_innercontrol) { // 1
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides);
                 } else if (item.id_subcontrol) {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides);
                 } else {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides);
                 }
             }
         }
 
     }
-
-
     return strHTML;
     // แทรกโค้ดเข้าไปใน #dvTableReportAssessment
     // $("#dvTableReportAssessment")[0].innerHTML = strHTML;
+}
+
+function fnCreateCheckboxAndTextAreaRow(id_control, text, id, size, ischeckbox, description, fileName, idQR, nameSides, isHide) {
+    // Determine which checkbox should be checked
+    var strHTML2 = '';
+    var haveDataChecked = ischeckbox === 'y' ? 'checked' : '';
+    var nothaveDataChecked = ischeckbox === 'n' ? 'checked' : '';
+    var notAppDataChecked = ischeckbox === 'na' ? 'checked' : '';
+    var isHidden = isHide ? 'hidden' : '' ;
+
+    strHTML2 += "<tr>";
+    strHTML2 += "<td style='width: 55%; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
+    strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
+    strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox "+ isHidden +"' name='haveData_" + id + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + haveDataChecked + "/>";
+    strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label>";
+    strHTML2 += "</td>";
+    strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
+    strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='nothaveData_" + id + "' onchange='fnToggleTextarea(this, \"2\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + nothaveDataChecked + "/>";
+    strHTML2 += "<label for='nothaveData_" + id + "' id='lablenothaveData_" + id + "' class='hidden' style='width: 4%;'>&#10005;</label>";
+    strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox "+ isHidden +"' name='notAppData_" + id + "' onchange='fnToggleTextarea(this, \"3\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + notAppDataChecked + "/>";
+    strHTML2 += "<label for='notAppData_" + id + "' id='lablenotAppData_" + id + "' class='hidden' style='width: 4%;'>NA</label>";
+    strHTML2 += "</td>";
+    strHTML2 += "<td style='width: 29%;'>" + fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, nameSides, idQR) + "</td>";
+    strHTML2 += "</tr>";
+
+    return strHTML2;
 }
 
 function fnDrawTableReportAssessmentFix (data) {  /* ด้านยุทธการ */
@@ -266,18 +299,18 @@ function fnDrawTableReportAssessmentFix (data) {  /* ด้านยุทธก
             mainHeadings = mainHeadings.filter(heading => heading.id !== currentMainControlId);
         }
     }
-    
+
     
     if (dataControl.length > 0) {
         var currentMainControlId = null;
         for (var i = 0; i < dataControl.length; i++) {
             var item = dataControl[i];
-            if (currentMainControlId !== item.maincontrol_id) {
-                currentMainControlId = item.maincontrol_id;
+            if (currentMainControlId !== item.mainControl_id) {
+                currentMainControlId = item.mainControl_id;
                 fnAddMainHeadingIfNeeded(currentMainControlId);
             }
 
-            if (item.maincontrol_id !== undefined || item.sum_id !== undefined) {
+            if (item.mainControl_id !== undefined || item.sum_id !== undefined) {
                 if (item.sum_id && item.value) { // ส่วนสรุป
                     strSumDetail = fnMapValueToCallFunction(item)
                     if (item.value == 0) {// ใส่เส้น ล่างตาราง
@@ -295,8 +328,8 @@ function fnDrawTableReportAssessmentFix (data) {  /* ด้านยุทธก
                     if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
                         strHTML += "<tr><td style='width: 55%;font-weight: bold;text-indent: 12%;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                     }
-                    if (item.Object_name) { // เพื่อ ......
-                        strHTML += "<tr><td style='width: 55%;font-style: italic;text-indent: 12%;'>" + item.Object_name + "</td><td></td><td></td><td></td></tr>";
+                    if (item.objectName) { // เพื่อ ......
+                        strHTML += "<tr><td style='width: 55%;font-style: italic;text-indent: 12%;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                     }
                 }
             } else { // หัวข้อย่อยทั้งหมด
@@ -319,19 +352,14 @@ function fnDrawTableReportAssessmentFix (data) {  /* ด้านยุทธก
             }
 
             // เพิ่ม Event Listener ให้กับปุ่มที่สร้างขึ้นใหม่ในแต่ละรอบของ loop
-            document.getElementById(`submitButton${id}`).addEventListener('click', function(event) {
-                fnSubmitText(id, event);
-            });
+            // document.getElementById(`submitButton${id}`).addEventListener('click', function(event) {
+            //     fnSubmitText(id, event);
+            // });
 
             // เพิ่ม Event Listener ให้กับปุ่มที่สร้างขึ้นใหม่ในแต่ละรอบของ loop
-            document.getElementById(`submitButtonSum${id}`).addEventListener('click', function(event) {
-                fnSubmitTextSum(id, event);
-            });
-
-            // เพิ่ม Event Listener ให้กับปุ่มที่สร้างขึ้นใหม่ในแต่ละรอบของ loop
-            document.getElementById(`submitButtonSum${id}`).addEventListener('click', function(event) {
-                fnSubmitTextSum(id, event);
-            });
+            // document.getElementById(`submitButtonSum${id}`).addEventListener('click', function(event) {
+            //     fnSubmitTextSum(id, event);
+            // });
         }
     }
     return strHTML;
@@ -339,40 +367,97 @@ function fnDrawTableReportAssessmentFix (data) {  /* ด้านยุทธก
     // $("#dvTableReportAssessment")[0].innerHTML = strHTML;
 }
 
-function fnDrawTableReportAssessmentOther(strSides, data, arrObj) {
+async function fnDrawTableReportAssessmentOther(strSides, arrSides, strUserId, idSideFix, valSides) {
     var strHTML = "" ;
-    var arrSides = data
-    var arrObject = arrObj
-    var index = arrSides.findIndex(item => item.key === strSides);
+    var arrSide = arrSides
+    var radioIndex = 0;
+    // var arrObject = []
+    var dataSQL = await fnGetDataResultOtherQR(strUserId, idSideFix)
+    var index = arrSide.findIndex(item => item.key === strSides);
 
-    // strHTML += " <div id='dvSidesOther'>"
-    // strHTML += " <div id='dvSidesOtherTest'>"
-    strHTML += "    <tr id='trSidesOther'><td class='tdSidesOther' style='width: 55%;font-weight: bold;padding-top: 5px;'>"
-    strHTML += "    <div> "+ fnConvertToThaiNumeralsAndPoint(arrSides[index].value) +". อื่น ๆ "
-    // strHTML += "    <button id='btn_SidesOther' type='button' class='btn btn-success btn-sm'; onclick='fnGetModalSidesOther(\"" + strSides + "\",\"" + arrSides[index].value + "\",\"" + arrSides[index].NameSides + "\")' style='margin-left : 5px;'  data-bs-toggle='modal' data-bs-target='#OtherRiskModal'>"
-    strHTML += "    <button id='btn_SidesOther' type='button' class='btn btn-success btn-sm' onclick='fnGetModalSidesOther(\"" + strSides + "\",\"" + arrSides[index].value + "\",\"" + arrSides[index].NameSides + "\")' style='margin-left : 5px;'  data-bs-toggle='modal' data-bs-target='#OtherRiskModal'>"
-    strHTML += "    <i class='las la-plus mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>เพื่มความเสี่ยงอื่นที่พบ</span>"
-    strHTML += "    </button>"
-    strHTML += "  <div id='dvSidesOther2'>"
-    strHTML += "    <div>............................................................................................</div>"
-    strHTML += "    <div>............................................................................................</div>"
-    strHTML += "    </td>"
-    strHTML += "    <td class='tdSidesOther'></td><td class='tdSidesOther'></td><td class='tdSidesOther'></td></tr>";
-    strHTML += "  </div> "
-    // strHTML += " </div> "
+    if (dataSQL && dataSQL.length > 0) {
+        var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix, dataSQL[0].id)
+        var combinedArray = dataSQL.map(formItem => {
+         if (formItem.sum_id && radioIndex < dataRadio.length) {
+            var radioData = dataRadio[radioIndex];
+            if ((radioData.radio == formItem.value) && radioData.headID ) {
+                return {
+                    ...formItem,
+                    radio: radioData.radio,
+                    descResultEndQR: radioData.descResultEndQR
+                };
+            } else {
+                return formItem;
+            }
+        } else {
+            return formItem;
+        }
+    });
+    // console.log(combinedArray)
+
+        for (var i = 0; i < combinedArray .length; i++) {
+            var items = combinedArray [i];
+            if (items.mainControl_id !== undefined || items.sum_id !== undefined) {
+                if (items.sum_id && items.value) { // ส่วนสรุป
+                    strSumDetail = fnMapValueToCallFunction(items, 'disabled') // fix disabled เนื่องจากเป็นกรณีที่ checkbox
+                    if (items.value == 0) {// ใส่เส้น ล่างตาราง
+                        strHTML += "<tr class='trSidesSum-Line'><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    } else {
+                        strHTML += "<tr><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    }
+                } else { // ส่วนอื่น ๆ วัตถุประสงค์
+                    if (items.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
+                        strHTML += "<tr><td style='width: 55%;font-weight: bold;'><u>สรุป</u> : " + items.text + "</td><td></td><td></td><td></td></tr>";
+                    } else { // หัวข้อหลัก 1,2,3,4,5
+                        strHTML += "<tr><td style='width: 55%;;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
+                    }
+                    if (items.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
+                        strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-weight: bold;'>" + items.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                    }
+                    if (items.objectName) { // เพื่อ ......
+                        strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-style: italic;'>" + items.objectName + "</td><td></td><td></td><td></td></tr>";
+                    }
+                }
+            } else { // หัวข้อย่อยทั้งหมด
+                if ((items.is_subcontrol && items.is_subcontrol == 1) || (items.is_innercontrol && items.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
+                    strHTML += "<tr><td style='width: 55%;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
+                } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ items.is_innercontrol == 0
+                    if (items.id_innercontrol) { // 1
+                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_innercontrol, items.text, items.id, '26%', items.checkbox ? items.checkbox : '', items.descResultQR  ? items.descResultQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', '', 1);
+                    } else {
+                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_control, items.text, items.id, '17px', items.checkbox ? items.checkbox : '', items.descResultQR  ? items.descResultQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', '', 1);
+                    }
+                }
+            }
+        }
+    } else {
+        strHTML += "    <tr id='trSidesOther'><td class='tdSidesOther' style='width: 55%;font-weight: bold;padding-top: 5px;'>"
+        strHTML += "    <div> "+ fnConvertToThaiNumeralsAndPoint(arrSide[index].value) +". อื่น ๆ "
+        strHTML += "    <button id='btn_SidesOther' type='button' class='btn btn-success btn-sm' onclick='fnGetModalSidesOther(\"" + strSides + "\",\"" + arrSide[index].value + "\",\"" + arrSide[index].NameSides + "\",\"" + idSideFix + "\",\"" + valSides + "\")' style='margin-left : 5px;'  data-bs-toggle='modal' data-bs-target='#OtherRiskModal'>"
+        strHTML += "    <i class='las la-plus mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>เพื่มความเสี่ยงอื่นที่พบ</span>"
+        strHTML += "    </button>"
+        strHTML += "  <div id='dvSidesOther2'>"
+        strHTML += "    <div>............................................................................................</div>"
+        strHTML += "    <div>............................................................................................</div>"
+        strHTML += "    </td>"
+        strHTML += "    <td class='tdSidesOther'></td><td class='tdSidesOther'></td><td class='tdSidesOther'></td></tr>";
+        strHTML += "  </div> "
+    }
+ 
     return strHTML;
-    
 }
 
-async function fnDrawCommentDivEvaluation(data, idSideFix) {
+async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix) {
     var strHTML = ''
     var strUserId = fnGetCookie("userId")
     var dataSummary = await fnGetDataResultCONQR(strUserId, idSideFix)
-    var descConQR = dataSummary[0].descConQR || ''
-    var prefixAsessor = dataSummary[0].prefixAsessor || ''
-    var signPath = dataSummary[0].signPath || ''
-    var position = dataSummary[0].position || ''
-    var dateAsessor = dataSummary[0].dateAsessor || ''
+
+    // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
+    var descConQR = (dataSummary && dataSummary.length > 0) ? dataSummary[0].descConQR : '';
+    var prefixAsessor = (dataSummary && dataSummary.length > 0) ? dataSummary[0].prefixAsessor : '';
+    var signPath = (dataSummary && dataSummary.length > 0) ? dataSummary[0].signPath : '';
+    var position = (dataSummary && dataSummary.length > 0) ? dataSummary[0].position : '';
+    var dateAsessor = (dataSummary && dataSummary.length > 0) ? dataSummary[0].dateAsessor : '';
 
     strHTML += " <div class='dvEvaluation'>สรุป : การควบคุมภายใน" + data + "</div> "
     if (descConQR) {
@@ -454,7 +539,7 @@ async function fnGetDataResultQR(userId, sideId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultQR', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -470,15 +555,41 @@ async function fnGetDataResultQR(userId, sideId) {
     }
 }
 
-async function fnGetDataResultEndQR(userId, sideId) {
+async function fnGetDataResultEndQR(userId, sideId, otherId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId,
+        otherId: otherId
+    }
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultEndQR', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultOtherQR(userId, sideId) {
     var dataSend = {
         userId: userId,
         sideId: sideId
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultEndQR', dataSend)
-        var res = response.data
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultOtherQR', dataSend)
+        var res = response.data.result
+        console.log(res)
         if (res.length > 0) {
             return res
         } else {
@@ -501,7 +612,7 @@ async function fnGetDataResultCONQR(userId, sideId) {
     }
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConQR', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -517,20 +628,20 @@ async function fnGetDataResultCONQR(userId, sideId) {
     }
 }
 
-function fnMapValueToCallFunction(items) {
+function fnMapValueToCallFunction(items, isdisabled) {
     // ตรวจสอบว่า items เป็น object หรือ array
     if (Array.isArray(items)) {
         // ฟังก์ชันในการกรองและอัปเดตข้อมูลถ้าเป็น array
         items = items.map(item => {
             if (item.sum_id !== null && item.sum_id !== undefined) {
-                item.text = fnCreateInputRadioAndSpan(item.text, item.head_id, item.value, (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''));
+                item.text = fnCreateInputRadioAndSpan(item.text, item.head_id, item.value, (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''), (isdisabled ? isdisabled: ''));
             }
             return item;
         });
     } else if (items && typeof items === 'object') {
         // ฟังก์ชันในการอัปเดตข้อมูลถ้าเป็น object
         if (items.sum_id !== null && items.sum_id !== undefined) {
-            items.text = fnCreateInputRadioAndSpan(items.text, items.head_id, items.value, (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''));
+            items.text = fnCreateInputRadioAndSpan(items.text, items.head_id, items.value, (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''), (isdisabled ? isdisabled: ''));
         }
         return items;
     } else {
@@ -541,9 +652,7 @@ function fnMapValueToCallFunction(items) {
 function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, nameSides, idQR) {
     var strHTML = ''
     if (ischeckbox == 'y') {
-  
-        if (fileName) { // ถ้ามีไฟล์แนบมา
-            
+        if (fileName) { // ถ้ามีไฟล์แนบมา 
             strHTML += `
                 <div style='display:flex; align-items: center;'>
                     <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
@@ -656,7 +765,10 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     </button>
                 </div>
         `;
-        fnAddEventListeners(id)
+        // เรียกฟังก์ชัน fnAddEventListenersSum เมื่อ element ถูกสร้างใน DOM
+            fnObserveElementCreation(`submitButton${id}`, () => {
+                fnAddEventListeners(`${id}`);
+            });
         }
     }  else { // ถ้า ischeckbox เป็นค่า NULL 
         strHTML += `
@@ -689,24 +801,36 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
 
 
 function fnAddEventListeners(id) {
-    const button = document.getElementById(`submitButton${id}`);
-    if (button) {
+    const buttons = document.querySelectorAll("[id^='submitButton']");
+    buttons.forEach(button => {
         button.addEventListener('click', function(event) {
+            const id = button.id.replace('submitButton', '');
             fnSubmitText(id, event);
         });
+    });
+}
+
+function fnAddSaveButtonEventListener(id) {
+    const saveButton = document.getElementById('btnSaveData');
+    if (saveButton) {
+        saveButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            // โค้ดสำหรับการบันทึกข้อมูล
+            fnSaveFormData(id, event);
+        });
     } else {
-        console.error(`Element with id submitButton${id} not found.`);
+        console.error('Element with id btnSaveData not found.');
     }
 }
 
 function fnAddEventListenersSum(id) {
-    const button = document.getElementById(`submitButtonSum${id}`);
+    const button = document.getElementById(`btnSubmitSum${id}`);
     if (button) {
         button.addEventListener('click', function(event) {
             fnSubmitTextSum(id, event);
         });
     } else {
-        console.error(`Element with id submitButtonSum${id} not found.`);
+        console.error(`Element with id btnSubmitSum${id} not found.`);
     }
 }
 function fnAddEventListenersCommentEV() {
@@ -760,7 +884,6 @@ function fnUploadDocConfig (text, id, nameSides, idQR) {
     $("#dvFooterModalRelateDocumentModal")[0].innerHTML = strHTML2
 
     $('#selectTypeSecret').change(function() {
-        // console.log($(this).val())
         if ($(this).val() === 'show') {
             $('#dvuploadfile').removeClass('hidden');
         } else {
@@ -819,9 +942,8 @@ function fnChangeToFillDocConfig(text, id) {
     document.getElementById(`btnUploadDoc${id}`).style.display = 'none';
     document.getElementById(`btnFillDoc${id}`).style.display = 'none';
     document.getElementById(`comment_${id}`).style.display = 'block';
-    document.getElementById(`submitButton${id}`).style.display = 'block';
+    document.getElementById(`btnSubmitSum${id}`).style.display = 'block';
     document.getElementById(`displayText${id}`).style.display = 'block';
-    fnAddEventListeners(id)
 }
 
 function fnGetDataModal(strtext, id, nameSides) {
@@ -945,15 +1067,14 @@ function fnSetFileDocPDF(idQR) {
     });
 }
 
-function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
+function fnGetModalSidesOther (sides, number, nameSides, idSideFix, valSides) {
     var strHTML = ''
     var strHTML2 = ''
-    
     if (sides == 'branchoperation') {
-        strHTML += " <div class='form-group mb-3'> "
-        strHTML += "     <label for='headCheckTopic'>ด้านของกิจกรรม</label> "
-        strHTML += "     <input type='text' id='headCheckTopic' class='form-control lableHead' value='" + nameSides + "' style='background: darkgray;' readonly> "
-        strHTML += " </div> "
+        // strHTML += " <div class='form-group mb-3'> "
+        // strHTML += "     <label for='headCheckTopic'>ด้านของกิจกรรม</label> "
+        // strHTML += "     <input type='text' id='headCheckTopic' class='form-control lableHead' value='" + nameSides + "' style='background: darkgray;' readonly> "
+        // strHTML += " </div> "
         strHTML += " <div class='form-group mb-3'> "
         strHTML += "     <label for='nameMenuCheckTopic'>หัวข้อกิจกรรม</label> "
         strHTML += "     <input type='text' id='nameMenuCheckTopic' class='form-control lableHead' placeholder='กรอกหัวข้อกิจกรรม'> "
@@ -970,18 +1091,25 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
         strHTML += "     <div id='nameActivityError' class='error'>กรุณาใส่รายการกิจกรรม 1</div> "
         strHTML += " </div> "
         strHTML += " <div class='form-group mb-3'> "
-        strHTML += "     <label for='nameActivity2'>รายการกิจกรรม 2</label> "
+        strHTML += " <label for='description' class='lableHead label-required'>คำอธิบาย/คำตอบ</label> "
+        strHTML += " <textarea class='form-control' id='description'></textarea> "
+        strHTML += " </div> "
+        strHTML += " <div class='form-group mb-3'> "
+        strHTML += "     <label for='nameActivity2'>รายการกิจกรรม (2)</label> "
         strHTML += "     <input type='text' id='nameActivity2' class='form-control lableHead'> "
         strHTML += " </div> "
-    } else { // ด้านที่เหลือ
 
-      
+        strHTML += " class='form-group mb-3'> "
+        strHTML += " <label for='description2' class='lableHead'>คำอธิบาย/คำตอบ (2)</label> "
+        strHTML += " <textarea class='form-control' id='description2'></textarea> "
+        strHTML += " </div> "
+    } else { // ด้านที่เหลือ
     
         // draw modal
-        strHTML += " <div class='mb-3'> "
-        strHTML += " <label for='headCheckTopic' class='lableHead'>ด้านของกิจกรรม</label> "
-        strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='" + nameSides + "' style='background: darkgray;' readonly> "
-        strHTML += " </div> "
+        // strHTML += " <div class='mb-3'> "
+        // strHTML += " <label for='headCheckTopic' class='lableHead'>ด้านของกิจกรรม</label> "
+        // strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='" + nameSides + "' style='background: darkgray;' readonly> "
+        // strHTML += " </div> "
     
         strHTML += " <div class='mb-3'> "
         strHTML += " <label for='nameMenuCheckTopic' class='lableHead label-required'>หัวข้อกิจกรรม</label> "
@@ -999,20 +1127,32 @@ function fnGetModalSidesOther (sides, number, nameSides, arrObj) {
         strHTML += " </div> "
 
         strHTML += " <div class='mb-3'> "
-        strHTML += " <label for='nameActivity2' class='lableHead'>รายการกิจกรรม 2</label> "
+        strHTML += " <label for='description' class='lableHead label-required'>คำอธิบาย/คำตอบ</label> "
+        strHTML += " <textarea class='form-control' id='description'></textarea> "
+        strHTML += " </div> "
+
+        strHTML += " <div class='mb-3'> "
+        strHTML += " <label for='nameActivity2' class='lableHead'>รายการกิจกรรม (2)</label> "
         strHTML += "<input type='text' class='form-control' id='nameActivity2' value=''>"
         strHTML += " </div> "
+
+        strHTML += " <div class='mb-3'> "
+        strHTML += " <label for='description2' class='lableHead'>คำอธิบาย/คำตอบ (2)</label> "
+        strHTML += " <textarea class='form-control' id='description2'></textarea> "
+        strHTML += " </div> "
+
+        strHTML += " <div class='mb-3'> "
+        strHTML += " <label for='improvement' class='lableHead label-required'>แนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้น</label> "
+        strHTML += " <textarea class='form-control' id='improvement'></textarea> "
+        strHTML += " </div> "
     
-        strHTML2 += " <button type='button' class='btn btn-primary' onclick='fnAddNewRowFromModal(\"" + number + "\",\"" + JSON.stringify(arrObj) + "\")' data-bs-dismiss='modal'>บันทึกข้อมูล</button> "
+        strHTML2 += " <button type='button' class='btn btn-primary' onclick='fnAddNewRowFromModal(\"" + number + "\",\"" + idSideFix + "\",\"" + nameSides + "\",\"" + valSides + "\")' data-bs-dismiss='modal'>บันทึกข้อมูล</button> "
         strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "           
-    
     
         $("#dvBodyModalOtherRiskModal")[0].innerHTML = strHTML
         $("#dvFooterModalOtherRiskModal")[0].innerHTML = strHTML2
 
     }
-    
-
  }
 
  function fnDrawModalSignature (strPrefixAsessor,strSignPath, strPosition, strDateAsessor) {
@@ -1240,65 +1380,43 @@ function fnSubmitSignature() {
 
 
  // ฟังก์ชันเพื่อเพิ่มแถวใหม่จาก modal
-function fnAddNewRowFromModal() {
-    
-    // Uncomment this block if you want to use SweetAlert for confirmation
-    // Swal.fire({
-    //     title: "",
-    //     text: "คุณต้องการบันทึกข้อมูลใช่หรือไม่?",
-    //     icon: "warning",
-    //     showCancelButton: true,
-    //     confirmButtonColor: "#3085d6",
-    //     cancelButtonColor: "#d33",
-    //     confirmButtonText: "บันทึกข้อมูล",
-    //     cancelButtonText: "ยกเลิก"
-    // }).then((result) => {
-    //     if (result.isConfirmed) {
-    //         Swal.fire({
-    //             title: "",
-    //             text: "บันทึกข้อมูลสำเร็จ",
-    //             icon: "success"
-    //         });
-    //         $('#OtherRiskModal').modal('hide');
-    //     }
-    // });
-
+async function fnAddNewRowFromModal(number, idSideFix, nameSides, valSides) {
     var nameSides = $('#headCheckTopic').val();
     var activityTitle = $('#nameMenuCheckTopic').val();
     var objective = $('#nameObjective').val();
     var activityName1 = $('#nameActivity').val();
+    var description1 = $('#description').val();
     var activityName2 = $('#nameActivity2').val();
+    var description2 = $('#description2').val();
+    var improvement = $('#improvement').val();
+    
     var newId = new Date().getTime();
 
-    // Add new rows to the globalTest array
-    var testarr = [
-        { id: newId, id_control: '7.', head_id: 7, maincontrol_id: 7, text: "อื่น ๆ " + activityTitle, main_Obj: "วัตถุประสงค์ของการควบคุม", Object_name: objective },
-        { id: newId, id_control: '7.1', head_id: 7, text: activityName1, is_subcontrol: 0 },
+    var arrNew = [
+        { id: newId, id_control: number + '.', head_id: number, mainControl_id: number, text: "อื่น ๆ " + activityTitle, main_Obj: "วัตถุประสงค์ของการควบคุม", objectName: objective },
+        { id: newId, id_control: number + '.1', head_id: number, text: activityName1, is_subcontrol: 0 },
     ];
     
     if (activityName2) {
-        testarr.push({ id: newId, id_control: '7.2', head_id: 7, text: activityName2, is_subcontrol: 0 });
+        arrNew.push({ id: newId, id_control: number + '.2', head_id: number, text: activityName2, is_subcontrol: 0 });
     }
     
-    testarr = testarr.concat([
-        { id: newId + 1, head_id: 7, sum_id: newId, value: '', text: "การรักษาความปลอดภัยเกี่ยวกับบุคคล" },
-        { id: newId + 1, head_id: 7, sum_id: newId, value: '1', text: "มีการควบคุมเพียงพอ" },
-        { id: newId + 1, head_id: 7, sum_id: newId, value: '0', text: "กรณีไม่เพียงพอมีแนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้น ดังนี้" }
+    arrNew = arrNew.concat([
+        { id: newId + 1, head_id: number, sum_id: newId, value: '', text: "การรักษาความปลอดภัยเกี่ยวกับบุคคล" },
+        { id: newId + 1, head_id: number, sum_id: newId, value: '1', text: "มีการควบคุมเพียงพอ" },
+        { id: newId + 1, head_id: number, sum_id: newId, value: '0', text: "กรณีไม่เพียงพอมีแนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้น ดังนี้" }
     ]);
 
-    globalTest = globalTest.concat(testarr)
-    // Draw the updated table and update the HTML
-    var updatedTableHTML = fnDrawTableReportAssessment(testarr);
-    $('#dvFormReport tbody').append(updatedTableHTML);
+    globalTest = globalTest.concat(arrNew);
+    
+    var updatedTableHTML = await fnDrawTableReportAssessment(arrNew, idSideFix, nameSides);
+    $('#tb_' + valSides + ' tbody').append(updatedTableHTML);
 
     if (nameSides && activityTitle && objective && activityName1) {
-        // Optionally close the modal if needed
         $('#OtherRiskModal').modal('hide');
         $('.modal-backdrop').remove();
         $('#trSidesOther').css('display', 'none');
     }
-
-
 }
 
 function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, fileName) {
@@ -1496,7 +1614,7 @@ function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, fileNa
     }
 }
 
-function fnToggleTextSum(val, val2) {
+function fnToggleTextSum(val, val2, description) {
     var textarea = '';
     var button = '';
     var displayText = '';
@@ -1505,7 +1623,7 @@ function fnToggleTextSum(val, val2) {
     var editIcon = document.getElementById('editIconSum' + newVal);
 
     textarea = document.getElementById('commentSum' + newVal);
-    button = document.getElementById('submitButtonSum' + newVal);
+    button = document.getElementById('btnSubmitSum' + newVal);
     displayText = document.getElementById('displayTextSum' + newVal);
     if (val2.value == 1) {
         textarea.style.display = 'none';
@@ -1514,11 +1632,21 @@ function fnToggleTextSum(val, val2) {
         displayText.innerHTML = '';
         editIcon.style.display = 'none';
     } else {
-        textarea.style.display = 'block';
-        button.style.display  = 'block';
-        displayText.style.display  = 'block';
-        displayText.innerHTML = '';
-        editIcon.style.display = 'none';
+        if (description) {
+            textarea.style.display = 'none';
+            button.style.display  = 'none';
+            displayText.style.display  = '';
+            displayText.innerHTML = description;
+            editIcon.style.display = '';
+            fnAddEventListenersSum(newVal)
+        } else {
+            textarea.style.display = 'block';
+            button.style.display  = 'block';
+            displayText.style.display  = 'block';
+            displayText.innerHTML = '';
+            editIcon.style.display = 'none';
+            fnAddEventListenersSum(newVal)
+        }
     }
 }
 
@@ -1554,16 +1682,14 @@ function fnSubmitText(id, event) {
 
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
 function fnSubmitTextSum(val, event) {
-
     event.preventDefault(); // ป้องกันการส่งฟอร์ม
 
     const textarea = document.getElementById('commentSum' + val);
-    const button = document.getElementById('submitButtonSum' + val);
+    const button = document.getElementById('btnSubmitSum' + val);
     const displayText = document.getElementById('displayTextSum' + val);
     const editIcon = document.getElementById('editIconSum' + val);
     const tab = '&emsp;'
     let format = ''
-
     if (textarea.value) {
         format = textarea.value.replace(/\n/g, '<br>');
         displayText.innerHTML = tab + format
@@ -1605,7 +1731,7 @@ function fnEditText(id) {
 
 function fnEditTextSum(val) {
     const textarea = document.getElementById('commentSum' + val);
-    const button = document.getElementById('submitButtonSum' + val);
+    const button = document.getElementById('btnSubmitSum' + val);
     const editIcon = document.getElementById('editIconSum' + val);
 
     if (button) {

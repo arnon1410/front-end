@@ -23,12 +23,12 @@ async function fnDrawTableForm(access) {
 
     var dataHighRiskSQL = await fnGetDataResultHighRisk(strUserId, strYear)
     var dataConPKF5SQL = await fnGetDataResultConPKF5(strUserId)
-
-    var prefixAsessor = dataConPKF5SQL[0].prefixAsessor || ''
-    var signPath = dataConPKF5SQL[0].signPath || ''
-    var position = dataConPKF5SQL[0].position || ''
-    var dateAsessor = dataConPKF5SQL[0].dateAsessor || ''
-    var shortName = dataConPKF5SQL[0].shortName || ''
+    // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
+    var prefixAsessor = (dataConPKF5SQL && dataConPKF5SQL.length > 0) ? dataConPKF5SQL[0].prefixAsessor : '';
+    var signPath = (dataConPKF5SQL && dataConPKF5SQL.length > 0) ? dataConPKF5SQL[0].signPath : '';
+    var position = (dataConPKF5SQL && dataConPKF5SQL.length > 0) ? dataConPKF5SQL[0].position : '';
+    var dateAsessor = (dataConPKF5SQL && dataConPKF5SQL.length > 0) ? dataConPKF5SQL[0].dateAsessor : '';
+    var shortName = (dataConPKF5SQL && dataConPKF5SQL.length > 0) ? dataConPKF5SQL[0].shortName : '';
     
     var strCurrentYear = ''
     var strLasterYear = ''

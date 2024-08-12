@@ -12,11 +12,12 @@ async function fnDrawTableForm(access, valSides) {
     // Get data selete before create table 
     var strUserId = fnGetCookie("userId")
     var dataConPK4SQL = await fnGetDataResultConPK4(strUserId)
-    var descConPK4 = dataConPK4SQL[0].descConPK4 || ''
-    var prefixAsessor = dataConPK4SQL[0].prefixAsessor || ''
-    var signPath = dataConPK4SQL[0].signPath || ''
-    var position = dataConPK4SQL[0].position || ''
-    var dateAsessor = dataConPK4SQL[0].dateAsessor || ''
+    // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
+    var descConPK4 = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].descConPK4 : '';
+    var prefixAsessor = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].prefixAsessor : '';
+    var signPath = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].signPath : '';
+    var position = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].position : '';
+    var dateAsessor = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].dateAsessor : '';
 
     var strHTML = ''
     var nameUnit = dataConPK4SQL[0].shortName || ''
