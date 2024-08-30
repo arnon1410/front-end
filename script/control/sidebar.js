@@ -6,7 +6,7 @@ function fnSetSidebarMenuConTrol(namePages){
         { page: 'sendReport', text: 'การจัดส่งรายงาน', icon: 'las la-paper-plane' }
     ];
     var menuItemsForm = [
-        { page: 'Appointment', text: 'คำสั่งแต่งตั้งคณะทำงาน', icon: 'las la-file' },
+        // { page: 'Appointment', text: 'คำสั่งแต่งตั้งคณะทำงาน', icon: 'las la-file' },
         { page: 'branchPersonal', text: 'ด้านกำลังพล', icon: 'las la-user' },
         { page: 'branchOperation', text: 'ด้านการยุทธการ', icon: 'las la-share-alt' },
         { page: 'branchNews', text: 'ด้านการข่าว', icon: 'las la-newspaper' },
@@ -47,7 +47,7 @@ function fnSetSidebarMenuConTrol(namePages){
     // return strHTML
 }
 
-function fnCreateBtnTabForm (namePages) {
+function fnCreateBtnTabForm (data, namePages) {
     var strHTML = ""
     var menuItems = []
     if (namePages == 'Appointment') {
@@ -64,38 +64,53 @@ function fnCreateBtnTabForm (namePages) {
         strHTML += " <ul class='dropdown-menu'> "
         if (namePages == 'reportAssessment') { // เอกสารปลายน้ำ
             menuItems = [
-                { page: 'reportAssessmentPK4', text: 'แบบ ปค.๔'},
-                { page: 'reportAssessmentPK5', text: 'แบบ ปค.๕'},
-                { page: 'reportAssessmentFollowPK5', text: 'แบบติดตาม ปค.๕'}
+                {id: '5', page: 'reportAssessmentPK4', text: 'แบบ ปค.๔'},
+                {id: '6', page: 'reportAssessmentPK5', text: 'แบบ ปค.๕'},
+                {id: '7', page: 'reportAssessmentFollowPK5', text: 'แบบติดตาม ปค.๕'}
             ];
         } else { // เอกสารต้นน้ำ
             menuItems = [
-                { page: 'Questionnaire', text: 'แบบสอบถาม'},
-                { page: 'AssessmentForm', text: 'แบบประเมิน'},
-                { page: 'PerformanceEVForm', text: 'แบบ ปม.'}
+                {id: '2', page: 'Questionnaire', text: 'แบบสอบถาม'},
+                {id: '3', page: 'AssessmentForm', text: 'แบบประเมิน'},
+                {id: '4', page: 'PerformanceEVForm', text: 'แบบ ปม.'}
             ];
         }
+        if (data) {
+            data.forEach(item => {
+                const menuItem = menuItems.find(menu => menu.id === item.id.toString());
+                if (menuItem) {
+                    // เพิ่ม opStatusID เข้าไปใน menuItem
+                    menuItem.opStatusID = item.opStatusID;
+                }
+            });
+        }
+        console.log(menuItems)
+
         for (var i = 0; i < menuItems.length; i++) {
             var menuItemA = menuItems[i];
-            // var isActive = (namePages === menuItemA.page) ? ' active' : '';
-            strHTML += `<li><a class='dropdown-item text-center' href='${menuItemA.page}.html?sides=${namePages}' target='_blank'>${menuItemA.text}</a></li>`        
+            if (menuItemA.opStatusID === 1) { // ยังไม่เคยกดบันทึก
+                strHTML += `<li><a class='dropdown-item text-center' href='${menuItemA.page}.html?sides=${namePages}' target='_blank'>${menuItemA.text}</a></li>`;
+            } else {
+                strHTML += `<li><a class='dropdown-item text-center' href='#' onclick="showAlert('${menuItemA.text}')"> ${menuItemA.text}</a></li>`;
+
+            }
         }
 
         strHTML += " </ul>"
         strHTML += " </div>"
     
     }
-    
-    // strHTML2 += " <button type='button' class='btn btn-danger' onclick='fnGetDataModal2()' data-bs-toggle='modal' data-bs-target='#AssessmentModal2' > "
-    // strHTML2 += " <span class='las la-plus'></span> "
-    // strHTML2 += " นำเข้าข้อมูล "
-    // strHTML2 += " </button> "
 
     $("#btnAddData")[0].innerHTML = strHTML
+}
 
-    // if (namePages == 'branchNews') { // เอกสารปลายน้ำ
-    //     $("#btnAddData2")[0].innerHTML = strHTML2
-    // }
+function showAlert(text) {
+    Swal.fire({
+        title: '',
+        text: `ฟอร์ม ${text} ถูกสร้างแล้ว`,
+        icon: 'warning',
+        confirmButtonText: 'OK'
+    });
 }
   
   

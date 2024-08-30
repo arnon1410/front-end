@@ -15,6 +15,9 @@
     
     <title>รายงานผลการประเมินผล</title>
     <style>
+        .hidden {
+          display: none;
+        }
         th {
 
         }
@@ -49,6 +52,7 @@
           background: linear-gradient(-135deg, #4158d0, #c850c0);
           color: white;
         }
+
         .icon-button__badge {
           position: absolute;
           top: -8px;
@@ -67,6 +71,15 @@
           position: relative;
           margin-right: 5px;
         }
+        .error {
+          color: red;
+          font-size: 0.9em;
+          display: none;
+        }
+        .label-required::after {
+          content: " *";
+          color: red;
+        }
     </style>
 </head>
 <body>
@@ -76,17 +89,17 @@
 <div class="sidebar">
   <div class="sidebar-container">
     <div class="brand">
-      <h3>
+      <h3 style='font-family: "Poppins", sans-serif;'>
         <span class="las la-anchor"></span>
         NIGD
       </h3>
     </div>
     <div class="sidebar-avatar">
       <div>
-        <img src="https://media-exp1.licdn.com/dms/image/C4D03AQF9R2lxnH4fOw/profile-displayphoto-shrink_800_800/0/1639841285929?e=1654128000&v=beta&t=QvocDiNfivbaAzHjsX9fnl9eFa1ZSo4SBHeH4jZANEk" alt="avatar">
+        <img src="" alt="avatar">
       </div>
       <div class="avatar-info">
-        <div class="avatar-text">
+        <div class="avatar-text" style="text-align: center;">
         <h6 id='textName'></h6>
           <small>28-04-67</small>
         </div>
@@ -126,7 +139,7 @@
             <div class="card shadow border-0">
                 <div class="card-header">
                     <!-- Start Selete Content -->
-                    <div class="container" id="dvHeadSelectAssessment">
+                    <div id="dvHeadSelectAssessment">
 
                     </div>
                     <!-- Start Table Content -->
@@ -154,6 +167,83 @@
                 </div>
             </div>
         </div>
+
+
+
+          <!-- Start Modal สร้างฟอร์ม คำแนะนำ -->
+          <div class="modal fade" id="conmentModal" tabindex="-1" aria-labelledby="conmentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="conmentModalLabel">คำแนะนำ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="dvBodyConmentModal">
+                        <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                    </div>
+                    <div class="modal-footer" id="dvFooterConmentModal">
+                        <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer is NULL -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Modal สร้างฟอร์ม บันทึกสถานะเอกสาร -->
+        <div class="modal fade" id="setStatusDocModal" tabindex="-1" aria-labelledby="setStatusDocModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="setStatusDocModalLabel">บันทึกสถานะเอกสาร</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" id="dvBodySetStatusDocModal">
+                      <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                  </div>
+                  <div class="modal-footer" id="dvFooterSetStatusDocModal">
+                      <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer is NULL -->
+                  </div>
+              </div>
+          </div>
+      </div>
+    
+    
+          <!-- Start Modal สร้างฟอร์ม อัปโหลดเอกสาร -->
+          <div class="modal fade" id="uploadDocModal" tabindex="-1" aria-labelledby="uploadDocModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadDocModalLabel">อัปโหลดเอกสาร PDF</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="dvBodyUploadDocModal">
+                        <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                    </div>
+                    <div class="modal-footer" id="dvFooterUploadDocModal">
+                        <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer is NULL -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    
+        <!-- Start Modal สร้างฟอร์ม อัปโหลดลายเซ็น -->
+        <div class="modal fade" id="uploadSignatureModal" tabindex="-1" aria-labelledby="uploadSignatureModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="uploadSignatureModalLabel">อัปโหลดลายเซ็น</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" id="dvBodyUploadSignatureModal">
+                      <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                  </div>
+                  <div class="modal-footer" id="dvFooterUploadSignatureModal">
+                      <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer is NULL -->
+                  </div>
+              </div>
+          </div>
+      </div>
+      
   </main>
 </div>
 </body>
@@ -163,6 +253,7 @@
     <script src="../../script/bootstarp/js/bootstrap.min.js"></script> 
     <script src="../../script/bootstarp/js/bootstrap.js"></script>
     <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
+
     <script src="../../script/centerFile.js"></script>
     <script src="../../script/control/drawTable.js"></script>
     <script src="../../script/control/sidebar.js"></script>
@@ -172,12 +263,20 @@
 
 <script>
     $(document).ready(function() {
+        var valUserRole = fnGetCookie("userRole") || '';
+        var valSideId = '12'
+        fnGetDataInternalControl(valUserRole ,valSideId)
         fnSetSidebarMenuConTrol('reportAssessment')
-        fnCreateBtnTabForm('reportAssessment')
-        fnGetDataInternalControl()
+  
+        if (valUserRole == 'admin') {
+          fnGetDataSelect(valUserRole ,valSideId)
+        }  
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
+
+        var valUnitName = fnGetCookie("unitName");
+        $('#textName').text(valUnitName)
 
         $('#logout').on('click', function(e) {
             e.preventDefault(); // ป้องกันการเปลี่ยนเส้นทางปกติ
@@ -194,30 +293,35 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // เปลี่ยนเส้นทางไปยัง logout.php
-                    sessionStorage.clear();
-                    window.location.href = '../../pages/main/logout.php';
+fnClearAllCookies()
+                    window.location.href = '../../pages/main/signin.html';
                 }
             });
         });
     });
 
-    function fnGetDataInternalControl() {
+    function fnGetDataInternalControl(valUserRole, valSideId) {
       
       var valUserId = fnGetCookie("userId") || '';
-      var valSideId = '12'
-      var valUserRole = fnGetCookie("userRole") || '';
-
+      var isAdmin = ''
+      if (valUserRole == 'admin') {
+        isAdmin = '1'
+      }
       if (valUserId) {      
         var data = {
           userId: valUserId,
-          sideId: valSideId
+          sideId: valSideId,
+          isAdmin: isAdmin
         }
         axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
         .then(response => {
           var result = response.data
           if (result) {
-            // call data 
-            fnDrawTable(valUserRole, result)
+            // call data
+            if (valUserRole == 'user') {
+              fnCreateBtnTabForm(result, 'reportAssessment')
+            } 
+            fnDrawTable(valUserRole, valSideId, result, 'reportAssessment')
             return result
           }
         })

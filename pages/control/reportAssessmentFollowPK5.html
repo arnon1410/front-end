@@ -5,7 +5,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
     <link href='https://fonts.googleapis.com/css2?family=Sarabun&display=swap' rel='stylesheet'>
-    <link rel='stylesheet' href='../../css/control/formReport.css' />
+    <!-- <link rel='stylesheet' href='../../css/control/formReport.css' /> -->
     <link rel="stylesheet" href="../../css/sweetalert2/sweetalert2.min.css" >
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css'>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
@@ -87,6 +87,15 @@
         .dvSignature > div {
             width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */
         }
+        .dvAssessor {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 16px;
+        }
+        .dvAssessor > div {
+            width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */
+        }
         .dvFooterForm {
             width: 100%;
             text-align: center;
@@ -150,12 +159,52 @@
        <!-- Content -->
     </div>
 
+    <!-- Start Modal สร้างฟอร์ม กรอกข้อมูลลายเซ็น -->
+    <div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signatureModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodySignatureModal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterSignatureModal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal สร้างฟอร์ม กรอกข้อมูลลายเซ็น -->
+
+    <!-- Start Modal สร้างฟอร์ม ผู้ประเมิน -->
+    <div class="modal fade" id="assessorModal" tabindex="-1" aria-labelledby="assessorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assessorModalLabel">กรอกข้อมูลผู้ประเมิน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodyAssessorModal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterAssessorModal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal สร้างฟอร์ม ผู้ประเมิน -->
+
 </body>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src='../../script/jquery/jquery-3.7.1.js'></script>
     <script src='../../script/bootstarp/js/bootstrap.min.js'></script>
     <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.th.min.js"></script>
     <script src='../../script/centerFile.js'></script>
     <script src='../../script/control/7sides/drawTableFormFollowPK5.js'></script>
 
@@ -167,24 +216,8 @@
 });
 
     function fnGetDataInternalControl() {
-        // const data = [ // ความเสี่ยง
-        //     {
-        //         id: '106' ,
-        //         id_sides:'6',
-        //         id_headRisk: '2',
-        //         mainControl: 'ด้านระบบเทคโนโลยีสารสนเทศในการบริหารจัดการ',
-        //         headRisk: 'การบริหารจัดการด้านความมั่นคงปลอดภัยของระบบเทคโนโลยีสารสนเทศ', 
-        //         objRisk: 'เพื่อบริหารจัดการให้ระบบเทคโนโลยี สารสนเทศให้มีความน่าเชื่อถือ',
-        //         risking:'ตรวจพบ มัลแวร์(Malware) ในคอมพิวเตอร์ของหน่วยส่งผลให้สูญเสียเสถียรภาพของระบบปฏิบัติการ',
-        //         improvementControl:'ให้เจ้าหน้าที่ติดตามประเมินผลการควบคุมภายในด้านเทคโนโลยีสารสนเทศประสานเจ้าหน้าที่ สสท.ทร. เพื่อดำเนินการตรวจสอบแก้ไข และกำหนดมาตรการความปลอดภัยในระบบเครือข่ายของหน่วยเช่น จัดทำระบบการกำหนดสิทธิในการเข้าถึงระบบเครือข่ายระบบการติดตามและเฝ้าดูการใช้เครือข่ายภายในและการเข้าออก Internet ทุกวัน รวมทั้งการสร้าง Firewall เพื่อป้องกันการเข้าถึงและการโจมตีจากภายนอกให้ทุกเครื่องคอมพิวเตอร์ลูกข่าย (Client) ในเครือข่ายระบบฐานข้อมูลและระบบ Web Server เป็นต้น เพื่อทำให้หน่วยมีความมั่นคงปลอดภัยสำหรับระบบสารสนเทศภายในหน่วย',
-        //         responsibleAgency: 'แผนกตรวจการป้องกันความเสียหาย กตค.จร.ทร',
-        //         progressControl: '',
-        //         solutionsControl: '',
-        //     }
-        // ]
-
         /* start ส่วนของสิทธิผู้ใช้งาน */
-        var valAccess = fnGetAllUrlParams().authen
+        var valAccess = fnGetCookie("userRole") || '';
         /* end ส่วนของสิทธิผู้ใช้งาน */
        
         // call data 

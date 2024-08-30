@@ -63,8 +63,32 @@ function fnGetAllUrlParams(url) {
     return obj;
 }
 
-function fnStringToInt(str) {
-    return parseInt(str, 10);
+function fnStringToInt(input) {
+  // Check if the input is a number and return it directly
+  if (typeof input === 'number') {
+      return input;
+  }
+  
+  // If the input is a string
+  if (typeof input === 'string') {
+      // Check if the string is empty or undefined
+      if (input.trim() === '') {
+          return '';
+      }
+      
+      // Convert the string to an integer
+      const num = parseInt(input, 10);
+      
+      // Check if the result is a valid number
+      if (isNaN(num)) {
+          return '';
+      }
+      
+      return num;
+  }
+  
+  // If the input is neither a number nor a string, return null
+  return null;
 }
 
 function fnConvertToThaiNumeralsAndPoint(number) {
@@ -109,9 +133,25 @@ function fnFormatDateToThai(dateSQL) {
 }
 
 function fnConvertToArabicNumerals(thaiNumber) {
-    const arabicNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    const thaiNumerals = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
-    return thaiNumber.split('').map(digit => arabicNumerals[thaiNumerals.indexOf(digit)]).join('');
+  // Return empty string or null if the input is null or empty
+  if (thaiNumber === null || thaiNumber === undefined) {
+      return '';
+  }
+  
+  if (typeof thaiNumber !== 'string') {
+      // Handle non-string inputs if necessary
+      throw new Error('Input must be a string');
+  }
+  
+  // Handle empty string
+  if (thaiNumber.trim() === '') {
+      return '';
+  }
+  
+  const arabicNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const thaiNumerals = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+
+  return thaiNumber.split('').map(digit => arabicNumerals[thaiNumerals.indexOf(digit)] || digit).join('');
 }
 
 function fnConvertMonthToShort(month) {
@@ -214,4 +254,38 @@ function fnClearAllCookies() {
       let name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
       document.cookie = name + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
   }
+}
+
+function fnExtractNumbersFromArray(input) {
+    // ถ้า input เป็นสตริงธรรมดา
+    if (typeof input === 'string') {
+      var match = input.match(/\d+/);
+      return match ? match[0] : '';
+  }
+  
+  // ถ้า input เป็นอาร์เรย์
+  if (Array.isArray(input)) {
+      return input.map(item => {
+          var match = item.match(/\d+/);
+          return match ? match[0] : '';
+      });
+  }
+
+  // ถ้า input ไม่ใช่สตริงหรืออาร์เรย์ คืนค่าเป็นค่าว่าง
+  return '';
+}
+
+function fnRemoveUnderscoreAndNumbers(input) {
+  // ถ้า input เป็นสตริงธรรมดา
+  if (typeof input === 'string') {
+      return input.replace(/[_\d]/g, '');
+  }
+  
+  // ถ้า input เป็นอาร์เรย์
+  if (Array.isArray(input)) {
+      return input.map(item => item.replace(/[_\d]/g, ''));
+  }
+
+  // ถ้า input ไม่ใช่สตริงหรืออาร์เรย์ คืนค่าเป็นค่าว่าง
+  return '';
 }

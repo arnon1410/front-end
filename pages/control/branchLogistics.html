@@ -15,6 +15,9 @@
     
     <title>ด้านส่งกำลังบำรุง</title>
     <style>
+        .hidden {
+          display: none;
+        }
         th {
 
         }
@@ -68,6 +71,15 @@
           position: relative;
           margin-right: 5px;
         }
+        .error {
+          color: red;
+          font-size: 0.9em;
+          display: none;
+        }
+        .label-required::after {
+          content: " *";
+          color: red;
+        }
     </style>
 </head>
 <body>
@@ -77,18 +89,18 @@
 <div class="sidebar">
   <div class="sidebar-container">
     <div class="brand">
-      <h3>
+      <h3 style='font-family: "Poppins", sans-serif;'>
         <span class="las la-anchor"></span>
         NIGD
       </h3>
     </div>
     <div class="sidebar-avatar">
       <div>
-        <img src="https://media-exp1.licdn.com/dms/image/C4D03AQF9R2lxnH4fOw/profile-displayphoto-shrink_800_800/0/1639841285929?e=1654128000&v=beta&t=QvocDiNfivbaAzHjsX9fnl9eFa1ZSo4SBHeH4jZANEk" alt="avatar">
+        <img src="" alt="avatar">
       </div>
       <div class="avatar-info">
-        <div class="avatar-text">
-          <h5>กรมจเรทหารเรือ</h5>
+        <div class="avatar-text" style="text-align: center;">
+          <h6 id='textName'></h6>
           <small>28-04-67</small>
         </div>
         <!-- <span class="las la-angle-double-right"></span> -->
@@ -126,7 +138,7 @@
             <div class="card shadow border-0">
                 <div class="card-header">
                     <!-- Start Selete Content -->
-                    <div class="container" id="dvHeadSelectAssessment">
+                    <div id="dvHeadSelectAssessment">
 
                     </div>
                     <!-- Start Table Content -->
@@ -173,7 +185,25 @@
                 </div>
             </div>
         </div>
-  
+
+          <!-- Start Modal สร้างฟอร์ม บันทึกสถานะเอกสาร -->
+          <div class="modal fade" id="setStatusDocModal" tabindex="-1" aria-labelledby="setStatusDocModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="setStatusDocModalLabel">บันทึกสถานะเอกสาร</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="dvBodySetStatusDocModal">
+                        <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                    </div>
+                    <div class="modal-footer" id="dvFooterSetStatusDocModal">
+                        <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer is NULL -->
+                    </div>
+                </div>
+            </div>
+        </div>
+      
   
         <!-- Start Modal สร้างฟอร์ม อัปโหลดเอกสาร -->
         <div class="modal fade" id="uploadDocModal" tabindex="-1" aria-labelledby="uploadDocModalLabel" aria-hidden="true">
@@ -218,8 +248,10 @@
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="../../script/jquery/jquery-3.7.1.js"></script>
-    <script src="../../script/bootstarp/js/bootstrap.min.js"></script>
+    <script src="../../script/bootstarp/js/bootstrap.min.js"></script> 
+    <script src="../../script/bootstarp/js/bootstrap.js"></script>
     <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
+
     <script src="../../script/centerFile.js"></script>
     <script src="../../script/control/drawTable.js"></script>
     <script src="../../script/control/sidebar.js"></script>
@@ -229,12 +261,20 @@
 
 <script>
     $(document).ready(function() {
+        var valUserRole = fnGetCookie("userRole") || '';
+        var valSideId = '5'
+        fnGetDataInternalControl(valUserRole ,valSideId)
         fnSetSidebarMenuConTrol('branchLogistics')
-        fnCreateBtnTabForm('branchLogistics')
-        fnGetDataInternalControl()
+  
+        if (valUserRole == 'admin') {
+          fnGetDataSelect(valUserRole ,valSideId)
+        }
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
+
+        var valUnitName = fnGetCookie("unitName");
+        $('#textName').text(valUnitName)
 
         $('#logout').on('click', function(e) {
             e.preventDefault(); // ป้องกันการเปลี่ยนเส้นทางปกติ
@@ -258,32 +298,28 @@
         });
     });
 
-    /* input Modal*/
-    // $('input[type=radio][name=flexRadioDefault]').change(function() {
-    //     if (this.value == 'havefile') {
-    //         $('#dvuploadfile').show()
-    //     } else if (this.value == 'notfile') {
-    //         $('#dvuploadfile').hide()
-    //     }
-    // })
-
-    function fnGetDataInternalControl() {
+    function fnGetDataInternalControl(valUserRole, valSideId) {
       
       var valUserId = fnGetCookie("userId") || '';
-      var valSideId = '5'
-      var valUserRole = fnGetCookie("userRole") || '';
-
+      var isAdmin = ''
+      if (valUserRole == 'admin') {
+        isAdmin = '1'
+      }
       if (valUserId) {      
         var data = {
           userId: valUserId,
-          sideId: valSideId
+          sideId: valSideId,
+          isAdmin: isAdmin
         }
         axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
         .then(response => {
           var result = response.data
           if (result) {
             // call data 
-            fnDrawTable(valUserRole, result)
+            if (valUserRole == 'user') {
+              fnCreateBtnTabForm(result, 'branchLogistics')
+            }
+            fnDrawTable(valUserRole, valSideId, result, 'branchLogistics')
             return result
           }
         })

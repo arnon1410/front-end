@@ -6,11 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="../../css/control/navbar4.css" />
     <link rel="stylesheet" href="../../css/sweetalert2/sweetalert2.min.css" >
-    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Sarabun&display=swap' >
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css'>   
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-   
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../../css/bootstarp/css/bootstrap.min.css">
     <script src="../../script/bootstarp/js/popper.min.js"></script>
@@ -18,6 +15,9 @@
 
     <title>ด้านการข่าว</title>
     <style>
+        .hidden {
+          display: none;
+        }
         th {
 
         }
@@ -71,8 +71,15 @@
           position: relative;
           margin-right: 5px;
         }
-
-
+        .error {
+          color: red;
+          font-size: 0.9em;
+          display: none;
+        }
+        .label-required::after {
+          content: " *";
+          color: red;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +96,7 @@
     </div>
     <div class="sidebar-avatar">
       <div>
-        <img src="https://media-exp1.licdn.com/dms/image/C4D03AQF9R2lxnH4fOw/profile-displayphoto-shrink_800_800/0/1639841285929?e=1654128000&v=beta&t=QvocDiNfivbaAzHjsX9fnl9eFa1ZSo4SBHeH4jZANEk" alt="avatar">
+        <img src="" alt="avatar">
       </div>
       <div class="avatar-info">
         <div class="avatar-text" style="text-align: center;">
@@ -131,7 +138,7 @@
             <div class="card shadow border-0">
                 <div class="card-header">
                     <!-- Start Selete Content -->
-                    <div class="container" id="dvHeadSelectAssessment">
+                    <div id="dvHeadSelectAssessment">
 
                     </div>
                     <!-- Start Table Content -->
@@ -160,6 +167,7 @@
             </div>
         </div>
 
+
             <!-- Start Modal สร้างฟอร์ม คำแนะนำ -->
         <div class="modal fade" id="conmentModal" tabindex="-1" aria-labelledby="conmentModalLabel" aria-hidden="true">
           <div class="modal-dialog">
@@ -172,6 +180,25 @@
                       <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
                   </div>
                   <div class="modal-footer" id="dvFooterConmentModal">
+                      <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer is NULL -->
+                  </div>
+              </div>
+          </div>
+      </div>
+
+
+        <!-- Start Modal สร้างฟอร์ม บันทึกสถานะเอกสาร -->
+        <div class="modal fade" id="setStatusDocModal" tabindex="-1" aria-labelledby="setStatusDocModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="setStatusDocModalLabel">บันทึกสถานะเอกสาร</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" id="dvBodySetStatusDocModal">
+                      <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                  </div>
+                  <div class="modal-footer" id="dvFooterSetStatusDocModal">
                       <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer is NULL -->
                   </div>
               </div>
@@ -217,10 +244,6 @@
   </div>
   
   </main>
-
-  <!-- <div class="header-action" id="btnAddData2" style="margin-top:50px; text-align:right;"> -->
-        <!-- Content -->
-      <!-- </div> -->
 </div>
 </body>
     <!-- Optional JavaScript -->
@@ -238,14 +261,21 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function() {  
+        var valUserRole = fnGetCookie("userRole") || '';
+        var valSideId = '4'
+        fnGetDataInternalControl(valUserRole ,valSideId)
         fnSetSidebarMenuConTrol('branchNews')
-        console.log(fnGetCookie('userId'))
-        fnCreateBtnTabForm('branchNews')
-        fnGetDataInternalControl()
+  
+        if (valUserRole == 'admin') {
+          fnGetDataSelect(valUserRole ,valSideId)
+        }    
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
+
+        var valUnitName = fnGetCookie("unitName");
+        $('#textName').text(valUnitName)
 
         $('#logout').on('click', function(e) {
             e.preventDefault(); // ป้องกันการเปลี่ยนเส้นทางปกติ
@@ -269,25 +299,28 @@
         });
     });
 
-
-
-    function fnGetDataInternalControl() {
+    function fnGetDataInternalControl(valUserRole, valSideId) {
 
       var valUserId = fnGetCookie("userId") || '';
-      var valSideId = '4'
-      var valUserRole = fnGetCookie("userRole") || '';
-
+      var isAdmin = ''
+      if (valUserRole == 'admin') {
+        isAdmin = '1'
+      }
       if (valUserId) {      
         var data = {
           userId: valUserId,
-          sideId: valSideId
+          sideId: valSideId,
+          isAdmin: isAdmin
         }
         axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
         .then(response => {
           var result = response.data
           if (result) {
             // call data 
-            fnDrawTable(valUserRole, result)
+            if (valUserRole == 'user') {
+              fnCreateBtnTabForm(result, 'branchNews')
+            }
+            fnDrawTable(valUserRole, valSideId, result, 'branchNews')
             return result
           }
         })
@@ -324,4 +357,3 @@
     }
 </script>
 </html>
-

@@ -161,6 +161,9 @@
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
 
+        var valUnitName = fnGetCookie("unitName");
+        $('#textName').text(valUnitName)
+
         $('#logout').on('click', function(e) {
             e.preventDefault(); // ป้องกันการเปลี่ยนเส้นทางปกติ
             
@@ -201,7 +204,7 @@
           var result = response.data
           if (result) {
             // call data 
-            fnDrawTable(valUserRole, result)
+            fnDrawTable(valUserRole, valSideId, result)
             return result
           }
         })

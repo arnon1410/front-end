@@ -34,7 +34,7 @@
     </div>
     <div class="sidebar-avatar">
       <div>
-        <img src="https://media-exp1.licdn.com/dms/image/C4D03AQF9R2lxnH4fOw/profile-displayphoto-shrink_800_800/0/1639841285929?e=1654128000&v=beta&t=QvocDiNfivbaAzHjsX9fnl9eFa1ZSo4SBHeH4jZANEk" alt="avatar">
+        <img src="" alt="avatar">
       </div>
       <div class="avatar-info">
         <div class="avatar-text" style="text-align: center;">
@@ -206,6 +206,9 @@
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
 
+        var valUnitName = fnGetCookie("unitName");
+        $('#textName').text(valUnitName)
+
         $('#logout').on('click', function(e) {
             e.preventDefault(); // ป้องกันการเปลี่ยนเส้นทางปกติ
             
@@ -219,11 +222,11 @@
                 confirmButtonText: 'ยันยืน',
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    // เปลี่ยนเส้นทางไปยัง logout.php
-                    sessionStorage.clear();
-                    window.location.href = '../../pages/main/logout.php';
-                }
+              if (result.isConfirmed) {
+                  // เปลี่ยนเส้นทางไปยัง logout.php
+                  fnClearAllCookies()
+                  window.location.href = '../../pages/main/signin.html';
+              }
             });
         });
     });

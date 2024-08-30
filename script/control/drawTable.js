@@ -17,11 +17,11 @@ function fnSetHeaderUser(){
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>"
     strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>"
     // strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>เอกสาร PDF</td>"
-    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>ลายเซ็น</td>"
+    // strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>ลายเซ็น</td>"
     return strHTML
 }
 
-async function fnDrawTable(access ,sideId ,objData) {
+async function fnDrawTable(access ,sideId ,objData, namePages) {
      // Get data selete before create table 
     var strHTML = ''
     var data = objData
@@ -41,9 +41,9 @@ async function fnDrawTable(access ,sideId ,objData) {
     strHTML += "<tbody>"
 
     if (access == 'admin') {
-        strHTML += await fnGetDataTrAdmin(sideId)
+        strHTML += await fnGetDataTrAdmin(access, sideId, namePages)
     } else {
-        strHTML += await fnGetDataTrUser(data)
+        strHTML += fnGetDataTrUser(access, data, sideId,  namePages)
     }
 
     strHTML += "</tbody>"
@@ -55,13 +55,14 @@ async function fnDrawTable(access ,sideId ,objData) {
     fnMergeColumn('#tb_Form', true);
 }
 
-async function fnGetDataTrAdmin(sideId) {
+async function fnGetDataTrAdmin(access, sideId, namePages) {
     var strHTML = ""
     var strUnitId = $('#selectUnit').val() || ''
     var strYear = $('#selectBudget').val() || ''
     var strStatus = $('#selectStatus').val() || ''
     
     var dataSQL = await fnGetResultDocCondition(strUnitId, sideId, strYear, strStatus)
+
     if (dataSQL.length > 0) {
         for (var i = 0; i < dataSQL.length; i++) {
             strHTML += "<tr>"
@@ -81,32 +82,26 @@ async function fnGetDataTrAdmin(sideId) {
             }
         
             strHTML += "<td class='text-center align-middle lastTD'>"
-            if (dataSQL[i].comment) {
-                strHTML += "<button id='btnSetComment" + (i + 1) + "' type='button' class='btn btn-success btn-sm'; onclick='fnViewCommentConfig(\"" + dataSQL[i].comment + "\")' data-bs-toggle='modal' data-bs-target='#conmentModal' style='margin-right: 5px;'>"
-                strHTML += "<i class='las la-comment-alt mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
-                strHTML += "<span class='icon-button__badge'>1</span>"
-                strHTML += "</button>"
-            } else {
-                strHTML += "<button id='btnSetComment" + (i + 1) + "' type='button' class='btn btn-success btn-sm'; style='margin-right: 5px;'>"
-                strHTML += "<i class='las la-comment-alt mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
-                strHTML += "</button>"
-            }
-            if (dataSQL[i].opStatusName !== 'notprocess') {
-                strHTML += "<button id='btnEditDoc" + (i + 1) + "' type='button' class='btn btn-warning btn-sm'; onclick='fnEditDocConfig(\"" + dataSQL[i].userID + "\",\"" + dataSQL[i].opSideID + "\",\"" + dataSQL[i].opFormID + "\",\"" + dataSQL[i].opStatusID + "\")' style='margin-right: 5px;'>"
-                strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
-                strHTML += "</button>"
-            } else {
-                strHTML += "<button id='btnEditDoc" + (i + 1) + "' type='button' class='btn btn-warning btn-sm'; onclick='fnEditDocConfig()' style='margin-right: 5px;'>"
-                strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
-                strHTML += "</button>"
-            }
+            strHTML += `<button id='btnSetComment${i + 1}' type='button' class='btn btn-success btn-sm' onclick='fnSetCommentUserConfig("set", \`${sideId}\`, \`${dataSQL[i].comment}\`, \`${dataSQL[i].id}\`,\`${dataSQL[i].opStatusName}\`)'; data-bs-toggle='modal' data-bs-target='#conmentModal' style='margin-right: 5px;'>`;
+            strHTML += "<i class='las la-comment-alt mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
+            strHTML += "</button>"
+
+            // if (dataSQL[i].opStatusName !== 'notprocess') {
+            strHTML += `<button id='btnEditDoc${i + 1}' type='button' class='btn btn-warning btn-sm' onclick='fnEditDocConfig(\`${access}\`, \`${dataSQL[i].userID}\`, \`${namePages}\`, \`${dataSQL[i].opStatusID}\`, \`${dataSQL[i].opSideID}\`, \`${dataSQL[i].opFormID}\`)' style='margin-right: 5px;'>`;
+            strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
+            strHTML += "</button>"
+            // } else {
+            //     strHTML += "<button id='btnEditDoc" + (i + 1) + "' type='button' class='btn btn-warning btn-sm'; onclick='fnEditDocConfig()' style='margin-right: 5px;'>"
+            //     strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
+            //     strHTML += "</button>"
+            // }
         
             if (dataSQL[i].opStatusName !== 'success') {
-                strHTML += "<button id='btnSetStatus" + (i + 1) + "' type='button' class='btn btn-primary btn-sm'; onclick='fnSetStatusConfig(\"" + dataSQL[i].userID + "\",\"" + dataSQL[i].opSideID + "\",\"" + dataSQL[i].opFormID + "\",\"" + dataSQL[i].opStatusID + "\")' style='margin-right: 5px;'>"
+                strHTML += `<button id='btnSetStatus${i + 1}' type='button' class='btn btn-primary btn-sm' onclick='fnSetStatusDocConfig(\`${dataSQL[i].id}\`,\`${sideId}\`,\`${namePages}\`)' data-bs-toggle='modal' data-bs-target='#setStatusDocModal' style='margin-right: 5px;'>`;
                 strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>บันทึกสถานะ<span>"
                 strHTML += "</button>"
             } else {
-                strHTML += "<button id='btnSetStatus" + (i + 1) + "' type='button' class='btn btn-primary btn-sm'; onclick='fnSetStatusConfig()' style='margin-right: 5px;'>"
+                strHTML += "<button id='btnSetStatus" + (i + 1) + "' type='button' class='btn btn-primary btn-sm'; onclick='fnSetStatusDocConfig()' style='margin-right: 5px;'>"
                 strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>บันทึกสถานะ<span>"
                 strHTML += "</button>"
             }
@@ -122,71 +117,87 @@ async function fnGetDataTrAdmin(sideId) {
     return strHTML
 }
 
-function fnGetDataTrUser(data) {
-    var strHTML = ""
+function fnGetDataTrUser(access, data, sideId, namePages) {
+    var strHTML = "";
+    // Determine the status badge
+    var badgeClass = "";
+    var badgeText = "";
+    var strComment = "";
     for (var i = 0; i < data.length; i++) {
-        strHTML += "<tr>"
-        strHTML += "<td id='No" + (i + 1) + "' class='text-center align-middle fristTD' style='width: 5%;'>" + (i + 1) + "<input type='hidden' id='idQuota" + (i + 1) + "' value='"+ data[i].userID +"'/></td>"
-        strHTML += "<td id='opSideName" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>" + (data[i].opSideName ? (data[i].opSideName) : '-') + "</td>"
-        strHTML += "<td id='opFormName" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>" + (data[i].opFormName ? (data[i].opFormName) : '-') + "</td>"
-    
-        if (data[i].opStatusName == 'success') {
-            strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>"
-        } else if (data[i].opStatusName == 'incomplete') {
-            strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-incomplete me-1'>เอกสารไม่สมบูรณ์</span></div></td>"
-        } else if (data[i].opStatusName == 'warning') {
-            strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>รอการตรวจสอบ</span></div></td>"
+        var rowIndex = i + 1;
+        var item = data[i];
+        var commentButtonId = "btnViewComment" + rowIndex;
+        var editButtonId = "btnEditDoc" + rowIndex;
+        
+        strHTML += "<tr>";
+        strHTML += "<td id='No" + rowIndex + "' class='text-center align-middle fristTD' style='width: 5%;'>";
+        strHTML += (i + 1);
+        strHTML += "<input type='hidden' id='idQuota" + rowIndex + "' value='" + item.id + "'/>";
+        strHTML += "</td>";
+        
+        strHTML += "<td id='opSideName" + rowIndex + "' class='text-center align-middle' style='width: 55%; white-space: pre-wrap;'>";
+        strHTML += (item.opSideName ? item.opSideName : "-");
+        strHTML += "</td>";
+        
+        strHTML += "<td id='opFormName" + rowIndex + "' class='text-center align-middle' style='width: 55%; white-space: pre-wrap;'>";
+        strHTML += (item.opFormName ? item.opFormName : "-");
+        strHTML += "</td>";
+        
+        switch (item.opStatusName) {
+            case 'success':
+                badgeClass = 'bg-label-success';
+                badgeText = 'สมบูรณ์ครบถ้วน';
+                break;
+            case 'incomplete':
+                badgeClass = 'bg-label-incomplete';
+                badgeText = 'เอกสารไม่สมบูรณ์';
+                break;
+            case 'warning':
+                badgeClass = 'bg-label-warning';
+                badgeText = 'กำลังดำเนินการ';
+                break;
+            default:
+                badgeClass = 'bg-label-notprocess';
+                badgeText = 'ยังไม่ดำเนินการ';
+                break;
+        }
+        
+        strHTML += "<td id='status" + rowIndex + "' class='text-center align-middle' style='width: 10%;'>";
+        strHTML += "<div class='colorCircle'>";
+        strHTML += "<span class='badge " + badgeClass + " me-1'>" + badgeText + "</span>";
+        strHTML += "</div>";
+        strHTML += "</td>";
+        
+        strHTML += "<td class='text-center align-middle lastTD'>";
+        
+        // Comment button
+        if (item.comment && item.opStatusName !== 'success') {
+            strHTML += `<button id='${commentButtonId}' type='button' class='btn btn-success btn-sm' onclick='fnSetCommentUserConfig("view", \`${sideId}\`, \`${item.comment}\`, \`${item.id}\`,\`${item.opStatusName}\`)';  data-bs-toggle='modal' data-bs-target='#conmentModal' style='margin-right: 5px;'>`;
+            strHTML += "<i class='las la-comment-alt mr-1' aria-hidden='true' style='margin-right:5px'></i><span>คำแนะนำ</span>";
+            strHTML += "<span class='icon-button__badge'>1</span>";
+            strHTML += "</button>";
         } else {
-            strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-notprocess me-1'>ยังไม่ดำเนินการ</span></div></td>"
+            strHTML += `<button id='${commentButtonId}' type='button' class='btn btn-success btn-sm' onclick='fnSetCommentUserConfig("view", \`${sideId}\`, \`${item.comment}\`, \`${item.id}\`,\`${item.opStatusName}\`)'; style='margin-right: 5px;'>`;
+            strHTML += "<i class='las la-comment-alt mr-1' aria-hidden='true' style='margin-right:5px'></i><span>คำแนะนำ</span>";
+            strHTML += "</button>";
         }
-    
-        strHTML += "<td class='text-center align-middle lastTD'>"
-        if (data[i].comment) {
-            strHTML += "<button id='btnViewComment" + (i + 1) + "' type='button' class='btn btn-success btn-sm'; onclick='fnViewCommentConfig(\"" + data[i].comment + "\")' data-bs-toggle='modal' data-bs-target='#conmentModal' style='margin-right: 5px;'>"
-            strHTML += "<i class='las la-comment-alt mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
-            strHTML += "<span class='icon-button__badge'>1</span>"
-            strHTML += "</button>"
-        } else {
-            strHTML += "<button id='btnViewComment" + (i + 1) + "' type='button' class='btn btn-success btn-sm'; style='margin-right: 5px;'>"
-            strHTML += "<i class='las la-comment-alt mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
-            strHTML += "</button>"
-        }
-    
-        if (data[i].opStatusName !== 'notprocess') {
-            strHTML += "<button id='btnEditDoc" + (i + 1) + "' type='button' class='btn btn-warning btn-sm'; onclick='fnEditDocConfig(\"" + data[i].userID + "\",\"" + data[i].opSideID + "\",\"" + data[i].opFormID + "\",\"" + data[i].opStatusID + "\")' style='margin-right: 5px;'>"
-            strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>การแก้ไข<span>"
-            strHTML += "</button>"
-        } else {
-            strHTML += "<button id='btnEditDoc" + (i + 1) + "' type='button' class='btn btn-warning btn-sm'; onclick='fnEditDocConfig()' style='margin-right: 5px;'>"
-            strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>การแก้ไข<span>"
-            strHTML += "</button>"
-        }
-        strHTML += "</td>"
-    
-        // Add signature button
-        if ( i === 0 ) {
-            strHTML += "<td rowspan='3' class='text-center align-middle lastTD'>"
-    
-            strHTML += "<button id='btnUploadSignature" + (i + 1) + "' type='button' class='btn btn-info btn-sm'; onclick='fnUploadSignatureConfig(\"" + data[i].username + "\",\"" + data[i].opSideName + "\")' data-bs-toggle='modal' data-bs-target='#uploadSignatureModal' style='margin-right: 5px;'>"
-            strHTML += "<i class='las la-upload mr-1' aria-hidden=;'true' style='margin-left:5px'></i><span>อัปโหลด<span>"
-            strHTML += "</button>"
-    
-            if (data[i].signPath) {
-                strHTML += "<button id='btnViewSignature" + (i + 1) + "' type='button' class='btn btn-primary btn-sm'; onclick='fnExportSignatureConfig(\"" + data[i].signPath + "\")'>"
-                strHTML += "<i class='las la-file-pdf mr-1' aria-hidden=;'true' style='margin-left:5px'></i><span>ดูเอกสาร<span>"
-                strHTML += "</button>"
-            } else {
-                strHTML += "<button id='btnViewSignature" + (i + 1) + "' type='button' class='btn btn-primary btn-sm'; onclick='fnExportSignatureConfig()'>"
-                strHTML += "<i class='las la-file-pdf mr-1' aria-hidden=;'true' style='margin-left:5px'></i><span>ดูเอกสาร<span>"
-                strHTML += "</button>"
-            }
-    
-    
-            strHTML += "</td>"
-        }
-        strHTML += "</tr>"
+        
+        // Edit button
+        // if (item.opStatusName !== 'notprocess') {
+            strHTML += `<button id='${editButtonId}' type='button' class='btn btn-warning btn-sm' onclick='fnEditDocConfig(\`${access}\`, \`${item.userID}\`, \`${namePages}\`, \`${item.opStatusID}\`, \`${item.opSideID}\`, \`${item.opFormID}\`)' style='margin-right: 5px;'>`;
+            strHTML += "<i class='las la-pen mr-1' aria-hidden='true' style='margin-right:5px'></i><span>การแก้ไข</span>";
+            strHTML += "</button>";
+        // } else {
+        //     strHTML += "<button id='" + editButtonId + "' type='button' class='btn btn-warning btn-sm' onclick='fnEditDocConfig()' style='margin-right: 5px;'>";
+        //     strHTML += "<i class='las la-pen mr-1' aria-hidden='true' style='margin-right:5px'></i><span>การแก้ไข</span>";
+        //     strHTML += "</button>";
+        // }
+        
+        strHTML += "</td>";
+        strHTML += "</tr>";
     }
-    return strHTML
+    
+    return strHTML;
 }
 
 function fnGetDataModal() {
@@ -248,7 +259,7 @@ async function fnGetDataSelect(access ,sideId) {
     // draw modal
     strHTML += " <div class='row mb-3'>"
 
-    strHTML += " <div class='col-sm-2 ms-auto'>"
+    strHTML += " <div class='col-sm-2 ms-auto' style='width: 170px;'>"
     strHTML += " <select id='selectUnit' class='form-select text-center' aria-label='Default select example'>"
     strHTML += " <option value='' selected>หน่วยรับตรวจ</option>"
     for (var i = 0; i < dataSQL.length; i++) {
@@ -343,33 +354,347 @@ async function fnGetDataUserControl(username) {
     }
 }
 
-function fnViewCommentConfig(text) {
-    var strHTML = ''
-        // draw modal
-        strHTML += "<div id='dvTextComment'>";
-        strHTML += "<span id='textComment' name='textComment' style='text-indent: 17px;'>" + text + "</span>";
-        strHTML += "</div>";
-    
+function fnSetCommentUserConfig(action, sideId, comment, userId, statusDoc) {
+    var strHTML = '';
+    var strHTML2 = '';
+    if (action === 'set') {
+        if (statusDoc !== 'success') {
+            strHTML = `
+                <div class='form-group'>
+                    <input type='hidden' id='inputIdUsers' class='form-control' value='${userId}'>
+                    <input type='hidden' id='inputIdSides' class='form-control' value='${sideId}'>
+                    <label for='textCommentArea'>กรอกความคิดเห็น</label>
+                    <textarea class='form-control' id='textCommentArea' style='height: 250px;'>${comment === 'null' ? '' : comment}</textarea>
+                    <div id='textCommentAreaError' class='error' style='display:none;'>กรุณาใส่ความคิดเห็น</div>
+                </div>
+            `;
 
-        $("#dvBodyConmentModal")[0].innerHTML = strHTML
-    
+            strHTML2 = `
+                <button type='button' id='submitCommentButton' class='btn btn-primary'>บันทึกข้อมูล</button>
+                <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button>
+            `;
 
+            $("#dvBodyConmentModal").html(strHTML);
+            $("#dvFooterConmentModal").html(strHTML2);
+            
+            $('#submitCommentButton').on('click', fnSubmitCommentModal);
+
+        } else {
+            Swal.fire({
+                title: "",
+                text: "สถานะของเอกสารสมบูรณ์ครบถ้วนแล้ว",
+                icon: "warning"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#conmentModal').modal('hide');
+                    $('.modal-backdrop').remove();
+                }
+            });
+            
+        }
+    } else { // view
+        console.log('test')
+        if (comment && comment !== 'null') {
+            strHTML = `
+                <div id='dvTextComment'>
+                    <span id='textComment' name='textComment' style='text-indent: 17px;'>${comment === 'null' ? '' : comment}</span>
+                </div>
+            `;
+        } else {
+            Swal.fire({
+                title: "",
+                text: "ยังไม่มีคอมเมนต์จากผู้ประเมิน",
+                icon: "warning"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#conmentModal').modal('hide');
+                    $('.modal-backdrop').remove();
+                }
+            });
+        }
+
+        $("#dvBodyConmentModal").html(strHTML);
+    }
+    $('#conmentModal').on('hidden.bs.modal', function () {
+        $('body').removeClass('modal-open'); // ลบคลาส modal-open เพื่อให้แน่ใจว่าไม่มีการปิดการเลื่อน
+        $('.modal-backdrop').remove(); // ลบ backdrop ของ modal ออกเพื่อความแน่ใจ
+        document.body.style.overflow = 'auto'; // รีเซ็ตค่า overflow ให้สามารถเลื่อนหน้าเว็บได้
+    });
 }
 
-function fnEditDocConfig (userID, sideID , formID , statusID) {
+function fnSubmitCommentModal() {
+    if (fnValidateCommentForm()) {
+        const strIdUserDoc = $('#inputIdUsers').val();''
+        const strIdSide = $('#inputIdSides').val();
+        const strUsername = fnGetCookie("username")
+        const strTextComment = $('#textCommentArea').val();
 
-    if (userID && sideID && formID && statusID) {
-        // เหลือ สร้าง windows ให้ link ไปอีกหน้า
-        
+        const selectUnitId = $('#selectUnit').val() || ''
+        const selectYear = $('#selectBudget').val() || ''
+        const selectStatus = $('#selectStatus').val() || ''
+
+        const data =  {
+            idUserDoc: strIdUserDoc,
+            username: strUsername,
+            comment: strTextComment
+        };
+
+        Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลความคิดเห็นใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const results = await fnSetDataComment(data)
+                    if (results && results == 'success' ) {
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                                $('#conmentModal').modal('hide');
+                                $('.modal-backdrop').remove();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                            icon: "error"
+                        });
+                    }    
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    }
+}
+
+function fnValidateCommentForm() {
+    let isValid = true;
+
+    // Validate evaluator text
+    const inputComment = $('#textCommentArea').val();
+    if (!inputComment) {
+        $('#textCommentAreaError').show();
+        isValid = false;
+    } else {
+        $('#textCommentAreaError').hide();
+    }
+
+    return isValid;
+}
+
+function fnEditDocConfig(access, userID, namePages, statusID, sideID, formID) {
+    const menuItems = [
+        { id: '2', page: 'Questionnaire', text: 'แบบสอบถาม' },
+        { id: '3', page: 'AssessmentForm', text: 'แบบประเมิน' },
+        { id: '4', page: 'PerformanceEVForm', text: 'แบบ ปม.' },
+        { id: '5', page: 'reportAssessmentPK4', text: 'แบบ ปค.๔' },
+        { id: '6', page: 'reportAssessmentPK5', text: 'แบบ ปค.๕' },
+        { id: '7', page: 'reportAssessmentFollowPK5', text: 'แบบติดตาม ปค.๕' }
+    ];
+
+    const foundItem = menuItems.find(item => item.id === formID);
+
+    if (!foundItem) {
+        console.log('ไม่พบ item ที่มี id เท่ากับ ' + formID);
+        return;
+    }
+
+    const { page: strPages, text: strTexts } = foundItem;
+
+    if (statusID != 1) { 
+        let targetPage = `http://localhost/Front-end/pages/control/${strPages}.html?sides=${namePages}`;
+        if (access === 'admin') {
+            targetPage += `&userId=${userID}`;
+        }
+        window.open(targetPage, '_blank');
     } else {
         Swal.fire({
             title: "",
-            text: "กรุณาสร้างแบบฟอร์ม เนื่องจากยังไม่มีแบบฟอร์มดังกล่าว",
+            html: access === 'admin' 
+                ? `ฟอร์ม ${strTexts} ยังไม่ถูกสร้าง`
+                : `กรุณาสร้างฟอร์ม ${strTexts} ก่อน <br> เนื่องจากยังไม่มีฟอร์มดังกล่าว`,
             icon: "warning"
         });
     }
 }
 
+
+function fnSetStatusDocConfig (userDocId, sideId, nameSides) {
+    var strHTML = ''
+    var strHTML2 = ''
+    var arrSides = [
+        {id:2,  key: 'branchpersonal', NameSides: 'ด้านกำลังพล',value: 4 },
+        {id:3,  key: 'branchoperation',NameSides: 'ด้านการยุทธการ', value: 3 },
+        {id:4,  key: 'branchnews',NameSides: 'ด้านการข่าว', value: 7 },
+        {id:5,  key: 'branchlogistics',NameSides: 'ด้านส่งกำลังบำรุง', value: 7 },
+        {id:6,  key: 'branchcommunication',NameSides: 'ด้านสื่อสาร', value: 5 },
+        {id:7,  key: 'branchtechnology',NameSides: 'ด้านระบบเทคโนโลยีในการบริหารจัดการ', value: 3 },
+        {id:8,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน', value: 4 },
+        {id:9,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ', value: 6 },
+        {id:10,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี', value: 6 },
+        {id:11,  key: 'branchparcelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 },
+    ];
+
+    if (userDocId) {
+        var arrMatch = arrSides.find(item => item.key === nameSides.toLowerCase());
+
+        strHTML += " <div class='form-group'> ";
+        strHTML += " <input type='hidden' id='inputIdUsers' class='form-control' value='" + userDocId + "' > "
+        strHTML += " <input type='hidden' id='inputIdSides' class='form-control' value='" + sideId + "'> "
+        strHTML += " <input type='hidden' id='inputStrSide' class='form-control' value='" + nameSides + "'> " 
+        strHTML += " <label for='inputNameSide'>ด้านที่ประเมิน</label> ";
+        strHTML += " <input type='text' id='inputNameSide' class='form-control' value='" + arrMatch.NameSides + "' readonly> ";
+        strHTML += " </div> ";
+
+        strHTML += "<div class='form-group mt-2'>";
+        strHTML += "    <label for='inputNameSide'>ผลการตรวจสอบ</label>";
+        strHTML += "    <div class='d-flex align-items-center'>";
+        strHTML += "    <div class='form-check me-3'>";
+        strHTML += "        <input class='form-check-input' type='radio' name='inlineRadioOptions' id='inlineRadio1' value='complete'>";
+        strHTML += "        <label class='form-check-label' for='inlineRadio1'>ตรวจสอบแล้ว</label>";
+        strHTML += "    </div>";
+        strHTML += "    <div class='form-check'>";
+        strHTML += "        <input class='form-check-input' type='radio' name='inlineRadioOptions' id='inlineRadio2' value='incomplete'>";
+        strHTML += "        <label class='form-check-label' for='inlineRadio2'>ไม่ผ่านการตรวจสอบ</label>";
+        strHTML += "    </div>";
+        strHTML += "    </div>";
+        strHTML += "    <div id='inputReasonError' class='error' style='display:none;'>กรุณาเลือกสถานะ</div> ";
+        strHTML += "    <div id='textareaContainer' style='display:none;'>";
+        strHTML += "        <textarea class='form-control' id='reasonTextarea' rows='3' placeholder='กรุณาระบุเหตุผล'></textarea>";
+        strHTML += "    <div id='textReasonAreaError' class='error' style='display:none;'>กรุณาระบุเหตุผล</div> ";
+        strHTML += "    </div>";
+        strHTML += "</div>";
+
+ 
+        strHTML2 += " <button type='button' id='submitSetStatusDocButton' class='btn btn-primary'>บันทึกข้อมูล</button>  "
+        strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "
+        
+        $("#dvBodySetStatusDocModal")[0].innerHTML = strHTML
+        $("#dvFooterSetStatusDocModal")[0].innerHTML = strHTML2
+
+        $('#submitSetStatusDocButton').on('click', fnSubmitSetStatusDocModal);
+
+        $('input[name="inlineRadioOptions"]').on('change', function() {
+            if ($('#inlineRadio2').is(':checked')) {
+                $('#textareaContainer').show();
+            } else {
+                $('#textareaContainer').hide();
+            }
+        });
+
+        $('#setStatusDocModal').on('hidden.bs.modal', function () {
+            $('body').removeClass('modal-open'); // ลบคลาส modal-open เพื่อให้แน่ใจว่าไม่มีการปิดการเลื่อน
+            $('.modal-backdrop').remove(); // ลบ backdrop ของ modal ออกเพื่อความแน่ใจ
+            document.body.style.overflow = 'auto'; // รีเซ็ตค่า overflow ให้สามารถเลื่อนหน้าเว็บได้
+        });
+
+    } else {
+        Swal.fire({
+            title: "",
+            text: "สถานะเอกสารถูกบันทึกเรียบร้อยแล้ว",
+            icon: "warning"
+        });
+    }
+}
+
+function fnSubmitSetStatusDocModal () {
+    if (fnValidateSetStatusDocForm()) {
+        const strIdUserDoc = $('#inputIdUsers').val();
+        const strIdSide = $('#inputIdSides').val();
+        const strNameSide = $('#inputStrSide').val();
+        const strUsername = fnGetCookie("username")
+        const strTextComment = $('#reasonTextarea').val();
+        const strStatus = $('input[name="inlineRadioOptions"]:checked').val()
+
+        // const selectUnitId = $('#selectUnit').val() || ''
+        // const selectYear = $('#selectBudget').val() || ''
+        // const selectStatus = $('#selectStatus').val() || ''
+
+        const data =  {
+            idUserDoc: strIdUserDoc,
+            username: strUsername,
+            comment: strTextComment,
+            status: strStatus
+        };
+
+        Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลสถานะเอกสารใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const results = await fnSetDataComment(data)
+                    if (results && results == 'success' ) {
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                                $('#setStatusDocModal').modal('hide');
+                                $('.modal-backdrop').remove();
+                            }
+                        });
+
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                            icon: "error"
+                        });
+                    }    
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    }
+}
+
+function fnValidateSetStatusDocForm () {
+    let isValid = true;
+
+    // Validate evaluator text
+    const inputRadio = $('input[name="inlineRadioOptions"]:checked').val()
+    if (!inputRadio) {
+        $('#inputReasonError').show();
+        isValid = false;
+    } else {
+        $('#inputReasonError').hide();
+        if (inputRadio === 'incomplete') {
+            const inputTextArea = $('#reasonTextarea').val();
+            if (!inputTextArea) {
+                $('#textReasonAreaError').show()
+                isValid = false;
+            } else {
+                $('#textReasonAreaError').hide()
+            }
+        } else {
+            $('#textReasonAreaError').hide()
+        }
+    }
+
+    return isValid;
+}
 // function fnUploadDocConfig (username, sideName, formName) {
 //     var strHTML = ''
 //     var strHTML2 = ''
@@ -507,5 +832,45 @@ function fnMergeColumn(tableSelector, data) {
         });
     }
 }
+
+
+async function fnSetDataComment(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnUpdateCommentForAdmin', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnSetDataStatusDoc(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnUpdateStatusDocForAdmin', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
 
 

@@ -17,8 +17,14 @@ function fnSetHeaderSub(){
     return strHTML
 }
 async function fnDrawTableForm(access,valSides) {
-    if (access == 'admin') {
-        // fnGetDataSelect()
+    var strUserId = ""
+
+    if (access === 'admin') {
+        var queryString = window.location.search;
+        var urlParams = new URLSearchParams(queryString);
+        strUserId = urlParams.get('userId')
+    } else {
+        strUserId = fnGetCookie("userId");
     }
     var strSides = valSides
     var arrSides = [
@@ -31,17 +37,17 @@ async function fnDrawTableForm(access,valSides) {
         {id:7,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน'},
         {id:8,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ'},
         {id:9,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี'},
-        {id:10, key: 'branchoperation',NameSides: 'ด้านพัสดุและทรัพย์สิน'},
+        {id:10, key: 'branchpercelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน'},
     ];
     var index = arrSides.findIndex(item => item.key === strSides);
     var idSideFix = arrSides[index].id + 1 // บวก 1 เนื่องจากใน database ด้านกำลังพล id เริ่มต้นที่ 2
     
     // Get data selete before create table 
-    var strUserId = fnGetCookie("userId") || ''
     var dataPFMEVSQL = await fnGetDataResultPFMEV(strUserId, idSideFix)
 
     var dataSummary = await fnGetDataResultConPFMEV(strUserId, idSideFix)
     // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
+    var idConPFM = (dataSummary && dataSummary.length > 0) ? dataSummary[0].id : '';
     var prefixAsessor = (dataSummary && dataSummary.length > 0) ? dataSummary[0].prefixAsessor : '';
     var signPath = (dataSummary && dataSummary.length > 0) ? dataSummary[0].signPath : '';
     var position = (dataSummary && dataSummary.length > 0) ? dataSummary[0].position : '';
@@ -49,10 +55,16 @@ async function fnDrawTableForm(access,valSides) {
 
     var strHTML = ''
     var nameUnit = dataSummary[0].nameUnit ? dataSummary[0].nameUnit : ' (ระบุชื่อหน่วยงาน) '
-    strHTML += " <div class='title'><span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted' placeholder=' (ระบุหน่วยงาน) '> " + nameUnit + " </span> "
-    strHTML += " <button id='btnEditSideName' type='button' class='btn btn-warning btn-sm' onclick='fnEditSidesName(\"" + nameUnit + "\")' data-bs-toggle='modal' data-bs-target='#sideNameModal'> "
-    strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true'></i>"
-    strHTML += "    </button> "
+    strHTML += " <div class='title' style='margin-top: 20px;'> " 
+    strHTML += " <input type='hidden' id='inputIdConPFM' name='inputIdConPFM' value='" + idConPFM + "'>  "
+    strHTML += " <span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted'>" + nameUnit + "</span> "
+    
+    if (access !== 'admin') {
+        strHTML += " <button id='btnEditSideName' type='button' class='btn btn-warning btn-sm' onclick='fnEditSidesName(\"" + nameUnit + "\", \"" + strUserId + "\", \"" + idSideFix + "\")' data-bs-toggle='modal' data-bs-target='#sideNameModal'> "
+        strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true'></i>"
+        strHTML += " </button> "
+    }
+
     strHTML += " </div> "
     strHTML += " <div class='title'>แบบประเมินการควบคุมภายใน</div> "
     strHTML += " <div class='title'>ภารภิจ/โครงการ/กิจกรรม/กระบวนงาน " + arrSides[index].NameSides + " </div> "
@@ -67,18 +79,29 @@ async function fnDrawTableForm(access,valSides) {
     strHTML += "</tr>"
     strHTML += "</thead>"
     strHTML += "<tbody>"
-    strHTML += await fnDrawTablePerformance(dataPFMEVSQL, strUserId, idSideFix)
+    if (dataPFMEVSQL.length > 0) {
+        strHTML += await fnDrawTablePerformance(dataPFMEVSQL, strUserId, idSideFix)
+    } else { // ไม่มีข้อมูล
+        strHTML += "<tr>";
+        strHTML += `<td colspan='8' class='text-center align-top' style='width: 100%;'>`;
+        strHTML += ` <span id='spanNotHaveData'>ไม่มีแบบประเมินการควบคุมภายใน</span> `;
+        strHTML += "<tr>";
+    }
     strHTML += "</tbody>"
     strHTML += "</table>"
 
-    strHTML += await fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAsessor)
+    strHTML += await fnDrawCommentDivEvaluation(prefixAsessor, signPath, position, dateAsessor, strUserId, idSideFix, access)
 
     strHTML += " <div class='dvFooterForm'> "
-    strHTML += "    <button type='button' class='btn btn-primary' id='btnSaveData'>บันทึกฉบับร่าง</button>"
-    // strHTML += "    <button type='button' class='btn btn-success' id='btnExportPDF'>Export PDF</button>"
+    if (access !== 'admin') {
+        strHTML += "    <button type='button' class='btn btn-success' id='btnSaveData'>บันทึกฉบับร่าง</button>"
+    }
     strHTML += " </div> "
 
     $("#dvFormAssessment")[0].innerHTML = strHTML
+    if (access !== 'admin') {
+        fnAddSaveButtonEventListener(dataPFMEVSQL, strUserId, idSideFix)
+    }
 }
 
 async function fnDrawTablePerformance(objData, strUserId, idSideFix) { /* ด้านการข่าว */
@@ -103,69 +126,72 @@ async function fnDrawTablePerformance(objData, strUserId, idSideFix) { /* ด้
     var currentObjRisk = "";
     for (var i = 0; i < data.length; i++) {
         strHTML += "<tr>"
+        if (data[i].idQR) {
+            strHTML += " <input type='hidden' id='inputIdQR" + data[i].id + "' name='inputIdQR' value='" + data[i].idQR + "'>  "
+            strHTML += " <input type='hidden' id='inputHeadRisk" + data[i].id + "' name='inputHeadRisk' value='" + data[i].headRisk + "'>  " // สร้างแยกเพราะต้องเอา value ไปใช้ต่อ
+            strHTML += " <input type='hidden' id='inputObjRisk" + data[i].id + "' name='inputObjRisk' value='" + data[i].objRisk + "'>  " // สร้างแยกเพราะต้องเอา value ไปใช้ต่อ
+        }
+
+        // headRisk
         if (currentHeadRisk !== data[i].headRisk) {
             currentHeadRisk = data[i].headRisk;
-            strHTML += "<td id='headRisk" + (i + 1) + "' rowspan='" + headRiskCount[data[i].headRisk] + "' class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + (data[i].headRisk ? (data[i].headRisk) : '-') + "</td>";
+            strHTML += "<td id='headRisk" + data[i].id + "' rowspan='" + headRiskCount[data[i].headRisk] + "' class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + (data[i].headRisk ? (data[i].headRisk) : '-') + "</td>";
         }
-        
+
+        // objRisk
         if (currentObjRisk !== data[i].objRisk) {
             currentObjRisk = data[i].objRisk;
-            strHTML += "<td id='objRisk" + (i + 1) + "' rowspan='" + objRiskCount[data[i].objRisk] + "' class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + (data[i].objRisk ? (data[i].objRisk) : '-') + "</td>";
+            strHTML += "<td id='objRisk" + data[i].id + "' rowspan='" + objRiskCount[data[i].objRisk] + "' class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + (data[i].objRisk ? (data[i].objRisk) : '-') + "</td>";
         }
-        
-        strHTML += "<td id='risking" + (i + 1) + "'  class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + (data[i].risking ? (data[i].risking) : '-') + "</td>"
-        
-        if (data[i].activityControl) {
-            strHTML += "<td id='activityControl" + (i + 1) + "'  class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'> "+ data[i].activityControl +" </td>"
-        } else {
-            strHTML += "<td class='align-top' style=''> "
-            strHTML += fnCreateTextAreaAndButton('activityControl' + i)
-            strHTML += "</td>"
-        }
-            // ChanceRisk
-            strHTML += "<td class='text-center align-middle' style=''>";
-            strHTML += "<div>";
-            strHTML += "<span id='spanChanceRisk" + (i + 1) + "'>" + (data[i].chanceRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].chanceRiskScore) : '-') + "</span>";
-            strHTML += "</div>";
-            strHTML += "<div>";
-            // strHTML += "<button id='btnChanceRisk" + (i + 1) + "' type='button' class='btn btn-warning mt-2' onclick='fnOpenModalAndSetChanceRisk(\"ChanceRisk" +  (i + 1) + "\", \"" + strUserId + "\", \"" + idSideFix + "\")'>";
-            strHTML += "<button id='btnChanceRisk" + (i + 1) + "' type='button' class='btn btn-warning mt-2' onclick='fnDrawChanceRiskModal(\"" + data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\",)' data-bs-toggle='modal' data-bs-target='#chanceRiskModal'>";
-            strHTML += "<i class='las la-pen' aria-hidden='true'></i>";
-            strHTML += "</button>";
-            strHTML += "</div>";
-            strHTML += "</td>";
-            
-            // EffectRisk
-            strHTML += "<td class='text-center align-middl e' style=''>";
-            strHTML += "<div>";
-            strHTML += "<span id='spanEffectRisk" + (i + 1) + "'>" + (data[i].effectRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].effectRiskScore) : '-') + "</span>";
-            strHTML += "</div>";
-            strHTML += "<div>";
-            // strHTML += "<button id='btnEffectRisk" + (i + 1) + "' type='button' class='btn btn-warning mt-2' onclick='fnOpenModalAndSetEffectRisk(\"EffectRisk" +  (i + 1) + "\")'>";
-            strHTML += "<button id='btnEffectRisk" + (i + 1) + "' type='button' class='btn btn-warning mt-2' onclick='fnDrawEffectRiskModal(\"" + data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\",)' data-bs-toggle='modal' data-bs-target='#effectRiskModal'>"
-            strHTML += "<i class='las la-pen' aria-hidden='true'></i>";
-            strHTML += "</button>";
-            strHTML += "</div>";
-            strHTML += "</td>";
 
-            // RankRisk
+        // risking
+        strHTML += "<td id='risking" + data[i].id + "'  class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + (data[i].risking ? (data[i].risking) : '-') + "</td>"
+        
+        // activityControl
+        strHTML += "<td class='align-top' style=''> "
+        strHTML += fnCreateTextAreaAndButton('ActivityControl' + data[i].id, data[i].activityControl)
+        strHTML += "</td>"
+        
+        // ChanceRisk
+        strHTML += "<td class='text-center align-middle' style=''>";
+        strHTML += "<div>";
+        strHTML += "<span id='spanChanceRisk" + data[i].id + "'>" + (data[i].chanceRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].chanceRiskScore) : '-') + "</span>";
+        strHTML += "</div>";
+        strHTML += "<div>";
+        // strHTML += "<button id='btnChanceRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnOpenModalAndSetChanceRisk(\"ChanceRisk" +  data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\")'>";
+        strHTML += "<button id='btnChanceRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnDrawChanceRiskModal(\"" + data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\",)' data-bs-toggle='modal' data-bs-target='#chanceRiskModal'>";
+        strHTML += "<i class='las la-pen' aria-hidden='true'></i>";
+        strHTML += "</button>";
+        strHTML += "</div>";
+        strHTML += "</td>";
+        
+        // EffectRisk
+        strHTML += "<td class='text-center align-middl e' style=''>";
+        strHTML += "<div>";
+        strHTML += "<span id='spanEffectRisk" + data[i].id + "'>" + (data[i].effectRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].effectRiskScore) : '-') + "</span>";
+        strHTML += "</div>";
+        strHTML += "<div>";
+        // strHTML += "<button id='btnEffectRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnOpenModalAndSetEffectRisk(\"EffectRisk" +  data[i].id + "\")'>";
+        strHTML += "<button id='btnEffectRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnDrawEffectRiskModal(\"" + data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\",)' data-bs-toggle='modal' data-bs-target='#effectRiskModal'>"
+        strHTML += "<i class='las la-pen' aria-hidden='true'></i>";
+        strHTML += "</button>";
+        strHTML += "</div>";
+        strHTML += "</td>";
+
+        // RankRisk
+        strHTML += "<td class='text-center align-middle' style=''> "
+        if (data[i].chanceRiskScore && data[i].effectRiskScore) {
+            strHTML += fnSetRankRiskFrist(data[i].id, data[i].chanceRiskScore , data[i].effectRiskScore)
+        } else {
+            strHTML += fnSetRankRiskTable(data[i].id)
+        }
+        strHTML += "</td>"
+
+        // improvement
+        strHTML += "<td class='align-top' style=''> "
+        strHTML += fnCreateTextAreaAndButton('ImprovementControl' + data[i].id, data[i].improvementControl)
+        strHTML += "</td>"
     
-            strHTML += "<td class='text-center align-middle' style=''> "
-            if (data[i].chanceRiskScore && data[i].effectRiskScore) {
-                strHTML += fnSetRankRiskFrist(data[i].chanceRiskScore , data[i].effectRiskScore, ( i + 1 ))
-            } else {
-                strHTML += fnSetRankRiskTable((i + 1))
-            }
-            strHTML += "</td>"
-
-
-        if (data[i].improvement) {
-            strHTML += "<td id='improvement" + (i + 1) + "'  class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + data[i].improvement + "</td>"
-        } else {
-            strHTML += "<td class='align-top' style=''> "
-            strHTML += fnCreateTextAreaAndButton('improvement' + i)
-            strHTML += "</td>"
-        }
         strHTML += "</tr>"
     }
 
@@ -175,36 +201,70 @@ async function fnDrawTablePerformance(objData, strUserId, idSideFix) { /* ด้
     // $("#dvTableReportAssessment")[0].innerHTML = strHTML;
 }
 
-async function fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAsessor) {
-    
+async function fnDrawCommentDivEvaluation(prefixAsessor, signPath, position, dateAsessor, strUserId, idSideFix, access) {
     var strHTML = ''
-    strHTML += " <div id='dvSignature' class='dvSignature'> "
-    if (prefixAsessor) {
-        strHTML += `<div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${prefixAsessor} <img src="${signPath ? signPath : ''}" alt="ลายเซ็น" /></span></div>`
-    } else {
-        strHTML += " <div>ชื่อผู้ประเมิน..............................................</div> "
-    }
+    var strUpload = 'Upload'
+    var strEpen = 'Epen'
+    strHTML += " <div class='form-group'> ";
+    strHTML += " <input type='hidden' id='inputIdUsers' class='form-control' value='" + strUserId + "' > "
+    strHTML += " <input type='hidden' id='inputIdSides' class='form-control' value='" + idSideFix + "' > "
+    strHTML += " </div> ";
 
+    strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative; text-align: center;'> "
+    if (prefixAsessor && signPath) { //prefixAsessor && signPath
+        strHTML += " <div class='title'><input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + prefixAsessor + "'></div> "
+        strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>`
+    } else if (prefixAsessor && !signPath) { //prefixAsessor && !signPath
+        strHTML += " <div class='title'><input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + prefixAsessor + "'></div> "
+        strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative; text-align: center;'> ";
+        strHTML += " <div style='position: relative; display: inline-block;'> ";
+            strHTML += " <div style='position: absolute; left: 120px; transform: translate(0%, -35%);'> ";
+                strHTML += " <button type='button' id='btnSignatureUpload' class='btn btn-sm btn-primary' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strUpload + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>Upload</button> ";
+            strHTML += " </div> ";
+            strHTML += " <div style='position: absolute; right: 40px; transform: translate(20%, -35%);> ";
+                strHTML += " <button type='button' id='btnSignatureEPen' class='btn btn-sm btn-danger' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strEpen + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>E-pen</button> ";
+            strHTML += " </div> ";
+            strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;text-align:left" class="underline-dotted">${prefixAsessor}</span></div>`
+        strHTML += " </div> ";
+    strHTML += " </div> ";
+    } else {
+        strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative;'> ";
+        strHTML += " <div style='position: relative; display: inline-block;'> ";
+            strHTML += " <div style='position: absolute; left: 120px; transform: translate(-20%, -35%);'> ";
+                strHTML += " <button type='button' id='btnSignatureUpload' class='btn btn-sm btn-primary' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strUpload + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>Upload</button> ";
+            strHTML += " </div> ";
+            strHTML += " <div style='position: absolute; right: 40px; transform: translate(0%, -35%);> ";
+                strHTML += " <button type='button' id='btnSignatureEPen' class='btn btn-sm btn-danger' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strEpen + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>E-pen</button> ";
+            strHTML += " </div> ";
+            strHTML += ` <div>ผู้ประเมิน <span style="width: 197px;text-align: left;" class="underline-dotted">:</span></div> `
+        strHTML += " </div> ";
+    strHTML += " </div> ";
+    }
+    strHTML += " </div> "
+
+    strHTML += " <div id='dvAssessor' class='dvAssessor' style='position: relative; text-align: center;'> ";
     if (position) {
         strHTML += `<div><div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
     } else {
-        strHTML += " <div>ตำแหน่ง.....................................................</div> "
+        strHTML += ` <div>ตำแหน่ง <span style="width: 211px;text-align: left;" class="underline-dotted">:</span></div> `
     }
 
     if (dateAsessor) {
         strHTML += `<div>วันที่: <span style="width: 232px;" class="underline-dotted">${fnFormatDateToThai(dateAsessor)}</span></div>`
     } else {
-        strHTML += " <div>วันที่...........................................................</div> "
+        strHTML += `<div>วันที่ <span style="width: 237px;text-align: left;" class="underline-dotted">:</span></div>`
     }
-    strHTML += " </div> "
+    strHTML += " </div> ";
     strHTML += " </div> "
 
-    // btn -> fnDrawModalSignature 
     strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
-    strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalSignature(\"" + prefixAsessor + "\", \"" + signPath + "\", \"" + position + "\", \"" + dateAsessor + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'> "
-    strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
-    strHTML += "    </button> "
+    if (access !== 'admin') {
+        strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalAssessor(\"" + prefixAsessor + "\", \"" + position + "\", \"" + dateAsessor + "\")' data-bs-toggle='modal' data-bs-target='#assessorModal'> "
+        strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
+        strHTML += "    </button> "
+    }
     strHTML += " </div> "
+
     return strHTML
 }
 
@@ -212,7 +272,7 @@ async function fnDrawChanceRiskModal(strPFM_EVId, strUserId, idSideFix) {
     var strHTML = ""
     var strHTML2 = "" 
 
-    var dataChanceRisk = await fnGetDataResultChanceRisk(strPFM_EVId, strUserId, idSideFix, )
+    var dataChanceRisk = await fnGetDataResultChanceRisk(strPFM_EVId, strUserId, idSideFix)
     var frequencyLV1 = dataChanceRisk[0].frequencyLV1 || ''
     var frequencyLV2 = dataChanceRisk[0].frequencyLV2 || ''
     var frequencyLV3 = dataChanceRisk[0].frequencyLV3 || ''
@@ -296,7 +356,7 @@ async function fnDrawChanceRiskModal(strPFM_EVId, strUserId, idSideFix) {
   
 
 
-    strHTML2 += " <button type='button' class='btn btn-primary' onclick='fnSaveChanceRiskModal(" + strPFM_EVId + ")'>บันทึกข้อมูล</button> "
+    strHTML2 += " <button type='button' class='btn btn-primary' onclick='fnSaveChanceRiskModal(\"" + strPFM_EVId + "\", \"" + strUserId + "\", \"" + idSideFix + "\")'>บันทึกข้อมูล</button> "
     strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "
 
     $("#dvBodyModalChanceRiskModal").html(strHTML)
@@ -307,7 +367,7 @@ async function fnDrawEffectRiskModal(strPFM_EVId, strUserId, idSideFix) {
     var strHTML = ""
     var strHTML2 = ""
 
-    var dataEffectRisk = await fnGetDataResultEffectRisk(strPFM_EVId, strUserId, idSideFix, )
+    var dataEffectRisk = await fnGetDataResultEffectRisk(strPFM_EVId, strUserId, idSideFix)
     var damageLV1 = dataEffectRisk[0].damageLV1 || ''
     var damageLV2 = dataEffectRisk[0].damageLV2 || ''
     var damageLV3 = dataEffectRisk[0].damageLV3 || ''
@@ -386,7 +446,7 @@ async function fnDrawEffectRiskModal(strPFM_EVId, strUserId, idSideFix) {
     strHTML += " </tbody> "
     strHTML += " </table> "
 
-    strHTML2 += " <button type='button' class='btn btn-primary' onclick='fnSaveEffectRiskModal(" + strPFM_EVId + ")'>บันทึกข้อมูล</button> "
+    strHTML2 += " <button type='button' class='btn btn-primary' onclick='fnSaveEffectRiskModal(\"" + strPFM_EVId + "\", \"" + strUserId + "\", \"" + idSideFix + "\")'>บันทึกข้อมูล</button> "
     strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "
 
 
@@ -394,8 +454,20 @@ async function fnDrawEffectRiskModal(strPFM_EVId, strUserId, idSideFix) {
     $("#dvFooterModalEffectRiskModal").html(strHTML2)
 }
 
-function fnCreateTextAreaAndButton(id) {
+function fnCreateTextAreaAndButton(id, description) {
     var strHTML = ''
+    if (description) {
+        strHTML += " <div> "
+        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='5' cols='10' style='display:none; width: 100%;'></textarea> "
+        strHTML += " </div> "
+        strHTML += " <div class='text-end'> "
+        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + id + "' style='display:none;' onclick='fnSubmitText(\"" + id + "\")'>ยืนยัน</button> "
+        strHTML += " </div> "
+        strHTML += " <div style='text-indent: 17px;'> "
+        strHTML += " <span class='text-left' id='displayText" + id + "' style='white-space: pre-wrap;'>" + description + "</span> "
+        strHTML += " <i class='las la-pencil-alt' id='editIcon"+ id +"' style='cursor:pointer;' onclick='fnEditText(\"" + id + "\")'></i> "
+        strHTML += " </div> "
+    } else { 
         strHTML += " <div> "
         strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='5' cols='10' style='width: 100%;'></textarea> "
         strHTML += " </div> "
@@ -404,8 +476,10 @@ function fnCreateTextAreaAndButton(id) {
         strHTML += " </div> "
         strHTML += " <div style='text-indent: 17px;'> "
         strHTML += " <span class='text-left' id='displayText" + id + "' style='white-space: pre-wrap;'></span> "
-        strHTML += " <i class='las la-pencil-alt' id='editIcon"+ id +"' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + id + "\")'></i> "
+        strHTML += " <i class='las la-pencil-alt' id='editIcon"+ id +"' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + id + "\")'></i> "
         strHTML += " </div> "
+    }
+
 
     return strHTML
 }
@@ -601,13 +675,13 @@ function fnOpenModalAndSetRankRisk(index) {
             if (!inputChanceRisk) {
                 Swal.fire({
                     title: "",
-                    text: "กรุณาเลือกโอกาสความเสี่ยงที่เหลืออยู่",
+                    text: "กรุณากรอกคะแนนโอกาสความเสี่ยงที่เหลืออยู่",
                     icon: "warning"
                 });
             } else if (!inputEffectRisk) {
                 Swal.fire({
                     title: "",
-                    text: "กรุณาเลือกผลกระทบความเสี่ยงที่เหลืออยู่",
+                    text: "กรุณากรอกคะแนนผลกระทบความเสี่ยงที่เหลืออยู่",
                     icon: "warning"
                 });
             }
@@ -618,112 +692,241 @@ function fnOpenModalAndSetRankRisk(index) {
     
 }
 
-function fnSaveChanceRiskModal(strPFM_EVId) {
+function fnSaveChanceRiskModal(strPFM_EVId, strUserId, idSideFix) {
     // ตรวจสอบว่ามี input แบบ radio ที่ถูกเลือกหรือไม่
-    var strFrequencyLV1 = $('#tdfrequencyLV1_' + strPFM_EVId).text() || ''
-    var strFrequencyLV2 = $('#tdfrequencyLV2_' + strPFM_EVId).text() || ''
-    var strFrequencyLV3 = $('#tdfrequencyLV3_' + strPFM_EVId).text() || ''
-    var strFrequencyLV4 = $('#tdfrequencyLV4_' + strPFM_EVId).text() || ''
-    var strFrequencyLV5 = $('#tdfrequencyLV5_' + strPFM_EVId).text() || ''
+    var strUserName = fnGetCookie("username");
+    var strFrequencyLV1 = $('#tdFrequencyLV1_' + strPFM_EVId).text();
+    var strFrequencyLV2 = $('#tdFrequencyLV2_' + strPFM_EVId).text();
+    var strFrequencyLV3 = $('#tdFrequencyLV3_' + strPFM_EVId).text();
+    var strFrequencyLV4 = $('#tdFrequencyLV4_' + strPFM_EVId).text();
+    var strFrequencyLV5 = $('#tdFrequencyLV5_' + strPFM_EVId).text();
+
     var strDisplayText = ''
 
-    if ($('input[name="inputValChanceRisk"]').is(':checked')) {
-        // ดึงค่าที่ถูกเลือกมาเก็บไว้ในตัวแปร checkedValue
-        var strCheckedValue = $('input[name="inputValChanceRisk"]:checked').val();
-        if (strCheckedValue) {
+    // ตรวจสอบว่าค่า strFrequencyLV1 ถึง strFrequencyLV5 เป็นค่าว่างหรือไม่
+    if ((strFrequencyLV1 && strFrequencyLV1 !== 'ระบุ') && 
+        (strFrequencyLV2 && strFrequencyLV2 !== 'ระบุ') && 
+        (strFrequencyLV3 && strFrequencyLV3 !== 'ระบุ') && 
+        (strFrequencyLV4 && strFrequencyLV4 !== 'ระบุ') && 
+        (strFrequencyLV5 && strFrequencyLV5 !== 'ระบุ')) {
+
+        if ($('input[name="inputValChanceRisk"]').is(':checked')) {
+            // ดึงค่าที่ถูกเลือกมาเก็บไว้ในตัวแปร checkedValue
+            var strIdQR = $('#inputIdQR' + strPFM_EVId).val()
+            var strConvertEffectRisk = fnConvertToArabicNumerals($('#spanEffectRisk'+ strPFM_EVId).text())
+            var strEffectRisk = fnStringToInt(strConvertEffectRisk)
+            var strCheckedValue = fnStringToInt($('input[name="inputValChanceRisk"]:checked').val()) // = spanEffectRisk
+            var strSumResult  = (strEffectRisk && strCheckedValue) ? (strEffectRisk * strCheckedValue) : ''
+            var strHeadRisk = $('#inputHeadRisk' + strPFM_EVId).val()
+            var strObjRisk = $('#inputObjRisk' + strPFM_EVId).val()
+            var strRisking = $('#risking' + strPFM_EVId).text()
+            var strActControl = $('#displayTextActivityControl' + strPFM_EVId).text()
+            var strImpControl = $('#displayTextImprovementControl' + strPFM_EVId).text()
+            console.log(strCheckedValue)
+            if (strCheckedValue) {
+                var dataSend = {
+                    idPFM: strPFM_EVId,
+                    idQR: strIdQR,
+                    userId: strUserId,
+                    sideId: idSideFix,
+                    username: strUserName,
+                    type: 'chanceRisk',
+                    frequencyLV1: strFrequencyLV1,
+                    frequencyLV2: strFrequencyLV2,
+                    frequencyLV3: strFrequencyLV3,
+                    frequencyLV4: strFrequencyLV4,
+                    frequencyLV5: strFrequencyLV5,
+                    chanceRiskScore: strCheckedValue,
+                    effectRiskScore: strEffectRisk,
+                    rankRiskScore: strSumResult,
+                    headRisk: strHeadRisk,
+                    objRisk: strObjRisk,
+                    risking: strRisking,
+                    activityControl: strActControl,
+                    improvementControl: strImpControl
+                }
+        
+                console.log(dataSend);
+    
+                Swal.fire({
+                    title: "",
+                    text: "คุณต้องการบันทึกใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "บันทึกข้อมูล",
+                    cancelButtonText: "ยกเลิก"
+                }).then(async (result) => {  // เพิ่ม async ในการประกาศฟังก์ชันภายใน then
+                    if (result.isConfirmed) {
+                        try {
+                            const results = await fnSetDataChanceRiskModal(dataSend);
+                            if (results && results === 'success') {
+                                strDisplayText = $('#spanChanceRisk' + strPFM_EVId);
+
+                                strDisplayText.text(fnConvertToThaiNumeralsAndPoint(strCheckedValue)); // add value
+                                
+                                /* ซ่อนปุ่ม */
+                                // strDisplayText.css('display', 'block');
+                                
+                                fnSetRankRiskTable(strPFM_EVId, strUserId, idSideFix); // call function
+                                
+                                $('#chanceRiskModal').modal('hide'); 
+                                
+                                Swal.fire({
+                                    title: "",
+                                    text: "บันทึกข้อมูลสำเร็จ",
+                                    icon: "success"
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "",
+                                    text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                                    icon: "error"
+                                });
+                            }    
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire({
+                                title: "",
+                                text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                                icon: "error"
+                            });
+                        }
+                    }
+                }); 
+            }
+        } else {
             Swal.fire({
                 title: "",
-                text: "คุณต้องการบันทึกใช่หรือไม่?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "บันทึกข้อมูล",
-                cancelButtonText: "ยกเลิก"
-              }).then((result) => {
-                if (result.isConfirmed) {
-                    strDisplayText = $('#spanChanceRisk' + strPFM_EVId);
-                
-                    strDisplayText.html(fnConvertToThaiNumeralsAndPoint(strCheckedValue)) // add value
-                    
-                    /* ซ่อนปุ่ม */
-                    strDisplayText.css('display', 'block');
-                    
-                    fnSetRankRiskTable(strPFM_EVId) // call function
+                text: "กรุณาเลือกคะแนนความเสี่ยง",
+                icon: "warning"
+            });
+        }
 
-                    $('#chanceRiskModal').modal('hide'); 
+    } else {
+        Swal.fire({
+            title: "",
+            text: "กรุณาระบุความถี่ให้ครบถ้วน",
+            icon: "warning"
+        });
+        return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
+    }
+}
+
+function fnSaveEffectRiskModal(strPFM_EVId, strUserId, idSideFix) {
+    // ตรวจสอบว่ามี input แบบ radio ที่ถูกเลือกหรือไม่
+    var strUserName = fnGetCookie("username");
+    var strDamageLV1 = $('#tdDamageLV1_' + strPFM_EVId).text();
+    var strDamageLV2 = $('#tdDamageLV2_' + strPFM_EVId).text();
+    var strDamageLV3 = $('#tdDamageLV3_' + strPFM_EVId).text();
+    var strDamageLV4 = $('#tdDamageLV4_' + strPFM_EVId).text();
+    var strDamageLV5 = $('#tdDamageLV5_' + strPFM_EVId).text();
+
+    var strDisplayText = ''
+
+    // ตรวจสอบว่าค่า strDamageLV1 ถึง strDamageLV5 เป็นค่าว่างหรือไม่
+    if ((strDamageLV1 && strDamageLV1 !== 'ระบุ') && (strDamageLV2 && strDamageLV2 !== 'ระบุ') && (strDamageLV3 && strDamageLV3 !== 'ระบุ') && (strDamageLV4 && strDamageLV4 !== 'ระบุ') && (strDamageLV5 && strDamageLV5 !== 'ระบุ')) {
+
+        if ($('input[name="inputValEffectRisk"]').is(':checked')) {
+            // ดึงค่าที่ถูกเลือกมาเก็บไว้ในตัวแปร checkedValue
+            var strIdQR = $('#inputIdQR' + strPFM_EVId).val()
+            var strConvertChanceRisk = fnConvertToArabicNumerals($('#spanChanceRisk'+ strPFM_EVId).text())
+            var strChanceRisk = fnStringToInt(strConvertChanceRisk)
+            var strCheckedValue = fnStringToInt($('input[name="inputValEffectRisk"]:checked').val()) // = spanEffectRisk
+            var strSumResult  = (strChanceRisk && strCheckedValue) ? (strChanceRisk * strCheckedValue) : ''
+            var strHeadRisk = $('#inputHeadRisk' + strPFM_EVId).val()
+            var strObjRisk = $('#inputObjRisk' + strPFM_EVId).val()
+            var strRisking = $('#risking' + strPFM_EVId).text()
+            var strActControl = $('#displayTextActivityControl' + strPFM_EVId).text()
+            var strImpControl = $('#displayTextImprovementControl' + strPFM_EVId).text()
+            if (strCheckedValue) {
+                var dataSend = {
+                    idPFM: strPFM_EVId,
+                    idQR: strIdQR,
+                    userId: strUserId,  // หรือใช้ strUserId ถ้ามีการประกาศ
+                    sideId: idSideFix,  // ตรวจสอบว่ามีการประกาศ strSideId หรือไม่
+                    username: strUserName,
+                    type: 'effectRisk',
+                    damageLV1: strDamageLV1,
+                    damageLV2: strDamageLV2,
+                    damageLV3: strDamageLV3,
+                    damageLV4: strDamageLV4,
+                    damageLV5: strDamageLV5,
+                    chanceRiskScore: strChanceRisk,
+                    effectRiskScore: strCheckedValue,
+                    rankRiskScore: strSumResult,
+                    headRisk: strHeadRisk,
+                    objRisk: strObjRisk,
+                    risking: strRisking,
+                    activityControl: strActControl,
+                    improvementControl: strImpControl
+                };
+        
+                console.log(dataSend)
+
+                Swal.fire({
+                    title: "",
+                    text: "คุณต้องการบันทึกใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "บันทึกข้อมูล",
+                    cancelButtonText: "ยกเลิก"
+                }).then(async (result) => {  // เพิ่ม async ในการประกาศฟังก์ชันภายใน then
+                    if (result.isConfirmed) {
+                        try {
+                            const results = await fnSetDataEffectRiskModal(dataSend)
+                            if (results && results == 'success' ) {
+
+                                strDisplayText = $('#spanEffectRisk' + strPFM_EVId);
                     
-                    Swal.fire({
-                        title: "",
-                        text: "บันทึกข้อมูลสำเร็จ",
-                        icon: "success"
-                    });
-                }
-              }); 
+                                strDisplayText.text(fnConvertToThaiNumeralsAndPoint(strCheckedValue)) // add value
+                                
+                                /* ซ่อนปุ่ม */
+                                // strDisplayText.css('display', 'block');
+            
+                                fnSetRankRiskTable(strPFM_EVId, strUserId, idSideFix);
+            
+                                $('#effectRiskModal').modal('hide'); 
+
+                                Swal.fire({
+                                    title: "",
+                                    text: "บันทึกข้อมูลสำเร็จ",
+                                    icon: "success"
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "",
+                                    text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                                    icon: "error"
+                                });
+                            }    
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    }
+                  }); 
+            }
+        } else {
+            Swal.fire({
+                title: "",
+                text: "กรุณาเลือกคะแนนความเสี่ยง",
+                icon: "warning"
+            });
         }
     } else {
         Swal.fire({
             title: "",
-            text: "กรุณาเลือกคะแนนความเสี่ยง",
+            text: "กรุณาระบุความเสี่ยงให้ครบถ้วน",
             icon: "warning"
         });
+        return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
     }
 }
 
-function fnSaveEffectRiskModal(strPFM_EVId) {
-    // ตรวจสอบว่ามี input แบบ radio ที่ถูกเลือกหรือไม่
-    var strDamageLV1 = $('#tdDamageLV1_' + strPFM_EVId).text() || ''
-    var strDamageLV2 = $('#tdDamageLV2_' + strPFM_EVId).text() || ''
-    var strDamageLV3 = $('#tdDamageLV3_' + strPFM_EVId).text() || ''
-    var strDamageLV4 = $('#tdDamageLV4_' + strPFM_EVId).text() || ''
-    var strDamageLV5 = $('#tdDamageLV5_' + strPFM_EVId).text() || ''
-
-    var strDisplayText = ''
-
-    if ($('input[name="inputValEffectRisk"]').is(':checked')) {
-        // ดึงค่าที่ถูกเลือกมาเก็บไว้ในตัวแปร checkedValue
-        var strCheckedValue = $('input[name="inputValEffectRisk"]:checked').val();
-        if (strCheckedValue) {
-            Swal.fire({
-                title: "",
-                text: "คุณต้องการบันทึกใช่หรือไม่?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "บันทึกข้อมูล",
-                cancelButtonText: "ยกเลิก"
-              }).then((result) => {
-                if (result.isConfirmed) {
-                    strDisplayText = $('#spanEffectRisk' + strPFM_EVId);
-                
-                    strDisplayText.html(fnConvertToThaiNumeralsAndPoint(strCheckedValue)) // add value
-                    
-                    /* ซ่อนปุ่ม */
-                    strDisplayText.css('display', 'block');
-
-                    fnSetRankRiskTable(strPFM_EVId)
-
-                    $('#effectRiskModal').modal('hide'); 
-                    
-                    Swal.fire({
-                        title: "",
-                        text: "บันทึกข้อมูลสำเร็จ",
-                        icon: "success"
-                    });
-                }
-              }); 
-        }
-    } else {
-        Swal.fire({
-            title: "",
-            text: "กรุณาเลือกคะแนนความเสี่ยง",
-            icon: "warning"
-        });
-    }
-}
-
-function fnSetRankRiskFrist (chanceRiskScore, effectRiskScore, index) {
+function fnSetRankRiskFrist (index, chanceRiskScore, effectRiskScore) {
     var strHTML = ''
     var connvertChanceRisk = ''
     var connvertEffectRisk = ''
@@ -758,11 +961,8 @@ function fnSetRankRiskFrist (chanceRiskScore, effectRiskScore, index) {
     return strHTML
 
 }
-function fnSetRankRiskTable (index) {
+function fnSetRankRiskTable (index, strUserId, idSideFix, isUpdate) {
     var strHTML = ''
-    // var lastPositionText =  ''
-    // var inputChanceRisk = ''
-    // var inputEffectRisk = ''
     var connvertChanceRisk = ''
     var connvertEffectRisk = ''
     var replaceSpanRankRisk = ''
@@ -784,7 +984,9 @@ function fnSetRankRiskTable (index) {
 
     // inputChanceRisk = $('#InputChanceRiskHide_' + index)
     // inputEffectRisk = $('#InputEffectRiskHide_' + index)
-
+    // เพิ่ม input ที่ IdQR 
+    // จากนั้นก็ get value ต่างมาเพื่อที่จะบันทึกลงในเทเบิ้ล
+    // 
     if(connvertChanceRisk && connvertEffectRisk) {
         SumResults = connvertChanceRisk * connvertEffectRisk
         riskLevel = riskMatrix[connvertEffectRisk - 1][connvertChanceRisk - 1];
@@ -818,108 +1020,218 @@ function fnSetRankRiskTable (index) {
 
     return strHTML
 }
-function fnSaveDraftDocument() {
-    Swal.fire({
-        title: "",
-        text: "คุณต้องการบันทึกฉบับร่างใช่หรือไม่?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "บันทึกข้อมูล",
-        cancelButtonText: "ยกเลิก"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: "",
-            text: "บันทึกข้อมูลสำเร็จ",
-            icon: "success"
-          });
+
+function fnSaveDraftDocument(data , strUserId, strSideId,  event)  {
+    event.preventDefault(); // ป้องกันการส่งฟอร์ม
+    var dataSend = []
+    var strIdQR = ''
+    var strDisplayTextAC = ''
+    var strDisplayTextIM = ''
+    var activityControl = ''
+    var improvementControl = ''
+    var strUserName = fnGetCookie("username");
+
+    // Loop ผ่าน data เพื่อเปรียบเทียบและ push ข้อมูลลงใน dataSend
+    data.forEach(formItem => {
+        strIdQR = $('#inputIdQR' + formItem.id).val()
+        strDisplayTextAC = $('#displayTextActivityControl' + formItem.id).text();
+        strDisplayTextIM = $('#displayTextImprovementControl' + formItem.id).text();
+        activityControl = formItem.activityControl === null ? '' : formItem.activityControl;
+        improvementControl = formItem.improvementControl === null ? '' : formItem.improvementControl;
+    
+        if ((activityControl !== strDisplayTextAC ) || (improvementControl !== strDisplayTextIM)) { // หาข้อมูลที่มีการแก้ไข
+            dataSend.push({
+                idPFM: formItem.id,
+                idQR: strIdQR,
+                userId: strUserId,  // หรือใช้ strUserId ถ้ามีการประกาศ
+                sideId: strSideId,  // ตรวจสอบว่ามีการประกาศ strSideId หรือไม่
+                username: strUserName,
+                activityControl: strDisplayTextAC,
+                improvementControl: strDisplayTextIM
+            });
         }
-      });
+    });
+    console.log(dataSend)
+    if (dataSend && dataSend.length > 0) {
+        if (!dataSend[0].activityControl) {
+            Swal.fire({
+                title: "",
+                text: "กรุณากรอกกิจกรรมควบคุมภายในที่มีอยู่",
+                icon: "warning"
+            });
+            return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
+        }
+
+        if (!dataSend[0].improvementControl) {
+            Swal.fire({
+                title: "",
+                text: "กรุณากรอกการปรับปรุงการควบคุมภายใน",
+                icon: "warning"
+            });
+            return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
+        }
+
+        Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลแบบประเมินใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const results = await fnSetDataFormPerformance(dataSend)
+                    if (results && results == 'success' ) {
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                            icon: "error"
+                        });
+                    }    
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    }
 }
 
-function fnExportDocument() {
-    Swal.fire({
-        title: "",
-        text: "คุณต้องการ Export เอกสารใช่หรือไม่?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "บันทึกข้อมูล",
-        cancelButtonText: "ยกเลิก"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: "",
-            text: "บันทึกข้อมูลสำเร็จ",
-            icon: "success"
-          });
-        }
-      });
+function fnAddSaveButtonEventListener(data, strUserId, strSideId) {
+    const saveButton = document.getElementById('btnSaveData');
+    if (saveButton) {
+        saveButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            // โค้ดสำหรับการบันทึกข้อมูล
+            fnSaveDraftDocument(data, strUserId, strSideId, event);
+        });
+    } else {
+        console.error('Element with id btnSaveData not found.');
+    }
 }
 
 /* start ส่วนของลายเซ็นฯ */
-function fnDrawModalSignature(strPrefixAsessor, strSignPath, strPosition, strDateAsessor) {
-    var strHTML = ''
-    var strHTML2 = ''
-    var strFormatDate = ''
-    var strDay = ''
-    var strMonth = ''
-    var strYear = ''
+
+function fnDrawSignatureSection(strSignPath, type) {
+    var strHTML = '';
+    var strHTML2 = '';
+
+    if (type == 'Upload') {
+
+        strHTML += " <div class='form-group'> ";
+        strHTML += " <label for='signatureUpload'>อัปโหลดผู้ประเมิน</label> ";
+        strHTML += " <div class='input-group'> "
+        strHTML += " <input type='file' id='signatureUpload' class='form-control' accept='.png' aria-describedby='inputSignatureUpload' aria-label='Upload'> ";
+        strHTML += " <button class='btn btn-outline-secondary' type='button' id='inputSignatureUpload'>.png</button>"
+        strHTML += " </div> ";
+        strHTML += " <div id='signatureUploadError' class='error'>กรุณาเลือกไฟล์</div> ";
+        strHTML += " </div> ";
+
+        // เพิ่ม canvas สำหรับแสดงผู้ประเมินที่อัปโหลด
+        strHTML += " <div class='form-group'> ";
+        strHTML += " <canvas id='signatureCanvas' width='460' height='200'></canvas> ";
+        strHTML += " </div> ";
     
-    if (strDateAsessor) {
-        strFormatDate = strDateAsessor.split('-')
-        strYear = strFormatDate[0]
-        strMonth = fnConvertThaiMonthName(strFormatDate[1])
-        strDay = strFormatDate[2]
+        strHTML2 += " <button type='button' id='submitUploadSignatureButton' class='btn btn-primary'>บันทึกข้อมูล</button> ";
+        strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> ";
+        
+        $("#dvBodySignatureModal").html(strHTML);
+        $("#dvFooterSignatureModal").html(strHTML2);
+
+        $('#signatureUpload').on('change', fnUploadSignature);
+        $('#submitUploadSignatureButton').on('click', function() {
+            if (fnValidateFormSignature()) {
+                fnSubmitSignature();
+            }
+        });   
+
+    } else {
+        strHTML += " <div class='form-group'> ";
+        strHTML += "     <label for='evaluator'>ผู้ประเมิน (เซ็นชื่อ)</label> ";
+        strHTML += "     <div class='canvas-container'> ";
+        strHTML += "         <canvas id='signatureCanvas' width='460' height='200'></canvas> ";
+        strHTML += "         <button class='clear-button' id='clearButton'>Clear</button> ";
+        strHTML += "     </div> ";
+        strHTML += "     <div id='evaluatorError' class='error'>กรุณาเซ็นชื่อ</div> ";
+        strHTML += " </div> ";
+
+        strHTML2 += " <button type='button' id='submitEpenSignatureButton' class='btn btn-primary'>บันทึกข้อมูล</button> ";
+        strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> ";
+
+        $("#dvBodySignatureModal").html(strHTML);
+        $("#dvFooterSignatureModal").html(strHTML2);
+        
+        fnInitializeCanvas(strSignPath);
+
+        $('#submitEpenSignatureButton').on('click', function() {
+            if (fnValidateFormSignature()) {
+                fnSubmitSignature();
+            }
+        })
     }
 
-    // draw modal
-    strHTML += " <div class='form-group'> "
-    strHTML += " <label for='evaluator'>ผู้ประเมิน (เซ็นชื่อ)</label> "
-    strHTML += " <div class='canvas-container'> "
-    strHTML += "     <canvas id='signatureCanvas' width='460' height='200'></canvas> "
-    strHTML += "     <button class='clear-button' id='clearButton'>Clear</button> "
-    strHTML += " </div> "
-    strHTML += " <div id='evaluatorError' class='error'>กรุณาเซ็นชื่อ</div> "
-    strHTML += " </div> "
-    strHTML += " <div class='form-group'> "
-    strHTML += " <label for='prefixAsessor'>คำนำหน้าชื่อ (ยศ)</label> "
-    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + strPrefixAsessor + "' > "
-    strHTML += " <div id='prefixAsessorError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> "
-    strHTML += " </div> "
-    strHTML += " <div class='form-group'> "
-    strHTML += " <label for='position'>ตำแหน่ง</label> "
-    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + strPosition + "'> "
-    strHTML += " <div id='positionError' class='error'>กรุณาใส่ตำแหน่ง</div> "
-    strHTML += " </div> "
-    strHTML += " <div class='form-group'> "
-    strHTML += " <label for='date'>วันที่</label> "
-    strHTML += " <div class='row'> "
-    strHTML += "     <div class='col-4'> "
-    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + strDay + "'> "
-    strHTML += "         <div id='dayError' class='error'>กรุณาใส่วัน</div> "
-    strHTML += "     </div> "
-    strHTML += "     <div class='col-4'> "
-    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + strMonth + "'> "
-    strHTML += "         <div id='monthError' class='error'>กรุณาใส่เดือน</div> "
-    strHTML += "     </div> "
-    strHTML += "     <div class='col-4'> "
-    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + strYear + "'> "
-    strHTML += "         <div id='yearError' class='error'>กรุณาใส่ปี</div> "
-    strHTML += "     </div> "
-    strHTML += " </div> "
-    strHTML += " </div> "
- 
-    strHTML2 += " <button type='button' id='submitSignatureButton' class='btn btn-primary'>บันทึกข้อมูล</button> "
-    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "
-       
-    $("#dvBodySignatureModal").html(strHTML)
-    $("#dvFooterSignatureModal").html(strHTML2)
+}
 
-    fnInitializeCanvas(strSignPath)
+function fnDrawModalAssessor(strPrefixAsessor, strPosition, strDateAsessor) {
+    var strHTML = '';
+    var strHTML2 = '';
+    var strFormatDate = '';
+    var strDay = '';
+    var strMonth = '';
+    var strYear = '';
+    
+    if (strDateAsessor) {
+        strFormatDate = strDateAsessor.split('-');
+        strYear = strFormatDate[0];
+        strMonth = fnConvertThaiMonthName(strFormatDate[1]);
+        strDay = strFormatDate[2];
+    }
+
+    // draw modal without signature section
+    
+    strHTML += " <div class='form-group'> ";
+    strHTML += " <label for='prefixAsessor'>คำนำหน้าชื่อ (ยศ)</label> ";
+    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + strPrefixAsessor + "' > ";
+    strHTML += " <div id='prefixAsessorError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> ";
+    strHTML += " </div> ";
+    strHTML += " <div class='form-group'> ";
+    strHTML += " <label for='position'>ตำแหน่ง</label> ";
+    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + strPosition + "'> ";
+    strHTML += " <div id='positionError' class='error'>กรุณาใส่ตำแหน่ง</div> ";
+    strHTML += " </div> ";
+    strHTML += " <div class='form-group'> ";
+    strHTML += " <label for='date'>วันที่</label> ";
+    strHTML += " <div class='row'> ";
+    strHTML += "     <div class='col-4'> ";
+    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + strDay + "'> ";
+    strHTML += "         <div id='dayError' class='error'>กรุณาใส่วัน</div> ";
+    strHTML += "     </div> ";
+    strHTML += "     <div class='col-4'> ";
+    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + strMonth + "'> ";
+    strHTML += "         <div id='monthError' class='error'>กรุณาใส่เดือน</div> ";
+    strHTML += "     </div> ";
+    strHTML += "     <div class='col-4'> ";
+    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + strYear + "'> ";
+    strHTML += "         <div id='yearError' class='error'>กรุณาใส่ปี</div> ";
+    strHTML += "     </div> ";
+    strHTML += " </div> ";
+    strHTML += " </div> ";
+ 
+    strHTML2 += " <button type='button' id='submitAssessorButton' class='btn btn-primary'>บันทึกข้อมูล</button> ";
+    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> ";
+       
+    $("#dvBodyAssessorModal").html(strHTML);
+    $("#dvFooterAssessorModal").html(strHTML2);
+
+    // fnDrawAssessorSection(strSignPath, strUserId);  // Call the new Assessor function
 
     $('.datepicker-day').datepicker({
         format: 'dd',
@@ -949,10 +1261,37 @@ function fnDrawModalSignature(strPrefixAsessor, strSignPath, strPosition, strDat
         minViewMode: 2,
         maxViewMode: 2,
     });
+
+    $('#submitAssessorButton').on('click', fnSubmitAssessor);
 }
 
- function fnInitializeCanvas(initialDataUrl) {
-    const canvas = document.getElementById('signatureCanvas');
+function fnUploadSignature(event) {
+    const file = event.target.files[0];
+    const canvas = document.getElementById('signatureCanvas'); // เปลี่ยนจาก 'signatureUpload' เป็น 'signatureCanvas'
+
+    if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // ล้างข้อมูลเดิมใน canvas
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // วาดภาพที่อัปโหลดลงใน canvas
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function fnInitializeCanvas(initialDataUrl) {
+    const canvas = $('#signatureCanvas')[0];
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
@@ -965,111 +1304,289 @@ function fnDrawModalSignature(strPrefixAsessor, strSignPath, strPosition, strDat
         img.src = initialDataUrl;
     }
 
-    ctx.lineWidth = 3; // เพิ่มความหนาของเส้น
+    ctx.lineWidth = 4; // เพิ่มความหนาของเส้น
     ctx.strokeStyle = "#000000"; // เปลี่ยนสีเส้นเป็นสีดำ
 
-    canvas.addEventListener('mousedown', (e) => {
+    $(canvas).on('mousedown', (e) => {
         drawing = true;
         ctx.beginPath();
         ctx.moveTo(e.offsetX, e.offsetY);
     });
 
-    canvas.addEventListener('mousemove', (e) => {
+    $(canvas).on('mousemove', (e) => {
         if (drawing) {
             ctx.lineTo(e.offsetX, e.offsetY);
             ctx.stroke();
         }
     });
 
-    canvas.addEventListener('mouseup', () => {
+    $(canvas).on('mouseup', () => {
         drawing = false;
     });
 
-    canvas.addEventListener('mouseout', () => {
+    $(canvas).on('mouseout', () => {
         drawing = false;
     });
 
-    document.getElementById('clearButton').addEventListener('click', () => {
+    $('#clearButton').on('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
-
-    document.getElementById('submitSignatureButton').addEventListener('click', fnSubmitSignature);
 }
 
-function fnValidateSignature() {
-    const canvas = document.getElementById('signatureCanvas');
+function fnValidateFormSignature() {
+    const fileInput = $('#signatureUpload')[0];
+
+    let isValid = true;
+
+    $('#signatureUploadError').hide();
+    $('#evaluatorError').hide();
+
+    if ($('#submitUploadSignatureButton').is(':visible')) {
+        // Validation for file upload
+        if (fileInput && fileInput.files.length === 0) {
+            $('#signatureUploadError').show();
+            isValid = false;
+        }
+    } else {
+        // Validation for canvas signature
+        if (!fnValidateSignatureCanvas()) {
+            $('#evaluatorError').show();
+            isValid = false;
+        } else {
+            $('#evaluatorError').hide();
+        }
+    }
+
+    return isValid;
+}
+
+function fnValidateSignatureCanvas() {
+    const canvas = $('#signatureCanvas')[0];
     const ctx = canvas.getContext('2d');
     const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     return canvasData.data.some(channel => channel !== 0);
 }
 
-function fnValidateForm() {
+function fnValidateAsessorForm() {
     let isValid = true;
 
-    // Validate prefixAsessor
-    const prefixAsessor = document.getElementById('prefixAsessor').value;
+    // Validate evaluator text
+    const prefixAsessor = $('#prefixAsessor').val();
     if (!prefixAsessor) {
-        document.getElementById('prefixAsessorError').style.display = 'block';
+        $('#prefixAsessorError').show();
         isValid = false;
     } else {
-        document.getElementById('prefixAsessorError').style.display = 'none';
+        $('#prefixAsessorError').hide();
     }
 
     // Validate position
-    const position = document.getElementById('position').value;
+    const position = $('#position').val();
     if (!position) {
-        document.getElementById('positionError').style.display = 'block';
+        $('#positionError').show();
         isValid = false;
     } else {
-        document.getElementById('positionError').style.display = 'none';
+        $('#positionError').hide();
     }
 
     // Validate date
-    const day = document.getElementById('day').value;
-    const month = document.getElementById('month').value;
-    const year = document.getElementById('year').value;
+    const day = $('#day').val();
+    const month = $('#month').val();
+    const year = $('#year').val();
 
     if (!day || !month || !year) {
-        if (!day) document.getElementById('dayError').style.display = 'block';
-        if (!month) document.getElementById('monthError').style.display = 'block';
-        if (!year) document.getElementById('yearError').style.display = 'block';
+        if (!day) $('#dayError').show();
+        if (!month) $('#monthError').show();
+        if (!year) $('#yearError').show();
         isValid = false;
     } else {
-        document.getElementById('dayError').style.display = 'none';
-        document.getElementById('monthError').style.display = 'none';
-        document.getElementById('yearError').style.display = 'none';
+        $('#dayError').hide();
+        $('#monthError').hide();
+        $('#yearError').hide();
     }
 
     return isValid;
 }
 
 function fnSubmitSignature() {
-    if (fnValidateForm()) {
-        const resultContainer = document.getElementById('dvSignature');
+    // Validate the form before processing
+    if (fnValidateFormSignature()) {
+        // Get canvas and file input elements
+        const canvas = $('#signatureCanvas')[0];
+        const fileInput = $('#signatureUpload')[0];
 
-        const canvas = document.getElementById('signatureCanvas');
-        const ctx = canvas.getContext('2d');
-        const signPath = canvas.toDataURL();
+        let signPath = '';
 
-        const prefixAsessor = document.getElementById('prefixAsessor').value;
-        const position = document.getElementById('position').value;
-        const day = document.getElementById('day').value;
-        const month= document.getElementById('month').value;
-        const year = document.getElementById('year').value;
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            // Handle file upload
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                signPath = e.target.result;
+                fnDisplaySignature(signPath);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else if (canvas) {
+            // Handle canvas signature
+            const ctx = canvas.getContext('2d');
+            signPath = canvas.toDataURL();
+            fnDisplaySignature(signPath);
+        } else {
+            // Log error if neither file nor canvas is available
+            console.error('Canvas element not found and no file uploaded');
+            return;
+        }
+    }
+}
+
+function fnDisplaySignature(signPath) {
+    const strIdConPFM = $('#inputIdConPFM').val();
+    const strPrefixAsessor = $('#inputPrefixAsessor').val();
+    const strUserId = $('#inputIdUsers').val();
+    const strUserName = fnGetCookie("username");
+
+    // Result container to display the signature
+    const resultContainer = $('#dvSignature');
+    
+    const data =  {
+        idConPFM: strIdConPFM,
+        userId: strUserId,
+        signPath: signPath,
+        username: strUserName
+    };
+
+    Swal.fire({
+        title: "",
+        text: "คุณต้องการบันทึกข้อมูลลายเซ็นใช่หรือไม่?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "บันทึกข้อมูล",
+        cancelButtonText: "ยกเลิก"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const results = await fnSetDataSignaturePFM(data)
+                if (results && results == 'success' ) {
+                    let strHTML = `
+                        <div>ผู้ประเมิน: <span style="width: 197px;" class="underline-dotted">${strPrefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
+                    `;
+        
+                    resultContainer.html(strHTML); // Use .html() to set the content
+            
+                    $('#signatureModal').modal('hide');
+                    $('.modal-backdrop').remove();
+                    $('#btnSignatureUpload').hide();
+                    $('#btnSignatureEPen').hide();
+
+                    Swal.fire({
+                        title: "",
+                        text: "บันทึกข้อมูลสำเร็จ",
+                        icon: "success"
+                    });
+                } else {
+                    Swal.fire({
+                        title: "",
+                        text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                        icon: "error"
+                    });
+                }
+
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    });
+}
+
+function fnSubmitAssessor() {
+    if (fnValidateAsessorForm()) {
+        const strIdConPFM = $('#inputIdConPFM').val();
+        const strUserId = $('#inputIdUsers').val();
+        const strUserName = fnGetCookie("username");
+        const resultContainer = $('#dvAssessor');
+
+        const prefixAsessor = $('#prefixAsessor').val();
+        const position = $('#position').val();
+        const day = $('#day').val();
+        const month = $('#month').val();
+        const year = $('#year').val();
 
         const positionText = position ? position : '................................................';
         const buddhistYear = fnConvertToBuddhistYear(year);
-        const formatDate = `${year}-${fnConvertMonthNumber(month)}-${day}`
-        const dateText = `${fnFormatDateToThai(formatDate)}`;
+        const shortYear = buddhistYear.toString().slice(-2);
+        const dateText = `${fnConvertToThaiNumeralsAndPoint(day)} / ${fnConvertMonthToShort(month)} / ${fnConvertToThaiNumeralsAndPoint(shortYear)}`;
+        const dateFormat = `${year}-${fnConvertMonthNumber(month)}-${day}`;
 
-        let strHTML = `
-            <div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
-            <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
-            <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
-        `;
+        const data =  {
+            idConPFM: strIdConPFM,
+            userId: strUserId,
+            prefixAsessor: prefixAsessor,
+            position: position,
+            dateAsessor: dateFormat,
+            username: strUserName
+        };
+        Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลผู้ประเมินใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const results = await fnSetDataAssessorPFM(data)
+                    if (results && results == 'success' ) {
+                        let strHTML = `
+                            <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
+                            <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
+                        `;
+            
+                        resultContainer.html(strHTML); // Use .html() to set the content
+                
+                        $('#assessorModal').modal('hide');
+                        $('.modal-backdrop').remove();
 
-        resultContainer.innerHTML = strHTML;
-        $('#signatureModal').modal('hide');
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                            icon: "error"
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    }
+}
+
+
+async function fnSetDataAssessorPFM(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorPFM', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
     }
 }
 /* end ส่วนของลายเซ็นฯ */
@@ -1077,11 +1594,13 @@ function fnSubmitSignature() {
 
 /* start ส่วนแก้ชื่อหน่วยงาน*/
 
-function fnEditSidesName (nameUnit) {
+function fnEditSidesName (nameUnit, strUserId, idSideFix) {
     var strHTML = ''
     var strHTML2 = ''
         // draw modal    
         strHTML += " <div class='form-group'> "
+        strHTML += " <input type='hidden' id='inputSideIdUsers' class='form-control' value='" + strUserId + "' > "
+        strHTML += " <input type='hidden' id='inputSideIdSides' class='form-control' value='" + idSideFix + "' > "
         strHTML += " <label for='inputNameSides'>ชื่อหน่วยงาน</label> "
         strHTML += " <input type='text' id='inputNameSides' class='form-control' placeholder='กรอกชื่อหน่วยงาน' value='" + (nameUnit || '') + "'> "
         strHTML += " <div id='nameSidesError' class='error'>กรุณาใส่หน่วยงาน</div> "
@@ -1092,22 +1611,68 @@ function fnEditSidesName (nameUnit) {
         $("#dvBodySideNameModal")[0].innerHTML = strHTML
         $("#dvFooterSideNameModal")[0].innerHTML = strHTML2      
 
-        document.getElementById('submitSideNameButton').addEventListener('click', fnSubmitSideName);
+        $('#submitSideNameButton').on('click', fnSubmitSideName);
  }
 
  function fnSubmitSideName () {
     if (fnValidateNameUnitForm()) {
-        const strNameUnit = document.getElementById('spanNameUnit')
-        const inputNameSides = document.getElementById('inputNameSides').value;
+        const strIdConPFM = $('#inputIdConPFM').val();
+        const strUserId = $('#inputSideIdUsers').val();
+        const strSideId = $('#inputSideIdSides').val();
+        const strUserName = fnGetCookie("username");
 
-        strNameUnit.innerText = inputNameSides;
-        $('#sideNameModal').modal('hide');
-    
+        const strNameUnit = $('#spanNameUnit');
+        const inputNameSides = $('#inputNameSides').val();
+
+        const data =  {
+            idConPFM: strIdConPFM,
+            userId: strUserId,
+            sideId: strSideId,
+            username: strUserName,
+            nameUnit:inputNameSides
+        };
+
+        Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลชื่อหน่วยงานใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const results = await fnSetDataSideNamePFM(data)
+                    if (results && results == 'success' ) {
+
+                        strNameUnit.text(inputNameSides);
+                        $('#sideNameModal').modal('hide');
+                        $('.modal-backdrop').remove();
+
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                            icon: "error"
+                        });
+                    }    
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
     }
 
  }
 
- function fnValidateNameUnitForm() {
+function fnValidateNameUnitForm() {
     let isValid = true;
 
     // Validate evaluator text
@@ -1122,7 +1687,146 @@ function fnEditSidesName (nameUnit) {
     return isValid;
 }
 
+async function fnSetDataSideNamePFM(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetSideNamePFM', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
 /* end ส่วนแก้ชื่อหน่วยงาน*/
+
+async function fnSetDataFormPerformance(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetFormPerformance', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+
+async function fnSetDataChanceRiskModal(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetChanceRiskModal', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+
+async function fnSetDataEffectRiskModal(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetEffectRiskModal', dataSend)
+        console.log("API Response:", response.data) // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูลที่ได้รับกลับมา
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnSetDataRankRiskModal(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetRankRiskModal', dataSend)
+        console.log("API Response:", response.data) // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูลที่ได้รับกลับมา
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+
+async function fnSetDataAssessorPFM(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorPFM', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnSetDataSignaturePFM(dataSend) {
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnSetSignaturePFM', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
 
 
 
