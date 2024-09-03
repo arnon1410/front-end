@@ -393,7 +393,6 @@ function fnSetCommentUserConfig(action, sideId, comment, userId, statusDoc) {
             
         }
     } else { // view
-        console.log('test')
         if (comment && comment !== 'null') {
             strHTML = `
                 <div id='dvTextComment'>

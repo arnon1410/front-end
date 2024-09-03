@@ -48,6 +48,7 @@ function fnSetSidebarMenuConTrol(namePages){
 }
 
 function fnCreateBtnTabForm (data, namePages) {
+    console.log(data)
     var strHTML = ""
     var menuItems = []
     if (namePages == 'Appointment') {
@@ -77,7 +78,7 @@ function fnCreateBtnTabForm (data, namePages) {
         }
         if (data) {
             data.forEach(item => {
-                const menuItem = menuItems.find(menu => menu.id === item.id.toString());
+                const menuItem = menuItems.find(menu => menu.id === item.opSideID.toString());
                 if (menuItem) {
                     // เพิ่ม opStatusID เข้าไปใน menuItem
                     menuItem.opStatusID = item.opStatusID;
@@ -85,7 +86,6 @@ function fnCreateBtnTabForm (data, namePages) {
             });
         }
         console.log(menuItems)
-
         for (var i = 0; i < menuItems.length; i++) {
             var menuItemA = menuItems[i];
             if (menuItemA.opStatusID === 1) { // ยังไม่เคยกดบันทึก
