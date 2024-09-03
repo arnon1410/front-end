@@ -48,7 +48,6 @@ function fnSetSidebarMenuConTrol(namePages){
 }
 
 function fnCreateBtnTabForm (data, namePages) {
-    console.log(data)
     var strHTML = ""
     var menuItems = []
     if (namePages == 'Appointment') {
@@ -76,9 +75,10 @@ function fnCreateBtnTabForm (data, namePages) {
                 {id: '4', page: 'PerformanceEVForm', text: 'แบบ ปม.'}
             ];
         }
+        console.log
         if (data) {
             data.forEach(item => {
-                const menuItem = menuItems.find(menu => menu.id === item.opSideID.toString());
+                const menuItem = menuItems.find(menu => menu.id === item.opFormID.toString());
                 if (menuItem) {
                     // เพิ่ม opStatusID เข้าไปใน menuItem
                     menuItem.opStatusID = item.opStatusID;
