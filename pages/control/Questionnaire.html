@@ -415,50 +415,16 @@
 <script>
     $(document).ready(function() {
         fnGetDataInternalControl()
-        
+
         /* start hidden URL */
-        var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.pushState({ path: newUrl }, '', newUrl);
+        // var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        // window.history.pushState({ path: newUrl }, '', newUrl);
         /* end hidden URL */
 
         $('body').on('click', 'input[type="checkbox"]', function(event) {
             var checkboxes = $(this).closest('tr').find('input[type="checkbox"]');
             checkboxes.not(this).prop('checked', false); // ยกเลิก Checkbox อื่นทั้งหมดในแถวเดียวกัน
-        });
-
-    // $('#checkButton').click(function() {
-    //     var checkedColumns = [];
-
-    //     var rows = $('table tr').slice(1); // ไม่นับแถวหัวข้อ
-        
-    //     var uncheckedRows = [];
-    //     rows.each(function() {
-    //         var checkboxes = $(this).find('input[type="checkbox"]');
-    //         var isChecked = false;
-            
-    //         checkboxes.each(function() {
-    //             if ($(this).prop('checked')) {
-    //                 isChecked = true;
-    //                 return false; // ออกจากการวน loop ของ checkboxes
-    //             }
-    //         });
-            
-    //         if (!isChecked) {
-    //             uncheckedRows.push($(this).index() + 1); // เก็บหมายเลขแถวที่ไม่ได้เช็ค
-    //         }
-    //     });
-            
-    //     if (uncheckedRows.length > 0) {
-    //         alert('กรุณาเลือก checkbox ในแถวที่: ' + uncheckedRows.join(', '));
-    //     } else { // ติ้กถูกหมดแล้ว
-    //         $('input[type="checkbox"]:checked').each(function() {
-    //             $(this).hide(); // ซ่อน input ที่ถูกกด
-    //             $(this).siblings('label').show(); // แสดง label ในช่องนั้น
-    //         });
-    //         var uncheckedCheckboxes = $('input[type="checkbox"]:not(:checked)');
-            
-    //     }
-    // });   
+        });  
 
     });
 

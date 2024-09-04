@@ -75,7 +75,6 @@ function fnCreateBtnTabForm (data, namePages) {
                 {id: '4', page: 'PerformanceEVForm', text: 'แบบ ปม.'}
             ];
         }
-        console.log
         if (data) {
             data.forEach(item => {
                 const menuItem = menuItems.find(menu => menu.id === item.opFormID.toString());

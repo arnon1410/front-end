@@ -13,22 +13,30 @@ async function fnDrawTableForm(access,valSides) {
     } else {
         strUserId = fnGetCookie("userId");
     }
-    var strSides = valSides
+    var strSides = valSides.toLowerCase()
     var arrSides = [
-        {id:1,  key: 'branchpersonal', NameSides: 'ด้านการกำลังพล'},
-        {id:2,  key: 'branchoperation',NameSides: 'ด้านการยุทธการ'},
-        {id:3,  key: 'branchnews',NameSides: 'ด้านการข่าว'},
-        {id:4,  key: 'branchlogistics',NameSides: 'ด้านส่งกำลังบำรุง'},
-        {id:5,  key: 'branchcommunication',NameSides: 'ด้านสื่อสาร'},
-        {id:6,  key: 'branchtechnology',NameSides: 'ด้านระบบเทคโนโลยีในการบริหารจัดการ'},
-        {id:7,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน'},
-        {id:8,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ'},
-        {id:9,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี'},
-        {id:10, key: 'branchpercelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน'},
+        {id:2,  key: 'branchpersonal', NameSides: 'ด้านกำลังพล',value: 4 },
+        {id:3,  key: 'branchoperation',NameSides: 'ด้านการยุทธการ', value: 3 },
+        {id:4,  key: 'branchnews',NameSides: 'ด้านการข่าว', value: 7 },
+        {id:5,  key: 'branchlogistics',NameSides: 'ด้านส่งกำลังบำรุง', value: 7 },
+        {id:6,  key: 'branchcommunication',NameSides: 'ด้านสื่อสาร', value: 5 },
+        {id:7,  key: 'branchtechnology',NameSides: 'ด้านระบบเทคโนโลยีในการบริหารจัดการ', value: 3 },
+        {id:8,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน', value: 4 },
+        {id:9,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ', value: 6 },
+        {id:10,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี', value: 6 },
+        {id:11,  key: 'branchparcelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 },
     ];
 
     var index = arrSides.findIndex(item => item.key === strSides);
-    var idSideFix = arrSides[index].id + 1 // บวก 1 เนื่องจากใน database ด้านกำลังพล id เริ่มต้นที่ 2
+    console.log(index)
+    var selectedSide;
+    if (index !== -1) {
+        selectedSide = arrSides[index]; // ใช้ค่า object ที่พบ
+    } else {
+        selectedSide = {id:11, key: 'branchparcelsandproperty', NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 };
+    }
+    
+    var idSideFix = selectedSide.id; // ใช้ id ของ object ที่เลือก
     
     /* start call data ส่วนชื่อหน่วยงาน ส่วนสรุป และลายเซ็น */
 
@@ -61,7 +69,7 @@ async function fnDrawTableForm(access,valSides) {
     }
     strHTML += " </div> "
     strHTML += " <div class='title'>แบบประเมินองค์ประกอบของการควบคุมภายใน</div> "
-    strHTML += " <div class='title'>" +  arrSides[index].NameSides + "</div> "
+    strHTML += " <div class='title'>" +  selectedSide.NameSides + "</div> "
     strHTML += " <div class='title'>" + DateFix + "</div> "
     strHTML += " <div class='a4-size'> "
     strHTML += "<table id='tb_" + valSides + "'>"
@@ -74,6 +82,7 @@ async function fnDrawTableForm(access,valSides) {
     strHTML += await fnDrawTableAssessmentForm(dataASM)
     strHTML += "</tbody>"
     strHTML += "</table>"
+
     strHTML += await fnDrawCommentDivEvaluation(descConASM, prefixAsessor, signPath, position, dateAsessor, strUserId, idSideFix, access)
 
     strHTML += " <div class='dvFooterForm'> "
@@ -297,7 +306,7 @@ async function fnDrawCommentDivEvaluation(descConASM, prefixAsessor, signPath, p
         strHTML += `<div>วันที่ <span style="width: 237px;text-align: left;" class="underline-dotted">:</span></div>`
     }
     strHTML += " </div> ";
-    strHTML += " </div> "
+    // strHTML += " </div> "
 
     strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
     if (access !== 'admin') {

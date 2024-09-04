@@ -425,8 +425,8 @@
         fnDrawTableMatrix()
         
         /* start hidden URL */
-        var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.pushState({ path: newUrl }, '', newUrl);
+        // var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        // window.history.pushState({ path: newUrl }, '', newUrl);
         /* end hidden URL */
         
         // $('#launchModalButton').click(function() {
@@ -501,7 +501,8 @@
 
         /* start ส่วนของสิทธิผู้ใช้งาน */
         var valAccess = fnGetCookie("userRole");
-        var valSides = fnGetAllUrlParams().sides
+        const urlParams = new URLSearchParams(window.location.search);
+        const valSides = urlParams.get('sides');
         /* end ส่วนของสิทธิผู้ใช้งาน */
        
         // call data 

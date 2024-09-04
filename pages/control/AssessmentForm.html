@@ -24,9 +24,20 @@
     .a4-size {
         width: 21cm;
         height: 23.7cm;
-        /* border: 1px solid black; */
         padding: 20px;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-content {
+        flex: 1;
     }
     .title {
         text-align: center;
@@ -109,6 +120,7 @@
         width: 100%;
         text-align: center;
         margin-top: 5%;
+        margin-bottom: 5%;
     }
     .dv-btn-Signature {
         margin-top: 10px;
@@ -240,12 +252,10 @@
    
 <script>
     $(document).ready(function() {
-        fnGetDataInternalControl()
+        const urlParams = new URLSearchParams(window.location.search);
+        const sides = urlParams.get('sides');
 
-        /* start hidden URL */
-        var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.pushState({ path: newUrl }, '', newUrl);
-        /* end hidden URL */
+        fnGetDataInternalControl(sides)
 
         $('.datepicker-day').datepicker({
                 format: 'dd',
@@ -277,10 +287,9 @@
             });
 });
 
-    function fnGetDataInternalControl() {
+    function fnGetDataInternalControl(valSides) {
         /* start ส่วนของสิทธิผู้ใช้งาน */
         var valAccess = fnGetCookie("userRole");
-        var valSides = fnGetAllUrlParams().sides
 
         /* end ส่วนของสิทธิผู้ใช้งาน */
        

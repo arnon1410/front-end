@@ -45,7 +45,7 @@ async function fnDrawTableForm(access, valSides, objData) {
         {id:10,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี', value: 6 },
         {id:11,  key: 'branchparcelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 },
     ];
-    var index = arrSides.findIndex(item => item.key === strSides);
+    var index = arrSides.findIndex(item => item.key === strSides.toLowerCase());
 
     var selectedSide;
     if (index !== -1) {

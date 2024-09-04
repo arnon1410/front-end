@@ -269,10 +269,7 @@
   
         if (valUserRole == 'admin') {
           fnGetDataSelect(valUserRole ,valSideId)
-        }    
-
-        var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.pushState({ path: newUrl }, '', newUrl);
+        }
 
         var valUnitName = fnGetCookie("unitName");
         $('#textName').text(valUnitName)

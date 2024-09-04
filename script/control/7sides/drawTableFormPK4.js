@@ -27,7 +27,7 @@ async function fnDrawTableForm(access, valSides) {
     var dateAsessor = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].dateAsessor : '';
 
     var strHTML = ''
-    var nameUnit = dataConPK4SQL[0].shortName || ''
+    var nameUnit = (dataConPK4SQL && dataConPK4SQL.length > 0 && dataConPK4SQL[0].shortName) || '';
     var strYear = ''
     if (dateAsessor) {
         var dateSplit = dateAsessor.split('-');
@@ -53,8 +53,8 @@ async function fnDrawTableForm(access, valSides) {
     strHTML += await fnDrawTableAssessmentForm(dataPK4SQL)
     strHTML += "</tbody>"
     strHTML += "</table>"
+    // strHTML += " </div> "
     strHTML += await fnDrawCommentDivEvaluation(idConPK4, descConPK4, prefixAsessor, signPath, position, dateAsessor, strUserId, access)
-
     
 
     strHTML += " <div class='dvFooterForm'> "
@@ -289,7 +289,7 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
     }
     strHTML += " </div> "
 
-    strHTML += " </div> ";
+    // strHTML += " </div> ";
     return strHTML
 }
 
@@ -916,7 +916,7 @@ async function fnGetDataResultPK4(userId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultPK4', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -940,7 +940,7 @@ async function fnGetDataResultConPK4(userId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPK4', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {

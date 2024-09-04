@@ -26,21 +26,29 @@ async function fnDrawTableForm(access,valSides) {
     } else {
         strUserId = fnGetCookie("userId");
     }
-    var strSides = valSides
+    var strSides = valSides.toLowerCase()
     var arrSides = [
-        {id:1,  key: 'branchpersonal', NameSides: 'ด้านการกำลังพล'},
-        {id:2,  key: 'branchoperation',NameSides: 'ด้านการยุทธการ'},
-        {id:3,  key: 'branchnews',NameSides: 'ด้านการข่าว'},
-        {id:4,  key: 'branchlogistics',NameSides: 'ด้านส่งกำลังบำรุง'},
-        {id:5,  key: 'branchcommunication',NameSides: 'ด้านสื่อสาร'},
-        {id:6,  key: 'branchtechnology',NameSides: 'ด้านระบบเทคโนโลยีในการบริหารจัดการ'},
-        {id:7,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน'},
-        {id:8,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ'},
-        {id:9,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี'},
-        {id:10, key: 'branchpercelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน'},
+        {id:2,  key: 'branchpersonal', NameSides: 'ด้านกำลังพล',value: 4 },
+        {id:3,  key: 'branchoperation',NameSides: 'ด้านการยุทธการ', value: 3 },
+        {id:4,  key: 'branchnews',NameSides: 'ด้านการข่าว', value: 7 },
+        {id:5,  key: 'branchlogistics',NameSides: 'ด้านส่งกำลังบำรุง', value: 7 },
+        {id:6,  key: 'branchcommunication',NameSides: 'ด้านสื่อสาร', value: 5 },
+        {id:7,  key: 'branchtechnology',NameSides: 'ด้านระบบเทคโนโลยีในการบริหารจัดการ', value: 3 },
+        {id:8,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน', value: 4 },
+        {id:9,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ', value: 6 },
+        {id:10,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี', value: 6 },
+        {id:11,  key: 'branchparcelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 },
     ];
-    var index = arrSides.findIndex(item => item.key === strSides);
-    var idSideFix = arrSides[index].id + 1 // บวก 1 เนื่องจากใน database ด้านกำลังพล id เริ่มต้นที่ 2
+    var index = arrSides.findIndex(item => item.key === strSides.toLowerCase());
+
+    var selectedSide;
+    if (index !== -1) {
+        selectedSide = arrSides[index]; // ใช้ค่า object ที่พบ
+    } else {
+        selectedSide = {id:11, key: 'branchparcelsandproperty', NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 };
+    }
+    
+    var idSideFix = selectedSide.id; // ใช้ id ของ object ที่เลือก
     
     // Get data selete before create table 
     var dataPFMEVSQL = await fnGetDataResultPFMEV(strUserId, idSideFix)
@@ -54,7 +62,7 @@ async function fnDrawTableForm(access,valSides) {
     var dateAsessor = (dataSummary && dataSummary.length > 0) ? dataSummary[0].dateAsessor : '';
 
     var strHTML = ''
-    var nameUnit = dataSummary[0].nameUnit ? dataSummary[0].nameUnit : ' (ระบุชื่อหน่วยงาน) '
+    var nameUnit = (dataSummary && dataSummary.length > 0 && dataSummary[0].nameUnit) ? dataSummary[0].nameUnit : ' (ระบุชื่อหน่วยงาน) ';
     strHTML += " <div class='title' style='margin-top: 20px;'> " 
     strHTML += " <input type='hidden' id='inputIdConPFM' name='inputIdConPFM' value='" + idConPFM + "'>  "
     strHTML += " <span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted'>" + nameUnit + "</span> "
@@ -67,7 +75,7 @@ async function fnDrawTableForm(access,valSides) {
 
     strHTML += " </div> "
     strHTML += " <div class='title'>แบบประเมินการควบคุมภายใน</div> "
-    strHTML += " <div class='title'>ภารภิจ/โครงการ/กิจกรรม/กระบวนงาน " + arrSides[index].NameSides + " </div> "
+    strHTML += " <div class='title'>ภารภิจ/โครงการ/กิจกรรม/กระบวนงาน " + selectedSide.NameSides + " </div> "
     strHTML += " <div class='a4-size'> "
     strHTML += "<table id='tb_" + valSides + "'>"
     strHTML += "<thead>"
@@ -492,7 +500,7 @@ async function fnGetDataResultPFMEV(userId, sideId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultPFMEV', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -516,7 +524,7 @@ async function fnGetDataResultConPFMEV(userId, sideId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPFMEV', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -541,7 +549,7 @@ async function fnGetDataResultChanceRisk(PFM_EVId, userId, sideId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultChanceRisk', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -566,7 +574,7 @@ async function fnGetDataResultEffectRisk(PFM_EVId, userId, sideId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultEffectRisk', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {

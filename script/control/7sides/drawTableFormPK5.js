@@ -368,7 +368,7 @@ async function fnDrawTablePerformanceFix() {
         strHTML += "</td>";
 
 
-    if (!dataSQL[0].responsibleAgency) {
+    if (dataSQL && dataSQL.length > 0 && dataSQL[0].responsibleAgency) {
         strHTML += "<td class='text-center align-top' style='width: 12%;'>";
         strHTML += " <div> ";
         strHTML += " <span id='displayTextResponsibleAgency'>" + dataSQL[0].responsibleAgency + "</span> ";
@@ -1164,7 +1164,7 @@ async function fnGetDataResultHighRisk(userId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultHighRisk', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -1187,7 +1187,7 @@ async function fnGetDataResultPK5Fix(userId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultPK5Fix', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -1210,7 +1210,7 @@ async function fnGetDataResultPK5Fix(userId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultPK5Fix', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -1233,7 +1233,7 @@ async function fnGetDataResultConPK5(userId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPK5', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {

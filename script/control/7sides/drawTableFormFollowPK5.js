@@ -369,7 +369,7 @@ async function fnGetDataResultHighRisk(userId, strYear) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultHighRisk', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
@@ -392,7 +392,7 @@ async function fnGetDataResultConPKF5(userId) {
 
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPKF5', dataSend)
-        var res = response.data
+        var res = response.data.result
         if (res.length > 0) {
             return res
         } else {
