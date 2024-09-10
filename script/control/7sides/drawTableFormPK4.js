@@ -18,6 +18,8 @@ async function fnDrawTableForm(access, valSides) {
     // Get data selete before create table 
     var dataPK4SQL = await fnGetDataResultPK4(strUserId)
     var dataConPK4SQL = await fnGetDataResultConPK4(strUserId)
+    var strResultDocSQL= await fnGetDataResultDoc(strUserId)
+
     // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
     var idConPK4 = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].id : '';
     var descConPK4 = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].descConPK4 : '';
@@ -25,6 +27,8 @@ async function fnDrawTableForm(access, valSides) {
     var signPath = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].signPath : '';
     var position = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].position : '';
     var dateAsessor = (dataConPK4SQL && dataConPK4SQL.length > 0) ? dataConPK4SQL[0].dateAsessor : '';
+
+    var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
 
     var strHTML = ''
     var nameUnit = (dataConPK4SQL && dataConPK4SQL.length > 0 && dataConPK4SQL[0].shortName) || '';
@@ -38,7 +42,7 @@ async function fnDrawTableForm(access, valSides) {
     }
     var DateFix = ' ณ วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(strYear)
     strHTML += " <div class='text-end'>แบบ ปค.๔</div> "
-    strHTML += " <div class='title'><input type='hidden' id='inputIdConPK4' name='inputIdConPK4' value='" + idConPK4 + "'></div> "
+    strHTML += " <div class='title'><input type='hidden' id='inputIdConPK4' name='inputIdConPK4' value='" + fnCheckFalsy(idConPK4) + "'></div> "
     strHTML += " <div class='title'><span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted'>" + nameUnit + "</span> </div>"
     strHTML += " <div class='title'>รายงานการประเมินองค์ประกอบของการควบคุมภายใน</div> "
     strHTML += " <div class='title'>สำหรับระยะเวลาดำเนินงานสิ้นสุด" + DateFix + "</div> "
@@ -67,7 +71,7 @@ async function fnDrawTableForm(access, valSides) {
 
     $("#dvFormReportAssessment")[0].innerHTML = strHTML
     if (access !== 'admin') {
-        fnAddSaveButtonEventListener(dataPK4SQL, dataConPK4SQL, strUserId)
+        fnAddSaveButtonEventListener(dataPK4SQL, dataConPK4SQL, strUserId, strUserDocId)
     }
 }
 
@@ -206,6 +210,9 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
     var strUpload = 'Upload'
     var strEpen = 'Epen'
 
+    strHTML += "  <input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + fnCheckFalsy(prefixAsessor) + "'>"
+    strHTML += "  <input type='hidden' id='inputSignPath' name='inputSignPath' value='" + fnCheckFalsy(signPath) + "'>"
+
     strHTML += " <div class='dvEvaluation'>ผลการประเมินโดยรวม</div> "
     if (descConASM) {
         strHTML += " <div> "
@@ -237,21 +244,19 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
 
     strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative; text-align: center;'> "
     if (prefixAsessor && signPath) { //prefixAsessor && signPath
-        strHTML += " <div class='title'><input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + prefixAsessor + "'></div> "
-        strHTML += `<div>ลายมือชื่อ : <span style="width: 193px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>`
+        strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>`
     } else if (prefixAsessor && !signPath) { //prefixAsessor && !signPath
-        strHTML += " <div class='title'><input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + prefixAsessor + "'></div> "
-        strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative; text-align: center;'> ";
-        strHTML += " <div style='position: relative; display: inline-block;'> ";
-            strHTML += " <div style='position: absolute; left: 120px; transform: translate(30%, -35%);'> ";
+            strHTML += " <div style='position: relative; display: inline-block;'> ";
+            strHTML += " <div style='position: absolute; left: 120px; transform: translate(0%, -35%);'> ";
                 strHTML += " <button type='button' id='btnSignatureUpload' class='btn btn-sm btn-primary' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strUpload + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>Upload</button> ";
             strHTML += " </div> ";
-            strHTML += " <div style='position: absolute; right: 40px; transform: translate(50%, -35%);> ";
+            strHTML += " <div style='position: absolute; right: 40px; transform: translate(20%, -35%);> ";
                 strHTML += " <button type='button' id='btnSignatureEPen' class='btn btn-sm btn-danger' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strEpen + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>E-pen</button> ";
             strHTML += " </div> ";
-            strHTML += `<div>ลายมือชื่อ : <span style="width: 193px;text-align:left" class="underline-dotted">${prefixAsessor}</span></div>`
-        strHTML += " </div> ";
-    strHTML += " </div> ";
+            strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;text-align:left" class="underline-dotted">${prefixAsessor}</span></div>`
+            strHTML += " </div> ";
+    } else if (!prefixAsessor && signPath) { //prefixAsessor && signPath  
+            strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;" class="underline-dotted"><img src="${signPath}" alt="ลายเซ็น" /></span></div>`
     } else {
         strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative;'> ";
         strHTML += " <div style='position: relative; display: inline-block;'> ";
@@ -261,7 +266,7 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
             strHTML += " <div style='position: absolute; right: 40px; transform: translate(0%, -35%);> ";
                 strHTML += " <button type='button' id='btnSignatureEPen' class='btn btn-sm btn-danger' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strEpen + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>E-pen</button> ";
             strHTML += " </div> ";
-            strHTML += ` <div>ลายมือชื่อ <span style="width: 197px;text-align: left;" class="underline-dotted">:</span></div> `
+            strHTML += ` <div>ผู้ประเมิน <span style="width: 197px;text-align: left;" class="underline-dotted">:</span></div> `
         strHTML += " </div> ";
     strHTML += " </div> ";
     }
@@ -269,7 +274,7 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
 
     strHTML += " <div id='dvAssessor' class='dvAssessor' style='position: relative; text-align: center;'> ";
     if (position) {
-        strHTML += `<div><div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
+        strHTML += ` <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
     } else {
         strHTML += ` <div>ตำแหน่ง <span style="width: 211px;text-align: left;" class="underline-dotted">:</span></div> `
     }
@@ -281,15 +286,15 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
     }
     strHTML += " </div> "
 
-    strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
-    if (access !== 'admin') {
+    if (access !== 'admin') { // ถ้าเป็น admin
+        strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
         strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalAssessor(\"" + prefixAsessor + "\", \"" + position + "\", \"" + dateAsessor + "\")' data-bs-toggle='modal' data-bs-target='#assessorModal'> "
         strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
         strHTML += "    </button> "
+        strHTML += " </div> "
+        // strHTML += " </div> ";
     }
-    strHTML += " </div> "
 
-    // strHTML += " </div> ";
     return strHTML
 }
 
@@ -336,51 +341,55 @@ function fnEditTextCommentEvaluation() {
     textarea.value = document.getElementById('displayTextCommentEvaluation').innerText.trim();
 }
 
-function fnAddSaveButtonEventListener(data, dataCon,strUserId) {
+function fnAddSaveButtonEventListener(data, dataCon,strUserId, strUserDocId) {
     const saveButton = document.getElementById('btnSaveData');
     if (saveButton) {
         saveButton.addEventListener('click', function(event) {
             event.preventDefault();
             // โค้ดสำหรับการบันทึกข้อมูล
-            fnSaveDraftDocument(data, dataCon, strUserId, event);
+            fnSaveDraftDocument(data, dataCon, strUserId, strUserDocId, event);
         });
     } else {
         console.error('Element with id btnSaveData not found.');
     }
 }
 
-function fnSaveDraftDocument(data , dataCon, strUserId,  event)  {
+function fnSaveDraftDocument(data , dataCon, strUserId, strUserDocId, event)  {
     event.preventDefault(); // ป้องกันการส่งฟอร์ม
     var dataSend = []
     var strDisplayText = ''
     var descResultPK4 = ''
     var strUserName = fnGetCookie("username");
     var descCon = $('#displayTextCommentEvaluation').text()
+    var descConPK4 = (dataCon && dataCon.length > 0) ? dataCon[0].descConPK4 : '';
+    var idConPK4 =  $('#inputIdConPK4').val();
 
     // Loop ผ่าน data เพื่อเปรียบเทียบและ push ข้อมูลลงใน dataSend
     data.forEach(formItem => {
         strDisplayText = $('#displayText' + formItem.id).text();
         descResultPK4 = formItem.descResultPK4 === null ? '' : formItem.descResultPK4;
         if (descResultPK4 !== strDisplayText) { // หาข้อมูลที่มีการแก้ไข
-            console.log(descResultPK4)
-            console.log(strDisplayText)
             dataSend.push({
                 idPK4: formItem.id,
                 userId: strUserId,  // หรือใช้ strUserId ถ้ามีการประกาศ
+                userDocId: strUserDocId,
                 username: strUserName,
                 descResultPK4: strDisplayText
             });
         }
     });
-    if (descCon !== dataCon[0].descConPK4) { // เช็คส่วนสรุปแบบ PK4
-        dataSend.push({
-            idConPK4: dataCon[0].id,
-            userId: strUserId,  // หรือใช้ strUserId ถ้ามีการประกาศ
-            username: strUserName,
-            descResultConPK4: descCon
-        });
+    if (descCon) {
+        if (descCon !== descConPK4) {
+            dataSend.push({
+                idConPK4: idConPK4,
+                userId: strUserId,  // หรือใช้ strUserId ถ้ามีการประกาศ
+                userDocId: strUserDocId,
+                username: strUserName,
+                descResultConPK4: descCon
+            });
+        }
     }
-    console.log(dataSend)
+
     if (dataSend && dataSend.length > 0) {
         Swal.fire({
             title: "",
@@ -395,8 +404,11 @@ function fnSaveDraftDocument(data , dataCon, strUserId,  event)  {
             if (result.isConfirmed) {
                 
                 try {
-                    const results = await fnSetDataFormPK4(dataSend)
-                    if (results && results == 'success' ) {
+                    const resultId = await fnSetDataFormPK4(dataSend)
+                    if (resultId) {
+                        if (!strIdConPK4) { // เช็คว่าถ้า strIdConPK4 ยังไม่ข้อมูลในเทเบิ้ล
+                            $('#inputIdConPK4').val(resultId)
+                        }
                         Swal.fire({
                             title: "",
                             text: "บันทึกข้อมูลสำเร็จ",
@@ -497,27 +509,27 @@ function fnDrawModalAssessor(strPrefixAsessor, strPosition, strDateAsessor) {
     
     strHTML += " <div class='form-group'> ";
     strHTML += " <label for='prefixAsessor'>คำนำหน้าชื่อ (ยศ)</label> ";
-    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + strPrefixAsessor + "' > ";
+    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + fnCheckFalsy(strPrefixAsessor) + "' > ";
     strHTML += " <div id='prefixAsessorError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> ";
     strHTML += " </div> ";
     strHTML += " <div class='form-group'> ";
     strHTML += " <label for='position'>ตำแหน่ง</label> ";
-    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + strPosition + "'> ";
+    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + fnCheckFalsy(strPosition) + "'> ";
     strHTML += " <div id='positionError' class='error'>กรุณาใส่ตำแหน่ง</div> ";
     strHTML += " </div> ";
     strHTML += " <div class='form-group'> ";
     strHTML += " <label for='date'>วันที่</label> ";
     strHTML += " <div class='row'> ";
     strHTML += "     <div class='col-4'> ";
-    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + strDay + "'> ";
+    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + fnCheckFalsy(strDay) + "'> ";
     strHTML += "         <div id='dayError' class='error'>กรุณาใส่วัน</div> ";
     strHTML += "     </div> ";
     strHTML += "     <div class='col-4'> ";
-    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + strMonth + "'> ";
+    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + fnCheckFalsy(strMonth) + "'> ";
     strHTML += "         <div id='monthError' class='error'>กรุณาใส่เดือน</div> ";
     strHTML += "     </div> ";
     strHTML += "     <div class='col-4'> ";
-    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + strYear + "'> ";
+    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + fnCheckFalsy(strYear) + "'> ";
     strHTML += "         <div id='yearError' class='error'>กรุณาใส่ปี</div> ";
     strHTML += "     </div> ";
     strHTML += " </div> ";
@@ -735,12 +747,13 @@ function fnSubmitSignature() {
     }
 }
 
-function fnDisplaySignature(signPath) {
+async function fnDisplaySignature(signPath) {
     const strIdConPK4 = $('#inputIdConPK4').val();
-    console.log(strIdConPK4)
     const strPrefixAsessor = $('#inputPrefixAsessor').val();
     const strUserId = $('#inputIdUsers').val();
     const strUserName = fnGetCookie("username");
+    const strResultDocSQL= await fnGetDataResultDoc(strUserId)
+    const strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
 
     // Result container to display the signature
     const resultContainer = $('#dvSignature');
@@ -748,6 +761,7 @@ function fnDisplaySignature(signPath) {
     const data =  {
         idConPK4: strIdConPK4,
         userId: strUserId,
+        userDocId: strUserDocId,
         signPath: signPath,
         username: strUserName
     };
@@ -764,13 +778,19 @@ function fnDisplaySignature(signPath) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const results = await fnSetDataSignaturePK4(data)
-                if (results && results == 'success' ) {
+                const resultId = await fnSetDataSignaturePK4(data)
+                if (resultId) {
                     let strHTML = `
-                        <div>ลายมือชื่อ: <span style="width: 197px;" class="underline-dotted">${strPrefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
+                        <div>ผู้ประเมิน: <span style="width: 197px;" class="underline-dotted">${fnCheckFalsy(strPrefixAsessor)}<img src="${signPath}" alt="ลายเซ็น" /></span></div>
                     `;
         
                     resultContainer.html(strHTML); // Use .html() to set the content
+                    
+                    $('#inputSignPath').val(signPath) // เพิ่มลายเซ็นไปเก็บไว้ใน input
+
+                    if (!strIdConPK4) { // เช็คว่าถ้า strIdConPK4 ยังไม่ข้อมูลในเทเบิ้ล
+                        $('#inputIdConPK4').val(resultId)
+                    }
             
                     $('#signatureModal').modal('hide');
                     $('.modal-backdrop').remove();
@@ -798,14 +818,19 @@ function fnDisplaySignature(signPath) {
     });
 }
 
-function fnSubmitAssessor() {
+async function fnSubmitAssessor() {
     if (fnValidateAsessorForm()) {
         const strIdConPK4 = $('#inputIdConPK4').val();
         const strUserId = $('#inputIdUsers').val();
+        var strResultDocSQL= await fnGetDataResultDoc(strUserId)
+        var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
         const strUserName = fnGetCookie("username");
-        const resultContainer = $('#dvAssessor');
+        const resultDivSignature = $('#dvSignature');
+        const resultDivAssesor = $('#dvAssessor');
 
         const prefixAsessor = $('#prefixAsessor').val();
+        const signPath = $('#inputSignPath').val();
+
         const position = $('#position').val();
         const day = $('#day').val();
         const month = $('#month').val();
@@ -820,6 +845,7 @@ function fnSubmitAssessor() {
         const data =  {
             idConPK4: strIdConPK4,
             userId: strUserId,
+            userDocId: strUserDocId,
             prefixAsessor: prefixAsessor,
             position: position,
             dateAsessor: dateFormat,
@@ -837,14 +863,40 @@ function fnSubmitAssessor() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const results = await fnSetDataAssessorPK4(data)
-                    if (results && results == 'success' ) {
-                        let strHTML = `
+                    var strUpload = 'Upload'
+                    var strEpen = 'Epen'
+                    const resultId = await fnSetDataAssessorPK4(data)
+                    let strHTML1 = '';
+                    let strHTML2 = '';
+
+                    if (resultId) {
+                        if (prefixAsessor) { 
+                            if (signPath) {
+                                strHTML1 += `<div>ผู้ประเมิน : <span style="width: 193px;" class="underline-dotted">${fnCheckFalsy(prefixAsessor)} <img src="${signPath}" alt="ลายเซ็น" /></span></div>`
+                            } else {
+                                strHTML1 += " <div style='position: relative; display: inline-block;'> ";
+                                strHTML1 += " <div style='position: absolute; left: 120px; transform: translate(0%, -35%);'> ";
+                                strHTML1 += " <button type='button' id='btnSignatureUpload' class='btn btn-sm btn-primary' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strUpload + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>Upload</button> ";
+                                strHTML1 += " </div> ";
+                                strHTML1 += " <div style='position: absolute; right: 40px; transform: translate(20%, -35%);'> ";
+                                strHTML1 += " <button type='button' id='btnSignatureEPen' class='btn btn-sm btn-danger' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strEpen + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>E-pen</button> ";
+                                strHTML1 += " </div> ";
+                                strHTML1 += ` <div>ผู้ประเมิน : <span style="width: 193px;text-align:left" class="underline-dotted">${prefixAsessor}</span></div>`
+                                strHTML1 += " </div> ";
+                            }
+                            $('#inputPrefixAsessor').val(prefixAsessor)
+                            resultDivSignature.html(strHTML1)
+                        }
+                        if (!strIdConPK4) { // เช็คว่าถ้า strIdConPK4 ยังไม่ข้อมูลในเทเบิ้ล
+                            $('#inputIdConPK4').val(resultId)
+                        }
+
+                        strHTML2 += `
                             <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
                             <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
                         `;
             
-                        resultContainer.html(strHTML); // Use .html() to set the content
+                        resultDivAssesor.html(strHTML2); // Use .html() to set the content
                 
                         $('#assessorModal').modal('hide');
                         $('.modal-backdrop').remove();
@@ -873,7 +925,7 @@ async function fnSetDataAssessorPK4(dataSend) {
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorPK4', dataSend)
         var res = response.data.result
-        if (res.length > 0) {
+        if (res) {
             return res
         } else {
             return []
@@ -892,7 +944,7 @@ async function fnSetDataSignaturePK4(dataSend) {
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnSetSignaturePK4', dataSend)
         var res = response.data.result
-        if (res.length > 0) {
+        if (res) {
             return res
         } else {
             return []
@@ -908,6 +960,30 @@ async function fnSetDataSignaturePK4(dataSend) {
 }
 /* end ส่วนของลายเซ็นฯ */
 
+async function fnGetDataResultDoc(userId) {
+    var dataSend = {
+        userId: userId,
+        sideId: '12',
+        formId: '5'
+    }
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDoc', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
 
 async function fnGetDataResultPK4(userId) {
     var dataSend = {
@@ -955,33 +1031,13 @@ async function fnGetDataResultConPK4(userId) {
         return []
     }
 }
-
-
-async function fnSetDataAssessorPK4(dataSend) {
-    try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorPK4', dataSend)
-        var res = response.data.result
-        if (res.length > 0) {
-            return res
-        } else {
-            return []
-        }
-    } catch (error) {
-        await Swal.fire({
-            title: 'เกิดข้อผิดพลาด',
-            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
-            icon: 'error'
-        })
-        return []
-    }
-}
 /* end ส่วนของลายเซ็นฯ */
 
 async function fnSetDataFormPK4(dataSend) {
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnSetFormPK4', dataSend)
         var res = response.data.result
-        if (res.length > 0) {
+        if (res) {
             return res
         } else {
             return []

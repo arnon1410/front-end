@@ -42,8 +42,8 @@ async function fnDrawTableForm(access, valSides, objData) {
         {id:7,  key: 'branchtechnology',NameSides: 'ด้านระบบเทคโนโลยีในการบริหารจัดการ', value: 3 },
         {id:8,  key: 'branchcivilaffairs',NameSides: 'ด้านกิจการพลเรือน', value: 4 },
         {id:9,  key: 'branchbudget',NameSides: 'ด้านการงบประมาณ', value: 6 },
-        {id:10,  key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี', value: 6 },
-        {id:11,  key: 'branchparcelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 },
+        {id:10, key: 'branchfinanceandacc',NameSides: 'ด้านการเงินและการบัญชี', value: 6 },
+        {id:11, key: 'branchparcelsandproperty',NameSides: 'ด้านพัสดุและทรัพย์สิน', value: 8 },
     ];
     var index = arrSides.findIndex(item => item.key === strSides.toLowerCase());
 
@@ -61,13 +61,13 @@ async function fnDrawTableForm(access, valSides, objData) {
     strHTML += " <div class='a4-size'> "
     strHTML += " <div class='form-container'> "
     strHTML += " <form id='formSaveFormQuestionnaire'> "
-    strHTML += " <table id='tb_" + valSides + "'>"
-    strHTML += " <thead>"
-    strHTML += " <tr>"
+    strHTML += " <table id='tb_" + valSides + "'> "
+    strHTML += " <thead> "
+    strHTML += " <tr> "
     strHTML += fnSetHeader() 
-    strHTML += " </tr>"
-    strHTML += " </thead>"
-    strHTML += " <tbody>"
+    strHTML += " </tr> "
+    strHTML += " </thead> "
+    strHTML += " <tbody> "
     if (valSides == 'branchoperation' || valSides == 'branchfinanceandacc') { // ถ้าเป็นด้านยุทธการจะเรียก function นี้
         strHTML += await fnDrawTableReportAssessmentFix(data, strUserId, idSideFix, selectedSide.NameSides, valSides)
     } else {
@@ -95,12 +95,17 @@ async function fnDrawTableForm(access, valSides, objData) {
     
 }
 
-function fnSaveDraftDocument(data , idSideFix,  event) {
+async function fnSaveDraftDocument(data , idSideFix, event) {
     event.preventDefault(); // ป้องกันการส่งฟอร์ม
     var dataSend = []
-    var validateData = false    
+    var validateData = false
 
+    // call api
+    
     var strUserId = fnGetCookie("userId")
+    var strResultDocSQL= await fnGetDataResultDoc(strUserId, idSideFix)
+    var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
+
     var strUserName = fnGetCookie("username")
     var checkedMainAT = $('input[name="mainActivities"]:checked'); // คำถามหลัก
     var checkedEndAT = $('input[name^="mainEndActivities"]:checked'); // ส่วนท้ายคำถามหลัก
@@ -150,7 +155,7 @@ function fnSaveDraftDocument(data , idSideFix,  event) {
             if (strIdCheckbox === 'haveData') { // กรณีที่ติ้ก มี / ใช่ (ถูก)
                 strDesc = $('#displayText' + strNoInput).text()
                 if (strDesc) { // กรอกข้อมูลเข้ามาเป็น text
-                    dataSend.push({ userId: strUserId, sideId: idSideFix, username: strUserName, idQR: strIdQR, checkbox:'y', descResultQR: strDesc, type:'mainQR'})
+                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idQR: strIdQR, checkbox:'y', descResultQR: strDesc, type:'mainQR'})
                 }
     
             } else if (strIdCheckbox === 'nothaveData') {  // กรณีที่ติ้ก ไม่มี / ไม่ใช่ (ผิด)
@@ -160,10 +165,10 @@ function fnSaveDraftDocument(data , idSideFix,  event) {
                     strHeadQR = arrFindQR.text
                     strObjQR = arrFindQR.objectName
                 }
-                dataSend.push({ userId: strUserId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'n', descResultQR: strDesc, headName: strHeadQR, objName: strObjQR, type:'mainQR'})
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'n', descResultQR: strDesc, headName: strHeadQR, objName: strObjQR, type:'mainQR'})
             } else { // กรณีที่ติ้ก ไม่มี / ไม่ใช่ (NA)
                 strDesc = $('#displayText' + strNoInput).text()
-                dataSend.push({ userId: strUserId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'na', descResultQR: strDesc, type:'mainQR'})
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'na', descResultQR: strDesc, type:'mainQR'})
             }
             
         });
@@ -187,11 +192,11 @@ function fnSaveDraftDocument(data , idSideFix,  event) {
             strHeadId = strEndSplit[1]
  
             if (strIdRadio === '1') { // มีการควบคุมเพียงพอ
-                dataSend.push({ userId: strUserId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '1', descResultEndQR: '', type:'mainEndQR'})
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '1', descResultEndQR: '', type:'mainEndQR'})
             } else { // กรณีไม่เพียงพอ
                 strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
                 strDesc = $('#displayTextSum' + strEndNoInput).text()
-                dataSend.push({ userId: strUserId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'})
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'})
             }
             
         });
@@ -209,7 +214,7 @@ function fnSaveDraftDocument(data , idSideFix,  event) {
         checkedOtherMainAT.each(function() {
             strOtherNoInput = fnExtractNumbersFromArray($(this).attr('id'))
             strDesc = $('#displayText' + strOtherNoInput).text()
-            dataSend.push({ userId: strUserId, sideId: idSideFix,  username: strUserName, idQR: strOtherNoInput, descResultOtherQR: strDesc, type:'subQR'})
+            dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strOtherNoInput, descResultOtherQR: strDesc, type:'subQR'})
         });
     }
 
@@ -222,15 +227,18 @@ function fnSaveDraftDocument(data , idSideFix,  event) {
             strHeadId = strOtherSplit[1]
             strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
             strDesc = $('#displayTextSum' + strEndNoInput).text()
-            dataSend.push({ userId: strUserId, sideId: idSideFix,  username: strUserName, idEndQR: strIdOtherQR, head_id: strHeadId, descResultEndQR: strDesc, type:'mainEndQR'}) // ใช้ร่วมกับ Main เนื่องจากเก็บที่ table เดียวกัน
+            dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdOtherQR, head_id: strHeadId, descResultEndQR: strDesc, type:'mainEndQR'}) // ใช้ร่วมกับ Main เนื่องจากเก็บที่ table เดียวกัน
         
         });
     }
+
     if (checkedSummaryQR) {
         strIdConQR = $('#inputIdConQR').val()
         strDesc = $('#displayTextCommentEV').text().trim()
-        dataSend.push({ userId: strUserId, sideId: idSideFix, username: strUserName, idConQR: strIdConQR, descConQR: strDesc, type:'conQR'})
-    } else {
+        dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idConQR: strIdConQR, descConQR: strDesc, type:'conQR'})
+    } 
+    /* ไม่เช็คส่วนนี้แล้ว 
+    else {
         validateData = false
         Swal.fire({
             title: 'เกิดข้อผิดพลาด',
@@ -238,7 +246,8 @@ function fnSaveDraftDocument(data , idSideFix,  event) {
             icon: 'error'
         })
     }
-
+    */
+    console.log(dataSend)
     if (validateData) { // ถ้าข้อมูลถูกต้องแล้ว
        Swal.fire({
             title: "",
@@ -356,28 +365,29 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
     var combinedArray = dataControl.map(formItem => {
         if (formItem.ischeckbox === 1 && checkboxIndex < dataCheckbox.length) {
             var checkboxData = dataCheckbox[checkboxIndex++];
-            return {
+            formItem = {
                 ...formItem,
                 idQR: checkboxData.id,
                 checkbox: checkboxData.checkbox,
                 descResultQR: checkboxData.descResultQR,
                 fileName: checkboxData.fileName
             };
-        } else if ((formItem.sum_id && formItem.head_id) && radioIndex < dataRadio.length) {
+        }
+
+        if (formItem.sum_id && formItem.head_id && formItem.isradio && radioIndex < dataRadio.length) {
             var radioData = dataRadio[radioIndex];
             if (radioData.radio == formItem.value && radioData.headID == formItem.head_id) {
-                return {
+                formItem = {
                     ...formItem,
                     idEndQR: radioData.idEndQR,
                     radio: radioData.radio,
                     descResultEndQR: radioData.descResultEndQR
                 };
-            } else {
-                return formItem;
+                radioIndex++; // เพิ่ม radioIndex เฉพาะเมื่อข้อมูลตรงเงื่อนไข
             }
-        } else {
-            return formItem;
         }
+
+        return formItem;
     });
     // console.log(combinedArray)
     var item = []  
@@ -476,22 +486,22 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                 descResultQR: checkboxData.descResultQR,
                 fileName: checkboxData.fileName
             };
-        } else if ((formItem.sum_id && formItem.head_id) && radioIndex < dataRadio.length) {
+        }
+        if (formItem.sum_id && formItem.head_id && formItem.isradio && radioIndex < dataRadio.length) {
             var radioData = dataRadio[radioIndex];
             if (radioData.radio == formItem.value && radioData.headID == formItem.head_id) {
-                return {
+                formItem = {
                     ...formItem,
                     idEndQR: radioData.idEndQR,
                     radio: radioData.radio,
                     descResultEndQR: radioData.descResultEndQR
                 };
-            } else {
-                return formItem;
+                radioIndex++; // เพิ่ม radioIndex เฉพาะเมื่อข้อมูลตรงเงื่อนไข
             }
-        } else {
-            return formItem;
         }
-    });
+
+        return formItem; 
+     });
     /* แถวที่มี Checkbox และ TextArea */
 // checkbox-container
     var mainHeadings = []
@@ -663,8 +673,8 @@ async function fnDrawTableReportAssessmentOther(strSides, arrSides, strUserId, i
         nameSides = arrSide[arrSide.length - 1].NameSides;
     }
 
-    // if (dataSQL && dataSQL.length > 0) {
-        if (1 == 0) {
+    if (dataSQL && dataSQL.length > 0) {
+        // if (1 == 0) {
         var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix, dataSQL[0].id)
         dataSQL.forEach(function(item) {
             item.head_id = strHeadId // เพิ่ม head_id 
@@ -760,7 +770,11 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
     var dateAsessor = (dataSummary && dataSummary.length > 0) ? dataSummary[0].dateAsessor : '';
 
     strHTML += " <div class='dvEvaluation'>สรุป : การควบคุมภายใน" + data + "</div> "
-    strHTML += "  <input type='hidden' id='inputIdConQR' name='inputIdConQR' value='" + idConQR + "'> "
+    
+    strHTML += "  <input type='hidden' id='inputIdConQR' name='inputIdConQR' value='" + fnCheckFalsy(idConQR) + "'> "
+    strHTML += "  <input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + fnCheckFalsy(prefixAsessor) + "'>"
+    strHTML += "  <input type='hidden' id='inputSignPath' name='inputSignPath' value='" + fnCheckFalsy(signPath) + "'>"
+
     if (descConQR) {
         strHTML += " <div> "
         strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style='display:none;'></textarea> "
@@ -792,12 +806,9 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
 
     strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative; text-align: center;'> "
     if (prefixAsessor && signPath) { //prefixAsessor && signPath
-        strHTML += " <div class='title'><input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + prefixAsessor + "'></div> "
         strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>`
     } else if (prefixAsessor && !signPath) { //prefixAsessor && !signPath
-        strHTML += " <div class='title'><input type='hidden' id='inputPrefixAsessor' name='inputPrefixAsessor' value='" + prefixAsessor + "'></div> "
-        strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative; text-align: center;'> ";
-        strHTML += " <div style='position: relative; display: inline-block;'> ";
+            strHTML += " <div style='position: relative; display: inline-block;'> ";
             strHTML += " <div style='position: absolute; left: 120px; transform: translate(0%, -35%);'> ";
                 strHTML += " <button type='button' id='btnSignatureUpload' class='btn btn-sm btn-primary' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strUpload + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>Upload</button> ";
             strHTML += " </div> ";
@@ -805,8 +816,10 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
                 strHTML += " <button type='button' id='btnSignatureEPen' class='btn btn-sm btn-danger' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strEpen + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>E-pen</button> ";
             strHTML += " </div> ";
             strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;text-align:left" class="underline-dotted">${prefixAsessor}</span></div>`
-        strHTML += " </div> ";
-    strHTML += " </div> ";
+            strHTML += " </div> ";
+        // strHTML += " </div> ";
+    } else if (!prefixAsessor && signPath) { //prefixAsessor && signPath  
+            strHTML += `<div>ผู้ประเมิน : <span style="width: 193px;" class="underline-dotted"><img src="${signPath}" alt="ลายเซ็น" /></span></div>`
     } else {
         strHTML += " <div id='dvSignature' class='dvSignature' style='position: relative;'> ";
         strHTML += " <div style='position: relative; display: inline-block;'> ";
@@ -824,7 +837,7 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
 
     strHTML += " <div id='dvAssessor' class='dvAssessor' style='position: relative; text-align: center;'> ";
     if (position) {
-        strHTML += `<div><div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
+        strHTML += ` <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
     } else {
         strHTML += ` <div>ตำแหน่ง <span style="width: 211px;text-align: left;" class="underline-dotted">:</span></div> `
     }
@@ -834,8 +847,9 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
     } else {
         strHTML += `<div>วันที่ <span style="width: 237px;text-align: left;" class="underline-dotted">:</span></div>`
     }
+    strHTML += " </div> "
+
     if (access !== 'admin') { // ถ้าเป็น admin
-        strHTML += " </div> "
         strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
         strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalAssessor(\"" + prefixAsessor + "\", \"" + position + "\", \"" + dateAsessor + "\")' data-bs-toggle='modal' data-bs-target='#assessorModal'> "
         strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
@@ -1526,27 +1540,27 @@ function fnDrawModalAssessor(strPrefixAsessor, strPosition, strDateAsessor) {
     
     strHTML += " <div class='form-group'> ";
     strHTML += " <label for='prefixAsessor'>คำนำหน้าชื่อ (ยศ)</label> ";
-    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + strPrefixAsessor + "' > ";
+    strHTML += " <input type='text' id='prefixAsessor' class='form-control' placeholder='กรอกชื่อคำนำหน้าชื่อ' value='" + fnCheckFalsy(strPrefixAsessor) + "' > ";
     strHTML += " <div id='prefixAsessorError' class='error'>กรุณาใส่ชื่อคำนำหน้าชื่อ</div> ";
     strHTML += " </div> ";
     strHTML += " <div class='form-group'> ";
     strHTML += " <label for='position'>ตำแหน่ง</label> ";
-    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + strPosition + "'> ";
+    strHTML += " <input type='text' id='position' class='form-control' placeholder='กรอกตำแหน่ง' value='" + fnCheckFalsy(strPosition) + "'> ";
     strHTML += " <div id='positionError' class='error'>กรุณาใส่ตำแหน่ง</div> ";
     strHTML += " </div> ";
     strHTML += " <div class='form-group'> ";
     strHTML += " <label for='date'>วันที่</label> ";
     strHTML += " <div class='row'> ";
     strHTML += "     <div class='col-4'> ";
-    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + strDay + "'> ";
+    strHTML += "         <input type='text' id='day' class='form-control datepicker-day' placeholder='วัน' value='" + fnCheckFalsy(strDay) + "'> ";
     strHTML += "         <div id='dayError' class='error'>กรุณาใส่วัน</div> ";
     strHTML += "     </div> ";
     strHTML += "     <div class='col-4'> ";
-    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + strMonth + "'> ";
+    strHTML += "         <input type='text' id='month' class='form-control datepicker-month' placeholder='เดือน' value='" + fnCheckFalsy(strMonth) + "'> ";
     strHTML += "         <div id='monthError' class='error'>กรุณาใส่เดือน</div> ";
     strHTML += "     </div> ";
     strHTML += "     <div class='col-4'> ";
-    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + strYear + "'> ";
+    strHTML += "         <input type='text' id='year' class='form-control datepicker-year' placeholder='ปี' value='" + fnCheckFalsy(strYear) + "'> ";
     strHTML += "         <div id='yearError' class='error'>กรุณาใส่ปี</div> ";
     strHTML += "     </div> ";
     strHTML += " </div> ";
@@ -1764,10 +1778,14 @@ function fnSubmitSignature() {
     }
 }
 
-function fnDisplaySignature(signPath) {
+async function fnDisplaySignature(signPath) {
     const strIdConQR = $('#inputIdConQR').val();
     const strPrefixAsessor = $('#inputPrefixAsessor').val();
     const strUserId = $('#inputIdUsers').val();
+    const strSideId = $('#inputIdSides').val();
+    var strResultDocSQL= await fnGetDataResultDoc(strUserId, strSideId)
+    var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
+
     const strUserName = fnGetCookie("username");
 
     // Result container to display the signature
@@ -1775,7 +1793,7 @@ function fnDisplaySignature(signPath) {
     
     const data =  {
         idConQR: strIdConQR,
-        userId: strUserId,
+        userDocId: strUserDocId,
         signPath: signPath,
         username: strUserName
     };
@@ -1792,14 +1810,20 @@ function fnDisplaySignature(signPath) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const results = await fnSetDataSignatureQR(data)
-                if (results && results == 'success' ) {
+                const resultId = await fnSetDataSignatureQR(data)
+                if (resultId) {
                     let strHTML = `
-                        <div>ผู้ประเมิน: <span style="width: 197px;" class="underline-dotted">${strPrefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
+                        <div>ผู้ประเมิน: <span style="width: 197px;" class="underline-dotted">${fnCheckFalsy(strPrefixAsessor)}<img src="${signPath}" alt="ลายเซ็น" /></span></div>
                     `;
         
                     resultContainer.html(strHTML); // Use .html() to set the content
-            
+                    
+                    $('#inputSignPath').val(signPath) // เพิ่มลายเซ็นไปเก็บไว้ใน input
+
+                    if (!strIdConQR) { // เช็คว่าถ้า strIdConQR ยังไม่ข้อมูลในเทเบิ้ล
+                        $('#inputIdConQR').val(resultId)
+                    }
+
                     $('#signatureModal').modal('hide');
                     $('.modal-backdrop').remove();
                     $('#btnSignatureUpload').hide();
@@ -1826,14 +1850,20 @@ function fnDisplaySignature(signPath) {
     });
 }
 
-function fnSubmitAssessor() {
+async function fnSubmitAssessor() {
     if (fnValidateAsessorForm()) {
         const strIdConQR = $('#inputIdConQR').val();
         const strUserId = $('#inputIdUsers').val();
+        const strSideId = $('#inputIdSides').val();
+        var strResultDocSQL= await fnGetDataResultDoc(strUserId, strSideId)
+        var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
         const strUserName = fnGetCookie("username");
-        const resultContainer = $('#dvAssessor');
+        const resultDivSignature = $('#dvSignature');
+        const resultDivAssesor = $('#dvAssessor');
 
         const prefixAsessor = $('#prefixAsessor').val();
+        const signPath = $('#inputSignPath').val();
+        
         const position = $('#position').val();
         const day = $('#day').val();
         const month = $('#month').val();
@@ -1847,7 +1877,7 @@ function fnSubmitAssessor() {
 
         const data =  {
             idConQR: strIdConQR,
-            userId: strUserId,
+            userDocId: strUserDocId,
             prefixAsessor: prefixAsessor,
             position: position,
             dateAsessor: dateFormat,
@@ -1865,14 +1895,40 @@ function fnSubmitAssessor() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const results = await fnSetDataAssessorQR(data)
-                    if (results && results == 'success' ) {
-                        let strHTML = `
+                    var strUpload = 'Upload'
+                    var strEpen = 'Epen'
+                    const resultId = await fnSetDataAssessorQR(data)
+                    let strHTML1 = '';
+                    let strHTML2 = '';
+                    
+                    if (resultId) {
+                        if (prefixAsessor) { 
+                            if (signPath) {
+                                strHTML1 += `<div>ผู้ประเมิน : <span style="width: 193px;" class="underline-dotted">${fnCheckFalsy(prefixAsessor)} <img src="${signPath}" alt="ลายเซ็น" /></span></div>`
+                            } else {
+                                strHTML1 += " <div style='position: relative; display: inline-block;'> ";
+                                strHTML1 += " <div style='position: absolute; left: 120px; transform: translate(0%, -35%);'> ";
+                                strHTML1 += " <button type='button' id='btnSignatureUpload' class='btn btn-sm btn-primary' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strUpload + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>Upload</button> ";
+                                strHTML1 += " </div> ";
+                                strHTML1 += " <div style='position: absolute; right: 40px; transform: translate(20%, -35%);'> ";
+                                strHTML1 += " <button type='button' id='btnSignatureEPen' class='btn btn-sm btn-danger' onclick='fnDrawSignatureSection(\"" + signPath + "\", \"" + strEpen + "\")' data-bs-toggle='modal' data-bs-target='#signatureModal'>E-pen</button> ";
+                                strHTML1 += " </div> ";
+                                strHTML1 += ` <div>ผู้ประเมิน : <span style="width: 193px;text-align:left" class="underline-dotted">${prefixAsessor}</span></div>`
+                                strHTML1 += " </div> ";
+                            }
+                            $('#inputPrefixAsessor').val(prefixAsessor)
+                            resultContainerSignature.html(strHTML1)
+                        }
+                        console.log(strIdConQR)
+                        if (!strIdConQR) { // เช็คว่าถ้า strIdConQR ยังไม่ข้อมูลในเทเบิ้ล
+                            $('#inputIdConQR').val(resultId)
+                        }
+
+                        strHTML2 += `
                             <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
                             <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
                         `;
-            
-                        resultContainer.html(strHTML); // Use .html() to set the content
+                        resultContainer.html(strHTML2); // Use .html() to set the content
                 
                         $('#assessorModal').modal('hide');
                         $('.modal-backdrop').remove();
@@ -1897,97 +1953,6 @@ function fnSubmitAssessor() {
     }
 }
 
-// function fnSubmitSignature() {
-//     if (fnValidateForm()) {
-//         const strIdConQR = $('#inputIdConQR').val();
-//         const strUserId = $('#inputIdUsers').val();
-//         const strSideId = $('#inputIdSides').val();
-//         const strUserName = fnGetCookie("username");
-//         const resultContainer = $('#dvSignature');
-
-//         const canvas = $('#signatureCanvas')[0];
-//         if (!canvas) {
-//             console.error('Canvas element not found');
-//             return;
-//         }
-
-//         const ctx = canvas.getContext('2d');
-//         const signPath = canvas.toDataURL();
-
-//         const prefixAsessor = $('#prefixAsessor').val();
-//         const position = $('#position').val();
-//         const day = $('#day').val();
-//         const month = $('#month').val();
-//         const year = $('#year').val();
-
-//         const positionText = position ? position : '................................................';
-//         const buddhistYear = fnConvertToBuddhistYear(year);
-//         const shortYear = buddhistYear.toString().slice(-2);
-//         const dateText = `${fnConvertToThaiNumeralsAndPoint(day)} / ${fnConvertMonthToShort(month)} / ${fnConvertToThaiNumeralsAndPoint(shortYear)}`;
-//         const dateFormat = `${year}-${fnConvertMonthNumber(month)}-${day}`;
-
-//         const data =  {
-//             idConQR: strIdConQR,
-//             userId: strUserId,
-//             sideId: strSideId,
-//             prefixAsessor: prefixAsessor,
-//             signPath: signPath,
-//             position: position,
-//             dateAsessor: dateFormat,
-//             username: strUserName
-//         };
-          
-//         Swal.fire({
-//             title: "",
-//             text: "คุณต้องการบันทึกข้อมูลผู้ประเมินใช่หรือไม่?",
-//             icon: "warning",
-//             showCancelButton: true,
-//             confirmButtonColor: "#3085d6",
-//             cancelButtonColor: "#d33",
-//             confirmButtonText: "บันทึกข้อมูล",
-//             cancelButtonText: "ยกเลิก"
-//         }).then(async (result) => {
-//             if (result.isConfirmed) {
-//                 try {
-//                     const results = await fnSetDataAssessorQR(data)
-//                     if (results && results == 'success' ) {
-//                         let strHTML = `
-//                             <div>ผู้ประเมิน: <span style="width: 200px;" class="underline-dotted">${prefixAsessor} <img src="${signPath}" alt="ลายเซ็น" /></span></div>
-//                             <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
-//                             <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
-//                         `;
-            
-//                         resultContainer.html(strHTML); // Use .html() to set the content
-                
-//                         $('#signatureModal').modal('hide');
-//                         $('.modal-backdrop').remove();
-
-//                         Swal.fire({
-//                             title: "",
-//                             text: "บันทึกข้อมูลสำเร็จ",
-//                             icon: "success"
-//                         });
-//                     } else {
-//                         Swal.fire({
-//                             title: "",
-//                             text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
-//                             icon: "error"
-//                         });
-//                     }
-
-    
-//                 } catch (error) {
-//                     console.error(error);
-//                 }
-//             }
-//         });
-//     }
-// }
-
-// Event listener for the edit signature button
-// document.getElementById('btnEditSignature').addEventListener('click', fnDrawModalSignature);
-
-
  // ฟังก์ชันเพื่อเพิ่มแถวใหม่จาก modal
 async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, valSides) {
     if (fnValidateFormOther()) {
@@ -1999,6 +1964,8 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
         var description2 = $('#description2').val();
         var improvement = $('#improvement').val();
 
+        var strResultDocSQL= await fnGetDataResultDoc(strUserId, idSideFix)
+        var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
         var strUserName = fnGetCookie("username")
     
         var strIdControlSub = ''
@@ -2073,6 +2040,7 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
             // call api and
             var data = {
             userId: strUserId,
+            userDocid: strUserDocId,
             sideId: idSideFix,
             username: strUserName,
             idControlHead: number + '.',
@@ -2581,6 +2549,31 @@ function fnChangeSizeSelect(name) {
     }
 }
 
+async function fnGetDataResultDoc(userId, sideId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId,
+        formId: '2'
+    }
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDoc', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
 async function fnGetDataResultQR(userId, sideId) {
     var dataSend = {
         userId: userId,
@@ -2719,7 +2712,7 @@ async function fnSetDataAssessorQR(dataSend) {
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorQR', dataSend)
         var res = response.data.result
-        if (res.length > 0) {
+        if (res) {
             return res
         } else {
             return []
@@ -2738,7 +2731,7 @@ async function fnSetDataSignatureQR(dataSend) {
     try {
         const response = await axios.post('http://localhost:3000/api/documents/fnSetSignatureQR', dataSend)
         var res = response.data.result
-        if (res.length > 0) {
+        if (res) {
             return res
         } else {
             return []

@@ -289,3 +289,11 @@ function fnRemoveUnderscoreAndNumbers(input) {
   // ถ้า input ไม่ใช่สตริงหรืออาร์เรย์ คืนค่าเป็นค่าว่าง
   return '';
 }
+
+function fnCheckFalsy(value) {
+  if (!value || value === 'null' || value === 'undefined') {
+    return '';
+  } else {
+    return value;
+  }
+}

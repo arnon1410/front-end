@@ -185,7 +185,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Start Modal สร้างฟอร์ม บันทึกสถานะเอกสาร -->
         <div class="modal fade" id="setStatusDocModal" tabindex="-1" aria-labelledby="setStatusDocModalLabel" aria-hidden="true">
           <div class="modal-dialog">
@@ -314,7 +314,7 @@
         }
         axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
         .then(response => {
-          var result = response.data
+          var result = response.data.result
           if (result) {
             // call data 
             if (valUserRole == 'user') {
