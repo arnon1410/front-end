@@ -24,7 +24,7 @@ async function fnDrawTableForm(access) {
     var strHTML = ''
     var dataHighRiskSQL = await fnGetDataResultHighRisk(strUserId)
     var dataConPK5SQL = await fnGetDataResultConPK5(strUserId)
-    var strResultDocSQL= await fnGetDataResultDoc(strUserId, idSideFix)
+    var strResultDocSQL= await fnGetDataResultDoc(strUserId)
 
     // ตรวจสอบว่า dataConPK5SQL มีข้อมูลและไม่เป็น undefined หรือ null
     var idConPK5 = (dataConPK5SQL && dataConPK5SQL.length > 0) ? dataConPK5SQL[0].id : '';
@@ -76,7 +76,7 @@ async function fnDrawTableForm(access) {
     strHTML += " </div> "
 
     $("#dvFormAssessment")[0].innerHTML = strHTML
-    if (access !== 'admin') {
+    if (access !== 'admin' && dataHighRiskSQL.length > 0) {
         fnAddSaveButtonEventListener(dataHighRiskSQL, strUserId, strUserDocId)
     }
 }
@@ -1142,7 +1142,7 @@ async function fnSubmitAssessor() {
                             <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
                         `;
             
-                        resultContainer.html(strHTML2); // Use .html() to set the content
+                        resultDivAssesor.html(strHTML2); // Use .html() to set the content
                 
                         $('#assessorModal').modal('hide');
                         $('.modal-backdrop').remove();

@@ -97,8 +97,9 @@ async function fnDrawTableForm(access,valSides) {
     /* end Get data selete before create table  */
 
     $("#dvFormAssessment")[0].innerHTML = strHTML
-
-   fnAddSaveButtonEventListener(dataASM, dataConASMSQL, strUserId, idSideFix, strUserDocId)
+    if (access !== 'admin') {
+        fnAddSaveButtonEventListener(dataASM, dataConASMSQL, strUserId, idSideFix, strUserDocId)
+    }
 }
 
 async function fnDrawTableAssessmentForm(dataASM) { /* ด้านการข่าว */

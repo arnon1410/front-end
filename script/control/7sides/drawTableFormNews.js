@@ -90,8 +90,9 @@ async function fnDrawTableForm(access, valSides, objData) {
     strHTML += " </div> "
     strHTML += " </div> "
     $("#dvFormReport")[0].innerHTML = strHTML
-
-    fnAddSaveButtonEventListener(data, idSideFix)
+    if (access !== 'admin') {
+        fnAddSaveButtonEventListener(data, idSideFix)
+    }
     
 }
 

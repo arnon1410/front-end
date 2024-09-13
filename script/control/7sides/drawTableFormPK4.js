@@ -402,11 +402,10 @@ function fnSaveDraftDocument(data , dataCon, strUserId, strUserDocId, event)  {
             cancelButtonText: "ยกเลิก"
         }).then(async (result) => {
             if (result.isConfirmed) {
-                
                 try {
                     const resultId = await fnSetDataFormPK4(dataSend)
                     if (resultId) {
-                        if (!strIdConPK4) { // เช็คว่าถ้า strIdConPK4 ยังไม่ข้อมูลในเทเบิ้ล
+                        if (!idConPK4) { // เช็คว่าถ้า idConPK4 ยังไม่ข้อมูลในเทเบิ้ล
                             $('#inputIdConPK4').val(resultId)
                         }
                         Swal.fire({

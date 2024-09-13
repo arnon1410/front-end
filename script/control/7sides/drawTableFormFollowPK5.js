@@ -29,7 +29,7 @@ async function fnDrawTableForm(access) {
 
     var dataHighRiskSQL = await fnGetDataResultHighRisk(strUserId, strYear)
     var dataConPKF5SQL = await fnGetDataResultConPKF5(strUserId)
-    var strResultDocSQL= await fnGetDataResultDoc(strUserId, idSideFix)
+    var strResultDocSQL= await fnGetDataResultDoc(strUserId)
 
     // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
     var idConPKF5 = (dataConPKF5SQL && dataConPKF5SQL.length > 0) ? dataConPKF5SQL[0].id : '';
@@ -81,8 +81,6 @@ async function fnDrawTableForm(access) {
 
     strHTML += await fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAsessor,strUserId, access)
 
-    strHTML += " </div> "
-
     strHTML += " <div class='dvFooterForm'> "
     if (access !== 'admin') {
         strHTML += "    <button type='button' class='btn btn-success' id='btnSaveData'>บันทึกฉบับร่าง</button>"
@@ -90,7 +88,7 @@ async function fnDrawTableForm(access) {
     strHTML += " </div> "
 
     $("#dvFormAssessment")[0].innerHTML = strHTML
-    if (access !== 'admin') {
+    if (access !== 'admin' && dataHighRiskSQL.length > 0) {
         fnAddSaveButtonEventListener(dataHighRiskSQL, strUserId, strUserDocId)
     }
 }
@@ -199,7 +197,7 @@ async function fnDrawTablePerformance(data) {
                 strHTML += "</div>";
                 strHTML += "<div style='text-indent: 17px;'>";
                 strHTML += "    <span id='displayTextProgressControl" + foundRisks[0].id + "' style='white-space: pre-wrap;'></span>";
-                strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[0].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"ProgressControl\")'></i> ";
+                strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[0].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"progressControl\")'></i> ";
                 strHTML += "</div>";
                 strHTML += "</td>";
             }
@@ -220,7 +218,7 @@ async function fnDrawTablePerformance(data) {
                 strHTML += "</div>";
                 strHTML += "<div style='text-indent: 17px;'>";
                 strHTML += "    <span id='displayTextSolutionsControl" + foundRisks[0].id + "' style='white-space: pre-wrap;'></span>";
-                strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[0].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"SolutionsControl\")'></i> ";
+                strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[0].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"solutionsControl\")'></i> ";
                 strHTML += "</div>";
                 strHTML += "</td>";
             }
@@ -1095,7 +1093,7 @@ async function fnSubmitAssessor() {
                             <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
                         `;
             
-                        resultContainer.html(strHTML2); // Use .html() to set the content
+                        resultDivAssesor.html(strHTML2); // Use .html() to set the content
                 
                         $('#assessorModal').modal('hide');
                         $('.modal-backdrop').remove();
