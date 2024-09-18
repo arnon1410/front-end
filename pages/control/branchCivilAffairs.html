@@ -312,7 +312,7 @@
           sideId: valSideId,
           isAdmin: isAdmin
         }
-        axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
+        axios.post(apiUrl + '/api/documents/fnGetResultDoc', data)
         .then(response => {
           var result = response.data.result
           if (result) {

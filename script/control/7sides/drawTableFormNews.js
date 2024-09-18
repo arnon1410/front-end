@@ -1942,7 +1942,7 @@ async function fnSubmitAssessor() {
                                 strHTML1 += " </div> ";
                             }
                             $('#inputPrefixAsessor').val(prefixAsessor)
-                            resultContainerSignature.html(strHTML1)
+                            resultDivSignature.html(strHTML1)
                         }
 
                         if (!strIdConQR) { // เช็คว่าถ้า strIdConQR ยังไม่ข้อมูลในเทเบิ้ล
@@ -1953,7 +1953,7 @@ async function fnSubmitAssessor() {
                             <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${positionText}</span></div>
                             <div>วันที่: <span style="width: 232px;" class="underline-dotted">${dateText}</span></div>
                         `;
-                        resultContainer.html(strHTML2); // Use .html() to set the content
+                        resultDivAssesor.html(strHTML2); // Use .html() to set the content
                 
                         $('#assessorModal').modal('hide');
                         $('.modal-backdrop').remove();
