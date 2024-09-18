@@ -1147,7 +1147,7 @@ function fnValidateNameUnitForm() {
 
 async function fnSetDataSideNameASM(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetSideNameASM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetSideNameASM', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1168,7 +1168,7 @@ async function fnSetDataSideNameASM(dataSend) {
 
 async function fnSetDataFormAssessment(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetFormAssessment', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetFormAssessment', dataSend)
         var res = response.data.result
         if (res) {
             return res
@@ -1193,7 +1193,7 @@ async function fnGetDataResultDoc(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDoc', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultDoc', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1217,7 +1217,7 @@ async function fnGetDataResultASM(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultASM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultASM', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1241,7 +1241,7 @@ async function fnGetDataResultConASM(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConASM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultConASM', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1260,7 +1260,7 @@ async function fnGetDataResultConASM(userId, sideId) {
 
 async function fnSetDataAssessorASM(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorASM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetAssessorASM', dataSend)
         var res = response.data.result
         if (res) {
             return res
@@ -1279,7 +1279,7 @@ async function fnSetDataAssessorASM(dataSend) {
 
 async function fnSetDataSignatureASM(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetSignatureASM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetSignatureASM', dataSend)
         var res = response.data.result
         if (res) {
             return res

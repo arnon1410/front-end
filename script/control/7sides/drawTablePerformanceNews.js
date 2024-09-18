@@ -276,7 +276,7 @@ async function fnDrawCommentDivEvaluation(prefixAsessor, signPath, position, dat
         strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
         strHTML += "    </button> "
         strHTML += " </div> "
-        // strHTML += " </div> ";
+        strHTML += " </div> "; // เพิ่ม
     }
 
     return strHTML
@@ -506,7 +506,7 @@ async function fnGetDataResultDoc(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDoc', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultDoc', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -530,7 +530,7 @@ async function fnGetDataResultPFMEV(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultPFMEV', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultPFMEV', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -554,7 +554,7 @@ async function fnGetDataResultConPFMEV(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPFMEV', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultConPFMEV', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -579,7 +579,7 @@ async function fnGetDataResultChanceRisk(PFM_EVId, userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultChanceRisk', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultChanceRisk', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -604,7 +604,7 @@ async function fnGetDataResultEffectRisk(PFM_EVId, userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultEffectRisk', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultEffectRisk', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1761,7 +1761,7 @@ function fnValidateNameUnitForm() {
 
 async function fnSetDataSideNamePFM(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetSideNamePFM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetSideNamePFM', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1782,7 +1782,7 @@ async function fnSetDataSideNamePFM(dataSend) {
 
 async function fnSetDataFormPerformance(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetFormPerformance', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetFormPerformance', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1802,7 +1802,7 @@ async function fnSetDataFormPerformance(dataSend) {
 
 async function fnSetDataChanceRiskModal(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetChanceRiskModal', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetChanceRiskModal', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1822,7 +1822,7 @@ async function fnSetDataChanceRiskModal(dataSend) {
 
 async function fnSetDataEffectRiskModal(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetEffectRiskModal', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetEffectRiskModal', dataSend)
         console.log("API Response:", response.data) // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูลที่ได้รับกลับมา
         var res = response.data.result
         if (res.length > 0) {
@@ -1842,7 +1842,7 @@ async function fnSetDataEffectRiskModal(dataSend) {
 
 async function fnSetDataRankRiskModal(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetRankRiskModal', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetRankRiskModal', dataSend)
         console.log("API Response:", response.data) // เพิ่มบรรทัดนี้เพื่อตรวจสอบข้อมูลที่ได้รับกลับมา
         var res = response.data.result
         if (res.length > 0) {
@@ -1863,7 +1863,7 @@ async function fnSetDataRankRiskModal(dataSend) {
 
 async function fnSetDataAssessorPFM(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorPFM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetAssessorPFM', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1882,7 +1882,7 @@ async function fnSetDataAssessorPFM(dataSend) {
 
 async function fnSetDataSignaturePFM(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetSignaturePFM', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetSignaturePFM', dataSend)
         var res = response.data.result
         if (res) {
             return res

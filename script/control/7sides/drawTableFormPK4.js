@@ -922,7 +922,7 @@ async function fnSubmitAssessor() {
 
 async function fnSetDataAssessorPK4(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorPK4', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetAssessorPK4', dataSend)
         var res = response.data.result
         if (res) {
             return res
@@ -941,7 +941,7 @@ async function fnSetDataAssessorPK4(dataSend) {
 
 async function fnSetDataSignaturePK4(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetSignaturePK4', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetSignaturePK4', dataSend)
         var res = response.data.result
         if (res) {
             return res
@@ -967,7 +967,7 @@ async function fnGetDataResultDoc(userId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDoc', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultDoc', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -990,7 +990,7 @@ async function fnGetDataResultPK4(userId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultPK4', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultPK4', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1014,7 +1014,7 @@ async function fnGetDataResultConPK4(userId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPK4', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultConPK4', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1034,7 +1034,7 @@ async function fnGetDataResultConPK4(userId) {
 
 async function fnSetDataFormPK4(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetFormPK4', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetFormPK4', dataSend)
         var res = response.data.result
         if (res) {
             return res

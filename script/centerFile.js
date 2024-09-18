@@ -1,3 +1,4 @@
+var apiUrl = (window.location.hostname === 'localhost') ? 'http://localhost:3000' : 'http://10.192.91.156:3000';
 function fnGetAllUrlParams(url) {
 
     // get query string from url (optional) or window

@@ -72,7 +72,7 @@ async function fnDrawTableForm(access) {
     }  else { // ไม่มีข้อมูล
         strHTML += "<tr>";
         strHTML += `<td colspan='6' class='text-center align-top' style='width: 100%;'>`;
-        strHTML += ` <span id='spanNotHaveData'>ไม่มีข้อมูลแบบติดตามปค. ๕</span> `;
+        strHTML += ` <span id='spanNotHaveData'>ไม่มีความเสี่ยงที่ต้องติดตามความคีบหน้าของการปรับรุงการควบคุมภายใน</span> `;
         strHTML += "<tr>";
     }
    
@@ -137,8 +137,8 @@ async function fnDrawTablePerformance(data) {
             strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${tab}กิจกรรม</span> `;
             strHTML += " </div> ";
             strHTML += " <div> ";
-            strHTML += " <div style='text-indent: 17px;'> ";
-            strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}'>- ${headRisks}</span> `;
+            strHTML += " <div> ";
+            strHTML += ` <span style='display: block; padding-left: 17px;' id='spanHeadRisk${foundRisks[0].id}' style="display: block; text-indent: 17px;">- ${headRisks}</span> `;
             strHTML += " </div> ";
             strHTML += "</td>";
 
@@ -183,8 +183,15 @@ async function fnDrawTablePerformance(data) {
 
             if (foundRisks[0].progressControl) {
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+                strHTML += "<div style='text-align: center;'>";
+                strHTML += "    <textarea id='textProgressControl" + foundRisks[0].id + "' name='textProgressControl" + foundRisks[0].id + "' rows='6' cols='10' style='display:none; width: 100%;'></textarea> ";
+                strHTML += "</div> ";
+                strHTML += "<div class='text-end'>";
+                strHTML += "    <button class='btn btn-secondary' type='submit' id='submitProgressControl" + foundRisks[0].id + "' style='display:none;' onclick='fnSubmitText(\"" + foundRisks[0].id + "\", \"progressControl\")'>ยืนยัน</button>";
+                strHTML += "</div>";
                 strHTML += " <div style='text-indent: 17px;'> ";
                 strHTML += ` <span id='displayTextProgressControl${foundRisks[0].id}'>${foundRisks[0].progressControl}</span> `;
+                strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[0].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"progressControl\")'></i> ";
                 strHTML += " </div> ";
                 strHTML += "</td>";
             } else {
@@ -197,15 +204,22 @@ async function fnDrawTablePerformance(data) {
                 strHTML += "</div>";
                 strHTML += "<div style='text-indent: 17px;'>";
                 strHTML += "    <span id='displayTextProgressControl" + foundRisks[0].id + "' style='white-space: pre-wrap;'></span>";
-                strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[0].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"progressControl\")'></i> ";
+                strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[0].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"progressControl\")'></i> ";
                 strHTML += "</div>";
                 strHTML += "</td>";
             }
 
             if (foundRisks[0].solutionsControl) {
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+                strHTML += "<div style='text-align: center;'>";
+                strHTML += "    <textarea id='textSolutionsControl" + foundRisks[0].id + "' name='textSolutionsControl" + foundRisks[0].id + "' rows='6' cols='10' style='display:none; width: 100%;'></textarea> ";
+                strHTML += "</div> ";
+                strHTML += "<div class='text-end'>";
+                strHTML += "    <button class='btn btn-secondary' type='submit' id='submitSolutionsControl" + foundRisks[0].id + "' style='display:none;'  onclick='fnSubmitText(\"" + foundRisks[0].id + "\", \"solutionsControl\")'>ยืนยัน</button>";
+                strHTML += "</div>";
                 strHTML += " <div style='text-indent: 17px;'> ";
-                strHTML += ` <span id='displaySolutionsControl${foundRisks[0].id}'>${foundRisks[0].solutionsControl}</span> `;
+                strHTML += ` <span id='displayTextSolutionsControl${foundRisks[0].id}'>${foundRisks[0].solutionsControl}</span> `;
+                strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[0].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"solutionsControl\")'></i> ";
                 strHTML += " </div> ";
                 strHTML += "</td>";
             } else {
@@ -218,7 +232,7 @@ async function fnDrawTablePerformance(data) {
                 strHTML += "</div>";
                 strHTML += "<div style='text-indent: 17px;'>";
                 strHTML += "    <span id='displayTextSolutionsControl" + foundRisks[0].id + "' style='white-space: pre-wrap;'></span>";
-                strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[0].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"solutionsControl\")'></i> ";
+                strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[0].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"solutionsControl\")'></i> ";
                 strHTML += "</div>";
                 strHTML += "</td>";
             }
@@ -250,8 +264,15 @@ async function fnDrawTablePerformance(data) {
 
                 if (foundRisks[i].progressControl) {
                     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+                    strHTML += "<div style='text-align: center;'>";
+                    strHTML += "    <textarea id='textProgressControl" + foundRisks[i].id + "' name='textProgressControl" + foundRisks[i].id + "' rows='6' cols='10' style='display:none; width: 100%;'></textarea> ";
+                    strHTML += "</div> ";
+                    strHTML += "<div class='text-end'>";
+                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitProgressControl" + foundRisks[i].id + "' style='display:none;' onclick='fnSubmitText(\"" + foundRisks[i].id + "\", \"progressControl\")'>ยืนยัน</button>";
+                    strHTML += "</div>";
                     strHTML += " <div style='text-indent: 17px;'> ";
                     strHTML += ` <span id='displayTextProgressControl${foundRisks[i].id}'>${foundRisks[i].progressControl}</span> `;
+                    strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[i].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"progressControl\")'></i> ";
                     strHTML += " </div> ";
                     strHTML += "</td>";
                 } else {
@@ -264,15 +285,22 @@ async function fnDrawTablePerformance(data) {
                     strHTML += "</div>";
                     strHTML += "<div style='text-indent: 17px;'>";
                     strHTML += "    <span id='displayTextProgressControl" + foundRisks[i].id + "' style='white-space: pre-wrap;'></span>";
-                    strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[i].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"progressControl\")'></i> ";
+                    strHTML += "    <i class='las la-pencil-alt' id='editIconProgressControl" + foundRisks[i].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"progressControl\")'></i> ";
                     strHTML += "</div>";
                     strHTML += "</td>";
                 }
 
                 if (foundRisks[i].solutionsControl) {
                     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+                    strHTML += "<div style='text-align: center;'>";
+                    strHTML += "    <textarea id='textSolutionsControl" + foundRisks[i].id + "' name='textSolutionsControl" + foundRisks[i].id + "'  rows='6' cols='10' style='display:none;width: 100%;'></textarea> ";
+                    strHTML += "</div> ";
+                    strHTML += "<div class='text-end'>";
+                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitSolutionsControl" + foundRisks[i].id + "' style='display:none;' onclick='fnSubmitText(\"" + foundRisks[i].id + "\", \"solutionsControl\")'>ยืนยัน</button>";
+                    strHTML += "</div>";
                     strHTML += " <div style='text-indent: 17px;'> ";
-                    strHTML += ` <span id='displayTextSolutionsControl${foundRisks[i].id}'>${foundRisks[i].SolutionsControl}</span> `;
+                    strHTML += ` <span id='displayTextSolutionsControl${foundRisks[i].id}'>${foundRisks[i].solutionsControl}</span> `;
+                    strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[i].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"solutionsControl\")'></i> ";
                     strHTML += " </div> ";
                     strHTML += "</td>";
                 } else {
@@ -285,7 +313,7 @@ async function fnDrawTablePerformance(data) {
                     strHTML += "</div>";
                     strHTML += "<div style='text-indent: 17px;'>";
                     strHTML += "    <span id='displayTextSolutionsControl" + foundRisks[i].id + "' style='white-space: pre-wrap;'></span>";
-                    strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[i].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"solutionsControl\")'></i> ";
+                    strHTML += "    <i class='las la-pencil-alt' id='editIconSolutionsControl" + foundRisks[i].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"solutionsControl\")'></i> ";
                     strHTML += "</div>";
                     strHTML += "</td>";
                 }
@@ -364,6 +392,7 @@ async function fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAs
         strHTML += "    </button> "
         strHTML += " </div> "
         strHTML += " </div> ";
+        strHTML += " </div> "; // เพิ่ม
     }
 
     return strHTML
@@ -377,7 +406,7 @@ async function fnGetDataResultDoc(userId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDoc', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultDoc', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -401,7 +430,7 @@ async function fnGetDataResultHighRisk(userId, strYear) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultHighRisk', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultHighRisk', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -424,7 +453,7 @@ async function fnGetDataResultConPKF5(userId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConPKF5', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultConPKF5', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -1122,7 +1151,7 @@ async function fnSubmitAssessor() {
 
 async function fnSetDataAssessorPKF5(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorPKF5', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetAssessorPKF5', dataSend)
         var res = response.data.result
         if (res) {
             return res
@@ -1141,7 +1170,7 @@ async function fnSetDataAssessorPKF5(dataSend) {
 
 async function fnSetDataSignaturePKF5(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetSignaturePKF5', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetSignaturePKF5', dataSend)
         var res = response.data.result
         if (res) {
             return res
@@ -1161,7 +1190,7 @@ async function fnSetDataSignaturePKF5(dataSend) {
 
 async function fnSetDataFormPKF5(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetFormPKF5', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetFormPKF5', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res

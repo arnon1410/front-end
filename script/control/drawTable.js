@@ -314,7 +314,7 @@ async function fnGetResultDocCondition(unitId,sideId,strYear,strStatus) {
         status : strStatus
     }    
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDocCondition', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultDocCondition', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -337,7 +337,7 @@ async function fnGetDataUserControl(username) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/user/fnGetUserControl', dataSend)
+        const response = await axios.post(apiUrl + '/api/user/fnGetUserControl', dataSend)
         var res = response.data
         if (res.length > 0) {
             return res
@@ -512,8 +512,18 @@ function fnEditDocConfig(access, userID, namePages, statusID, sideID, formID) {
 
     const { page: strPages, text: strTexts } = foundItem;
 
+    // ตรวจสอบว่ากำลังรันที่ server หรือ local
+    const hostname = window.location.hostname;
+    let baseURL = '';
+
+    if (hostname === 'localhost') {
+        baseURL = `http://localhost/Front-end/pages/control/${strPages}.html?sides=${namePages}`;
+    } else {
+        baseURL = `http://${hostname}/pages/control/${strPages}.html?sides=${namePages}`;
+    }
+
     if (statusID != 1) { 
-        let targetPage = `http://localhost/Front-end/pages/control/${strPages}.html?sides=${namePages}`;
+        let targetPage = baseURL;
         if (access === 'admin') {
             targetPage += `&userId=${userID}`;
         }
@@ -835,7 +845,7 @@ function fnMergeColumn(tableSelector, data) {
 
 async function fnSetDataComment(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnUpdateCommentForAdmin', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnUpdateCommentForAdmin', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -854,7 +864,7 @@ async function fnSetDataComment(dataSend) {
 
 async function fnSetDataStatusDoc(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnUpdateStatusDocForAdmin', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnUpdateStatusDocForAdmin', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res

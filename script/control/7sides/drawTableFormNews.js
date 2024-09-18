@@ -99,8 +99,9 @@ async function fnDrawTableForm(access, valSides, objData) {
 async function fnSaveDraftDocument(data , idSideFix, event) {
     event.preventDefault(); // ป้องกันการส่งฟอร์ม
     var dataSend = []
-    var validateData = false
-
+    var validateData = true;
+    var stopLoop = false;
+    let errorMessage = '';
     // call api
     
     var strUserId = fnGetCookie("userId")
@@ -145,45 +146,64 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
    // set variable ส่วนสรุปของแบบสอบถาม
     var strIdConQR = ''
 
-    if (checkedMainAT.length > 0) {
-        validateData = true
+    if (validateData && checkedMainAT.length > 0) {
         checkedMainAT.each(function() {
+            if (stopLoop) {
+                return false;  // ออก loop jQuery .each() 
+            }
+    
             strNoInput = fnExtractNumbersFromArray($(this).attr('id'))
             strIdCheckbox = fnRemoveUnderscoreAndNumbers($(this).attr('id'))
             strSplit = $(this).val().split(',') // value id ที่จะเอาไป update และ Id หัวข้อหลัก
             strHeadId = strSplit[0]
             strIdQR = strSplit[1]
+            
             if (strIdCheckbox === 'haveData') { // กรณีที่ติ้ก มี / ใช่ (ถูก)
                 strDesc = $('#displayText' + strNoInput).text()
-                if (strDesc) { // กรอกข้อมูลเข้ามาเป็น text
-                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idQR: strIdQR, checkbox:'y', descResultQR: strDesc, type:'mainQR'})
-                }
-    
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idQR: strIdQR, checkbox:'y', descResultQR: strDesc, type:'mainQR'})
+        
             } else if (strIdCheckbox === 'nothaveData') {  // กรณีที่ติ้ก ไม่มี / ไม่ใช่ (ผิด)
                 strDesc = $('#displayText' + strNoInput).text()
                 arrFindQR = data.find(item => item.head_id == strHeadId && item.hasOwnProperty('mainControl_id')); // หา Obj หัวข้อหลัก
-                if (arrFindQR) {
+                if (strDesc && arrFindQR) {
                     strHeadQR = arrFindQR.text
                     strObjQR = arrFindQR.objectName
+                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'n', descResultQR: strDesc, headName: strHeadQR, objName: strObjQR, type:'mainQR'})
+                } else {
+                    errorMessage = 'กรุณากรอกคำอธิบาย กรณีเลือก X';  // เก็บข้อความ error ไว้
+                    validateData = false;
+                    stopLoop = true;  // หยุดการวนลูปใน iteration ถัดไป
+                    return false;  // หยุด loop
                 }
-                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'n', descResultQR: strDesc, headName: strHeadQR, objName: strObjQR, type:'mainQR'})
+
             } else { // กรณีที่ติ้ก ไม่มี / ไม่ใช่ (NA)
                 strDesc = $('#displayText' + strNoInput).text()
-                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'na', descResultQR: strDesc, type:'mainQR'})
-            }
-            
+                if (strDesc) {
+                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'na', descResultQR: strDesc, type:'mainQR'})
+                } else {
+                    errorMessage = 'กรุณากรอกคำอธิบาย กรณีเลือก NA';  // เก็บข้อความ error ไว้
+                    validateData = false;
+                    stopLoop = true;  // หยุดการวนลูปใน iteration ถัดไป
+                    return false;  // หยุด loop
+                }
+            }            
         });
     } else {
-        validateData = false
-        Swal.fire({
-            title: 'เกิดข้อผิดพลาด',
-            text: 'กรุณากรอกข้อมูลคำถาม',
-            icon: 'error'
-        })
+        validateData = false;
+        errorMessage = 'กรุณากรอกข้อมูลคำถาม';
     }
     
+    // ตรวจสอบและแสดง Swal.fire() หลังจาก loop จบ
+    if (!validateData && errorMessage.trim()) {
+        Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: errorMessage,
+            icon: 'error'
+        });
+    }
+
     if (checkedEndAT.length > 0) {
-        validateData = true
+        // validateData = true
         checkedEndAT.each(function() {
             // strEndNoInput = fnExtractNumbersFromArray($(this).attr('id'))
             strIdRadio = $(this).attr('id').slice(21)
@@ -201,17 +221,17 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
             }
             
         });
-    } else {
-        validateData = false
-        Swal.fire({
-            title: 'เกิดข้อผิดพลาด',
-            text: 'กรุณากรอกข้อมูลส่วนท้ายของคำถาม',
-            icon: 'error'
-        })
     }
+    /* else { ไม่ต้องเช็คแล้ว
+        validateData = false;
+        if (!errorMessage) {  // เช็คว่ามีข้อความ error อยู่แล้วหรือไม่
+            errorMessage = 'กรุณากรอกข้อมูลส่วนท้ายของคำถาม';
+        }
+    }
+    */
 
     if (checkedOtherMainAT.length > 0) {
-        validateData = true
+        // validateData = true
         checkedOtherMainAT.each(function() {
             strOtherNoInput = fnExtractNumbersFromArray($(this).attr('id'))
             strDesc = $('#displayText' + strOtherNoInput).text()
@@ -220,7 +240,7 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
     }
 
     if (checkedOtherEndAT.length > 0) {
-        validateData = true
+        // validateData = true
         checkedOtherEndAT.each(function() {
             strOtherSplit = $(this).val().split(',') // value id ที่จะเอาไป update และ Id หัวข้อหลัก
             
@@ -238,51 +258,43 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
         strDesc = $('#displayTextCommentEV').text().trim()
         dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idConQR: strIdConQR, descConQR: strDesc, type:'conQR'})
     } 
-    /* ไม่เช็คส่วนนี้แล้ว 
-    else {
-        validateData = false
-        Swal.fire({
-            title: 'เกิดข้อผิดพลาด',
-            text: 'กรุณากรอกข้อมูลส่วนสรุปของแบบสอบถาม',
-            icon: 'error'
-        })
-    }
-    */
-    console.log(dataSend)
-    if (validateData) { // ถ้าข้อมูลถูกต้องแล้ว
-       Swal.fire({
-            title: "",
-            text: "คุณต้องการบันทึกข้อมูลฉบับร่างใช่หรือไม่?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "บันทึกข้อมูล",
-            cancelButtonText: "ยกเลิก"
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const resSQL = await fnSetDataFormQuestion(dataSend);
-                    if (resSQL) {
-                        Swal.fire({
-                            title: "",
-                            text: "บันทึกข้อมูลสำเร็จ",
-                            icon: "success"
-                        });
-                    } else {
-                        Swal.fire({
-                            title: "",
-                            text: "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง ",
-                            icon: "error"
-                        });
-                    }
 
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-        });
-    }
+    console.log(dataSend)
+    console.log(validateData)
+    // if (dataSend.length > 0 && validateData) { // ถ้าข้อมูลถูกต้องแล้ว
+    //    Swal.fire({
+    //         title: "",
+    //         text: "คุณต้องการบันทึกข้อมูลฉบับร่างใช่หรือไม่?",
+    //         icon: "warning",
+    //         showCancelButton: true,
+    //         confirmButtonColor: "#3085d6",
+    //         cancelButtonColor: "#d33",
+    //         confirmButtonText: "บันทึกข้อมูล",
+    //         cancelButtonText: "ยกเลิก"
+    //     }).then(async (result) => {
+    //         if (result.isConfirmed) {
+    //             try {
+    //                 const resSQL = await fnSetDataFormQuestion(dataSend);
+    //                 if (resSQL) {
+    //                     Swal.fire({
+    //                         title: "",
+    //                         text: "บันทึกข้อมูลสำเร็จ",
+    //                         icon: "success"
+    //                     });
+    //                 } else {
+    //                     Swal.fire({
+    //                         title: "",
+    //                         text: "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง ",
+    //                         icon: "error"
+    //                     });
+    //                 }
+
+    //             } catch (error) {
+    //                 console.error(error);
+    //             }
+    //         }
+    //     });
+    // }
 
 
 
@@ -292,6 +304,7 @@ function fnCreateInputRadioAndSpan(text, headId, validate, idEndQR, isradio, des
     var strHTML = "";
     var isCheckedRadio = isradio ? 'checked' : '';
     var strOrigin = ''
+    var strValInput = ''
     var strId = headId + "_" + validate
     if (isOrigin == 'main') {
         strOrigin = 'mainEndActivities' +  headId
@@ -374,18 +387,29 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
                 fileName: checkboxData.fileName
             };
         }
-
-        if (formItem.sum_id && formItem.head_id && formItem.isradio && radioIndex < dataRadio.length) {
-            var radioData = dataRadio[radioIndex];
-            if (radioData.radio == formItem.value && radioData.headID == formItem.head_id) {
-                formItem = {
-                    ...formItem,
-                    idEndQR: radioData.idEndQR,
-                    radio: radioData.radio,
-                    descResultEndQR: radioData.descResultEndQR
-                };
-                radioIndex++; // เพิ่ม radioIndex เฉพาะเมื่อข้อมูลตรงเงื่อนไข
-            }
+        // แก้ล่าสุด 18/9/67
+        if (formItem.sum_id && formItem.head_id && formItem.isradio) {
+            // ใช้การวนลูปเพื่อเช็ค dataRadio ทั้งหมดแทนที่จะใช้ radioIndex
+            dataRadio.forEach(radioDataItem => {
+                // ตรวจสอบว่า headID ของ radioDataItem ตรงกับ head_id ของ formItem
+                if (radioDataItem.headID == formItem.head_id) {
+                    if (radioDataItem.radio == formItem.value) {
+                        // ถ้า radio ตรงกับ value ให้เพิ่มข้อมูลเต็ม
+                        formItem = {
+                            ...formItem,
+                            idEndQR: radioDataItem.idEndQR,
+                            radio: radioDataItem.radio,
+                            descResultEndQR: radioDataItem.descResultEndQR
+                        };
+                    } else {
+                        // ถ้า radio ไม่ตรงกับ value ให้เพิ่มเฉพาะ idEndQR
+                        formItem = {
+                            ...formItem,
+                            idEndQR: radioDataItem.idEndQR
+                        };
+                    }
+                }
+            });
         }
 
         return formItem;
@@ -635,7 +659,6 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                             if (item.id_subcontrol) {
                                 strHTML += "<tr><td style='width: 55%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                             } else {
-                                console.log()
                                 strHTML += "<tr><td style='width: 55%; " + strSubText + "'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                             }
                     } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
@@ -1062,7 +1085,6 @@ function fnAddEventListeners(id) {
 }
 
 function fnAddSaveButtonEventListener(data, idSideFix) {
-    // console.log(data)
     const saveButton = document.getElementById('btnSaveData');
     if (saveButton) {
         saveButton.addEventListener('click', function(event) {
@@ -1151,7 +1173,7 @@ function fnUploadDocConfig (text, id, nameSides, idQR) {
 
 async function fnViewDocConfig(text, id, idQR) {
     try {
-        const response = await axios.post("http://localhost:3000/api/store/fnGetFileDocPDF", {
+        const response = await axios.post(apiUrl + '/api/store/fnGetFileDocPDF', {
             idQR: idQR,
             username: fnGetCookie("username") || ''
         }, {
@@ -1195,8 +1217,10 @@ function fnChangeToFillDocConfig(text, id) {
     document.getElementById(`btnUploadDoc${id}`).style.display = 'none';
     document.getElementById(`btnFillDoc${id}`).style.display = 'none';
     document.getElementById(`comment_${id}`).style.display = 'block';
-    document.getElementById(`btnSubmitSum${id}`).style.display = 'block';
+    document.getElementById(`submitButton${id}`).style.display = 'block';
     document.getElementById(`displayText${id}`).style.display = 'block';
+
+    fnAddEventListeners(id) // Add event
 }
 
 function fnSaveDataUploadDocument(id, idQR) {
@@ -1287,7 +1311,7 @@ function fnSetFileDocPDF(idQR) {
     return new Promise((resolve, reject) => {
         reader.onload = async function () {
             try {
-                const response = await axios.post("http://localhost:3000/api/store/fnSetFileDocPDF", {
+                const response = await axios.post(apiUrl + '/api/store/fnSetFileDocPDF', {
                     idQR: idQR,
                     username: fnGetCookie("username") || '',
                     image: reader.result,
@@ -1920,7 +1944,7 @@ async function fnSubmitAssessor() {
                             $('#inputPrefixAsessor').val(prefixAsessor)
                             resultContainerSignature.html(strHTML1)
                         }
-                        console.log(strIdConQR)
+
                         if (!strIdConQR) { // เช็คว่าถ้า strIdConQR ยังไม่ข้อมูลในเทเบิ้ล
                             $('#inputIdConQR').val(resultId)
                         }
@@ -2041,7 +2065,7 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
             // call api and
             var data = {
             userId: strUserId,
-            userDocid: strUserDocId,
+            userDocId: strUserDocId,
             sideId: idSideFix,
             username: strUserName,
             idControlHead: number + '.',
@@ -2069,7 +2093,7 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const resultInsert = await fnSetDataSetQuestionOther(data)
+                    const resultInsert = await fnSetDataQuestionOther(data)
                     if (resultInsert && resultInsert == 'success') {
                         $('#tb_' + valSides + ' tbody').append(strHTML);
                         // ปิด modal ซ่อน ปุ่ม 
@@ -2369,7 +2393,7 @@ function fnToggleTextSum(val, val2, description) {
     textarea = document.getElementById('commentSum' + newVal);
     button = document.getElementById('btnSubmitSum' + newVal);
     displayText = document.getElementById('displayTextSum' + newVal);
-    console.log(textarea)
+
     if (conVal == 1) {
         textarea.style.display = 'none';
         button.style.display  = 'none';
@@ -2558,7 +2582,7 @@ async function fnGetDataResultDoc(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultDoc', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultDoc', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -2582,7 +2606,7 @@ async function fnGetDataResultQR(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultQR', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultQR', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -2607,7 +2631,7 @@ async function fnGetDataResultEndQR(userId, sideId, otherId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultEndQR', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultEndQR', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -2631,7 +2655,7 @@ async function fnGetDataResultOtherQR(userId, sideId) {
     }
 
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultOtherQR', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultOtherQR', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -2654,7 +2678,7 @@ async function fnGetDataResultCONQR(userId, sideId) {
         sideId: sideId
     }
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnGetResultConQR', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultConQR', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -2673,7 +2697,7 @@ async function fnGetDataResultCONQR(userId, sideId) {
 
 async function fnSetDataFormQuestion(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetFormQuestion', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetFormQuestion', dataSend)
         var res = response.data
         if (res.length > 0) {
             return res
@@ -2690,9 +2714,9 @@ async function fnSetDataFormQuestion(dataSend) {
     }
 }
 
-async function fnSetDataSetQuestionOther(dataSend) {
+async function fnSetDataQuestionOther(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetQuestionOther', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetQuestionOther', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -2711,7 +2735,7 @@ async function fnSetDataSetQuestionOther(dataSend) {
 
 async function fnSetDataAssessorQR(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetAssessorQR', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetAssessorQR', dataSend)
         var res = response.data.result
         if (res) {
             return res
@@ -2730,7 +2754,7 @@ async function fnSetDataAssessorQR(dataSend) {
 
 async function fnSetDataSignatureQR(dataSend) {
     try {
-        const response = await axios.post('http://localhost:3000/api/documents/fnSetSignatureQR', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnSetSignatureQR', dataSend)
         var res = response.data.result
         if (res) {
             return res

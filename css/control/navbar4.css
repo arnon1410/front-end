@@ -23,6 +23,7 @@
   box-sizing: border-box;
 }
 body {
+  font-family: 'Sarabun' !important;
   background-color: var(--main-accent) !important;
   overflow-x: hidden;
 }
