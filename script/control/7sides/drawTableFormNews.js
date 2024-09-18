@@ -259,42 +259,49 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
         dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idConQR: strIdConQR, descConQR: strDesc, type:'conQR'})
     } 
 
-    console.log(dataSend)
-    console.log(validateData)
-    // if (dataSend.length > 0 && validateData) { // ถ้าข้อมูลถูกต้องแล้ว
-    //    Swal.fire({
-    //         title: "",
-    //         text: "คุณต้องการบันทึกข้อมูลฉบับร่างใช่หรือไม่?",
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: "บันทึกข้อมูล",
-    //         cancelButtonText: "ยกเลิก"
-    //     }).then(async (result) => {
-    //         if (result.isConfirmed) {
-    //             try {
-    //                 const resSQL = await fnSetDataFormQuestion(dataSend);
-    //                 if (resSQL) {
-    //                     Swal.fire({
-    //                         title: "",
-    //                         text: "บันทึกข้อมูลสำเร็จ",
-    //                         icon: "success"
-    //                     });
-    //                 } else {
-    //                     Swal.fire({
-    //                         title: "",
-    //                         text: "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง ",
-    //                         icon: "error"
-    //                     });
-    //                 }
 
-    //             } catch (error) {
-    //                 console.error(error);
-    //             }
-    //         }
-    //     });
-    // }
+    if (dataSend.length > 0 && validateData) { // ถ้าข้อมูลถูกต้องแล้ว
+       Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลฉบับร่างใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const resSQL = await fnSetDataFormQuestion(dataSend);
+                    if (resSQL) {
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                if (!strIdConQR) {
+                                    var dataSummary = await fnGetDataResultCONQR(strUserId, idSideFix)
+                                    var idConQR = (dataSummary && dataSummary.length > 0) ? dataSummary[0].id : '';
+                                    $('#inputIdConQR').val(idConQR)
+                                }
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง ",
+                            icon: "error"
+                        });
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    }
 
 
 
