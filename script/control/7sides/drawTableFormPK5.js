@@ -504,7 +504,7 @@ async function fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAs
         strHTML += "    </button> "
         strHTML += " </div> "
         strHTML += " </div> ";
-        strHTML += " </div> "; // เพิ่ม
+        // strHTML += " </div> "; // เพิ่ม
     }
 
     return strHTML

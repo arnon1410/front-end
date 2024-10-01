@@ -198,6 +198,26 @@
     </div>
     <!-- End Modal สร้างฟอร์ม ผู้ประเมิน -->
 
+
+    <!-- Start Modal สร้างฟอร์ม กรอกข้อมูลแบบติดตาม ปค.๕ -->
+    <div class="modal fade" id="setFollowPKF5Modal" tabindex="-1" aria-labelledby="setFollowPKF5ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="setFollowPKF5ModalLabel">กรอกข้อมูลแบบติดตาม ปค.๕ (งบ.ปี ๖๗)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodySetFollowPKF5Modal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterSetFollowPKF5Modal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal สร้างฟอร์ม ผู้ประเมิน -->
+
 </body>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -214,6 +234,14 @@
 <script>
     $(document).ready(function() {
         fnGetDataInternalControl()
+        const districts = {
+        'ด้านกำลังพล': ['การบริหารจัดการ', 'การศึกษาและฝึกอบรม', 'การบริการ สวัสดิการ และสิทธิกำลังพล'],
+        'ด้านการยุทธการ': ['เมืองเชียงใหม่', 'หางดง', 'สันป่าตอง'],
+        'ด้านการข่าว': ['เมืองภูเก็ต', 'กะทู้', 'ถลาง']
+    };
+    const sides = [
+        {id: 1 , name:'ด้านกำลังพล'}
+    ]
 });
 
     function fnGetDataInternalControl() {

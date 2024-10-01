@@ -31,7 +31,7 @@ async function fnDrawTableForm(access, valSides) {
     var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
 
     var strHTML = ''
-    var nameUnit = (dataConPK4SQL && dataConPK4SQL.length > 0 && dataConPK4SQL[0].shortName) || '';
+    var nameUnit = (dataPK4SQL && dataPK4SQL.length > 0 && dataPK4SQL[0].shortName) || '';
     var strYear = ''
     if (dateAsessor) {
         var dateSplit = dateAsessor.split('-');
@@ -54,7 +54,7 @@ async function fnDrawTableForm(access, valSides) {
     strHTML += "</tr>"
     strHTML += "</thead>"
     strHTML += "<tbody>"
-    strHTML += await fnDrawTableAssessmentForm(dataPK4SQL)
+    strHTML += await fnDrawTableAssessmentForm(dataPK4SQL, strUserId, nameUnit)
     strHTML += "</tbody>"
     strHTML += "</table>"
     // strHTML += " </div> "
@@ -75,7 +75,7 @@ async function fnDrawTableForm(access, valSides) {
     }
 }
 
-async function fnDrawTableAssessmentForm(dataSQL) { /* ด้านการข่าว */
+async function fnDrawTableAssessmentForm(dataSQL, strUserId, nameUnit) {
     var strHTML = "";
 
     // สร้าง array สำหรับเก็บผลลัพธ์ที่จัดเรียง
@@ -128,7 +128,7 @@ async function fnDrawTableAssessmentForm(dataSQL) { /* ด้านการข�
                 if (result[i].description) {
                     strHTML += "<tr style='width: 50%;'><td>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
                 } else {
-                    strHTML += "<tr style='width: 50%;'><td>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + fnCreateTextAreaAndButton(result[i].idPK4, result[i].descResultPK4) + "</td></tr>";
+                    strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + await fnCreateTextAreaAndButton(result[i].id, result[i].idPK4, result[i].descResultPK4, strUserId, nameUnit) + "</td></tr>";
                 }
             }
         }
@@ -138,29 +138,136 @@ async function fnDrawTableAssessmentForm(dataSQL) { /* ด้านการข�
     /* $("#dvTableReportAssessment")[0].innerHTML = strHTML; */
 }
 
-function fnCreateTextAreaAndButton(id, description) {
+async function fnCreateTextAreaAndButton(idNO, idPK4, description, strUserId, nameUnit) {
     var strHTML = ''
-    if (description) {
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='30' style='display:none;'></textarea> "
-        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(" + id + ")' style='display:none;'>ยืนยัน</button> "
-        strHTML += " </div> "
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <span class='text-left' id='displayText" + id + "' style='text-indent: 19px;white-space: pre-wrap;'>" + description + "</span> "
-        strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + id + "\")'></i> "
-        strHTML += " </div> "
+    var arrHighRisk = ''
+    var arrCaseImprove = ''
+    if (idNO === 107 || idNO === 110) { // กรณีข้อ 2.2 กับ 3.1
+        arrHighRisk =  await fnGetDataResultHighRisk(strUserId)
+        if (idNO === 107) {
+            var groupedRisks = fnGroupRisksBySide(arrHighRisk, 'risk');
+            var formattedText = fnFormatRisks(groupedRisks, nameUnit);
+            strHTML += formattedText;
+        } else {
+            // arrCaseImprove = await fnGetDataResultImprovePK4(strUserId);
+            var groupedImprove = fnGroupRisksBySide(arrHighRisk, 'improve');
+            var formattedImproveText = fnFormatImprove(groupedImprove, nameUnit);
+            strHTML += formattedImproveText; // เพิ่มผลลัพธ์ลงใน strHTML
+        }
+        
     } else {
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='30'></textarea> "
-        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(" + id + ")'>ยืนยัน</button> "
-        strHTML += " </div> "
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <span class='text-left' id='displayText" + id + "' style='text-indent: 19px;white-space: pre-wrap;'></span> "
-        strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + id + "\")'></i> "
-        strHTML += " </div> "
+        if (description) {
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <textarea id='comment_" + idPK4 + "' name='comment_" + idPK4 + "' rows='1' cols='30' style='display:none;'></textarea> "
+            strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + idPK4 + "' onclick='fnSubmitText(" + idPK4 + ")' style='display:none;'>ยืนยัน</button> "
+            strHTML += " </div> "
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <span class='text-left' id='displayText" + idPK4 + "' style='text-indent: 19px;white-space: pre-wrap;'>" + description + "</span> "
+            strHTML += " <i class='las la-pencil-alt' id='editIcon" + idPK4 + "' style='cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + idPK4 + "\")'></i> "
+            strHTML += " </div> "
+        } else {
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <textarea id='comment_" + idPK4 + "' name='comment_" + idPK4 + "' rows='1' cols='30'></textarea> "
+            strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + idPK4 + "' onclick='fnSubmitText(" + idPK4 + ")'>ยืนยัน</button> "
+            strHTML += " </div> "
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <span class='text-left' id='displayText" + idPK4 + "' style='text-indent: 19px;white-space: pre-wrap;'></span> "
+            strHTML += " <i class='las la-pencil-alt' id='editIcon" + idPK4 + "' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + idPK4 + "\")'></i> "
+            strHTML += " </div> "
+        }
     }
+    
     return  strHTML
 }
+
+function fnGenerateDataImprove(arrCaseImprove, nameUnit) {
+    var datafix = `การกำหนดนโยบาย หลักเกณฑ์ และแนวทางการปฏิบัติงาน จัดให้มีกิจกรรมการควบคุมที่มีประสิทธิภาพและประสิทธิผล เพื่อป้องกันหรือลดความเสียหาย ความผิดพลาดที่อาจเกิดขึ้น และไม่สามารถบรรลุผลตามวัตถุประสงค์ของการปฏิบัติงาน สำหรับกิจกรรมการควบคุมในเบื้องต้นจัดให้มีการแบ่งแยกหน้าที่งานภายในหน่วยอย่างเหมาะสม ไม่มอบหมายงานให้บุคคลใดบุคคลหนึ่งที่มีความเสี่ยงต่อความเสียหายเป็นผู้รับผิดชอบปฏิบัติงานที่สำคัญหรืองานที่เสี่ยงต่อความเสียหายตั้งแต่ต้นจนจบ แต่ถ้ามีความจำเป็นให้กำหนดกิจกรรมการควบคุมอื่นที่เหมาะสมทดแทน เพื่อให้ครอบคลุมกระบวนการปฏิบัติงานในทุก ๆ ด้าน`;
+    var dataNofix = `${nameUnit} มีการกำหนดนโยบาย วิธีการ ขั้นตอนต่าง ๆ จัดประชุม สัมมนา พร้อมทั้งมีการพัฒนากิจกรรมต่าง ๆ การควบคุมภายในหน่วยงาน ทั้งจากปัจจัยภายในและภายนอก เพื่อจัดการความเสี่ยงที่เกิดขึ้นภายในหน่วยให้บรรลุวัตถุประสงค์ อยู่ในระดับที่ยอมรับได้`
+    var strHTML = ""
+    strHTML += " <div style='display:flex; flex-direction: column;'> ";
+    if (arrCaseImprove && arrCaseImprove.length > 0) {
+
+    } else {
+        strHTML += " <span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + dataNofix + "</span> ";
+    }
+    strHTML += " </div> ";
+
+    return strHTML;
+}
+
+function fnGroupRisksBySide(arr, type) {
+    if (!arr || arr.length === 0) {
+      return null; // ถ้า arr ว่างหรือไม่มีข้อมูล return null
+    }
+  
+    var result = {};
+  
+    arr.forEach(function (item) {
+      // ถ้า sideName ยังไม่มีใน result ให้สร้าง object ใหม่สำหรับ sideName นั้น
+      if (!result[item.sideName]) {
+        result[item.sideName] = {};
+      }
+  
+      // ถ้า headRisk ยังไม่มีใน sideName นั้น ให้สร้าง array ใหม่สำหรับ headRisk นั้น
+      if (!result[item.sideName][item.headRisk]) {
+        result[item.sideName][item.headRisk] = [];
+      }
+  
+      // ตรวจสอบค่าก่อนเพิ่มใน result
+      if (type == 'risk' && item.risking) {
+        result[item.sideName][item.headRisk].push(item.risking);
+      } else if (type != 'risk' && item.improvementControl) {
+        result[item.sideName][item.headRisk].push(item.improvementControl);
+      }
+    });
+  
+    return result;
+  }
+  
+  function fnFormatRisks(result, nameUnit) {
+    if (!result) {
+      // กรณีที่ไม่มีข้อมูลให้ return ข้อความที่กำหนด
+      return `- ${nameUnit}มีการปฏิบัติงานตามภารกิจ แผนงาน และกิจกรรมตามด้านต่าง ๆ มีการประเมินความเสี่ยงที่อาจจะเกิดขึ้น โดยระบุความเสี่ยงที่มีผลต่อการบรรลุวัตถุประสงค์ นำมาวิเคราะห์ความเสี่ยงที่อาจจะเกิดขึ้นซึ่งได้กำหนดวิธีจัดการความเสี่ยงที่เกิดขึ้นของหน่วยให้อยู่ในระดับที่ยอมรับได้`;
+    }
+  
+    var str = `- มีการกำหนดกิจกรรมที่สอดคล้องกับแผนยุทธศาสตร์และภารกิจของ ${nameUnit} และ ของ ทร. อย่างชัดเจนซึ่งการดำเนินกิจกรรมดังกล่าว จะกำหนดความเสี่ยงที่มีผลต่อการสำเร็จภารกิจ มีการวิเคราะห์และประเมินผลจนสามารถกำหนดวิธีการจัดการความเสี่ยงนั้นได้ แต่อย่างไรก็ตามยังมีบางกิจกรรมที่ต้องปรับปรุงการควบคุมภายใน ดังนี้<br>`; // เพิ่มข้อความเริ่มต้น
+  
+    for (var sideName in result) {
+        str += '<div style="margin-top: 5px;"><strong>' + sideName + '</strong><br>';// แสดงชื่อด้านพร้อมตัวหนา
+        for (var headRisk in result[sideName]) {
+          str += 'กิจกรรม ' + headRisk + '<br>'; // แสดงชื่อกิจกรรม
+          result[sideName][headRisk].forEach(function (risk) {
+            str += '- ' + risk + '<br>'; // แสดงรายการความเสี่ยง
+          });
+        }
+        str += '</div>'; // เพิ่มช่องว่างระหว่างกลุ่ม
+      }
+    return str;
+  }
+
+  function fnFormatImprove(result, nameUnit) {
+    if (!result) {
+        return  `- ${nameUnit} มีการกำหนดนโยบาย วิธีการ ขั้นตอนต่าง ๆ จัดประชุม สัมมนา พร้อมทั้งมีการพัฒนากิจกรรมต่าง ๆ การควบคุมภายในหน่วยงาน ทั้งจากปัจจัยภายในและภายนอก เพื่อจัดการความเสี่ยงที่เกิดขึ้นภายในหน่วยให้บรรลุวัตถุประสงค์ อยู่ในระดับที่ยอมรับได้`;
+    }
+
+    var str = `- มีการกำหนดกิจกรรมที่สอดคล้องกับแผนยุทธศาสตร์และภารกิจของ ${nameUnit} และ ของ ทร. อย่างชัดเจนซึ่งมีบางกิจกรรมที่ต้องปรับปรุงการควบคุมภายใน ดังนี้<br>`; 
+
+    for (var sideName in result) {
+        str += '<div style="margin-top: 5px;"><strong>' + sideName + '</strong><br>';
+        for (var headRisk in result[sideName]) {
+            str += 'กิจกรรม ' + headRisk + '<br>';
+            result[sideName][headRisk].forEach(function (risk) {
+                if (risk) {
+                    str += '- ' + risk + '<br>'; // แสดงรายการความเสี่ยงถ้าไม่ใช่ null
+                }
+            });
+        }
+        str += '</div>';
+    }
+
+    return str;
+}
+  
 
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
 function fnSubmitText(id) {
@@ -1045,6 +1152,52 @@ async function fnSetDataFormPK4(dataSend) {
         await Swal.fire({
             title: 'เกิดข้อผิดพลาด',
             text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultHighRisk(userId) {
+    var dataSend = {
+        userId: userId
+    }
+
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultHighRisk', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultImprovePK4(userId) {
+    var dataSend = {
+        userId: userId
+    }
+
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultImprovePK4', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
             icon: 'error'
         })
         return []

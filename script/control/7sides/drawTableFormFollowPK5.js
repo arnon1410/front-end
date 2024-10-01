@@ -25,11 +25,12 @@ async function fnDrawTableForm(access) {
     var strYear = ''
     var currentYear = new Date().getFullYear();
     var laterYear = new Date().getFullYear() - 1;
-    strYear = currentYear + 543; // หลังจากกรอกข้่อมูลปีที่แล้วเสร็จเปลี่ยนเป็น laterYear
+    strYear = laterYear + 543; // หลังจากกรอกข้่อมูลปีที่แล้วเสร็จเปลี่ยนเป็น laterYear
 
     var dataHighRiskSQL = await fnGetDataResultHighRisk(strUserId, strYear)
     var dataConPKF5SQL = await fnGetDataResultConPKF5(strUserId)
-    var strResultDocSQL= await fnGetDataResultDoc(strUserId)
+    var strResultDocSQL = await fnGetDataResultDoc(strUserId)
+    let dataResultPK5Fix = ''
 
     // ตรวจสอบว่า dataSummary มีข้อมูลและไม่เป็น undefined หรือ null
     var idConPKF5 = (dataConPKF5SQL && dataConPKF5SQL.length > 0) ? dataConPKF5SQL[0].id : '';
@@ -52,11 +53,12 @@ async function fnDrawTableForm(access) {
         strLasterYear = laterYear + 543
     }
 
-    var DateFix = 'ณ วันที่ ๑ เดือน ตุลาคม ' + fnConvertToThaiNumeralsAndPoint(strLasterYear) + ' ถึง วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(strCurrentYear)
+    // var DateFix = 'ณ วันที่ ๑ เดือน ตุลาคม ' + fnConvertToThaiNumeralsAndPoint(strLasterYear) + ' ถึง วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(strCurrentYear)
+    var DateFix = 'สำหรับงวดตั้งแต่วันที่ ๑ เดือน ตุลาคม ' + fnConvertToThaiNumeralsAndPoint(strLasterYear) + ' ถึงวันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(strCurrentYear)
     strHTML += " <div class='text-end'>แบบติดตาม ปค.๕</div> "
     strHTML += " <div class='title'><input type='hidden' id='inputIdConPKF5' name='inputIdConPKF5' value='" + idConPKF5 + "'></div> "
     strHTML += " <div class='title'><span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted'>" + shortName + "</span> </div>"
-    strHTML += " <div class='title'>รายงานการติดตามการประเมินการควบคุมภายใน</div> "
+    strHTML += " <div class='title'>รายงานผลการติดตามการปฏิบัติตามแผนการปรับปรุงการควบ</div> "
     strHTML += " <div class='title'>" + DateFix + "</div> "
     strHTML += " <div class='a4-size'> "
     strHTML += "<table id='tb_PKF5'>"
@@ -70,14 +72,28 @@ async function fnDrawTableForm(access) {
     if (dataHighRiskSQL.length > 0) {
         strHTML += await fnDrawTablePerformance(dataHighRiskSQL)
     }  else { // ไม่มีข้อมูล
-        strHTML += "<tr>";
-        strHTML += `<td colspan='6' class='text-center align-top' style='width: 100%;'>`;
-        strHTML += ` <span id='spanNotHaveData'>ไม่มีความเสี่ยงที่ต้องติดตามความคีบหน้าของการปรับรุงการควบคุมภายใน</span> `;
-        strHTML += "<tr>";
+        // function วาด data คล้าย ๆ
+        dataResultPK5Fix = await fnGetDataResultPK5Fix(strUserId)
+        if (dataResultPK5Fix && dataResultPK5Fix.length > 0) {
+            strHTML += await fnDrawTablePerformance(dataResultPK5Fix)
+        } else {
+            strHTML += "<tr>";
+            strHTML += `<td colspan='6' class='text-center align-top' style='width: 100%;'>`;
+            strHTML += ` <span id='spanNotHaveData'>ไม่มีความเสี่ยงที่ต้องติดตามความคืบหน้าของการปรับปรุงการควบคุมภายใน</span> `;
+            strHTML += "<tr>"; 
+        }
     }
    
     strHTML += "</tbody>"
     strHTML += "</table>"
+
+    // if (access !== 'admin' && dataHighRiskSQL.length > 0) {
+        strHTML += " <div id='dv-btn-Signature' class='dv-btn-Signature' > "
+        strHTML += "    <button id='btnEditSignature' type='button' class='btn btn-warning btn-sm' onclick='fnDrawModalSetPKF5Fix()' data-bs-toggle='modal' data-bs-target='#setFollowPKF5Modal'> "
+        strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลแบบติดตาม ปค.๕<span> "
+        strHTML += "    </button> "
+        strHTML += " </div> "
+    // }
 
     strHTML += await fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAsessor,strUserId, access)
 
@@ -90,6 +106,10 @@ async function fnDrawTableForm(access) {
     $("#dvFormAssessment")[0].innerHTML = strHTML
     if (access !== 'admin' && dataHighRiskSQL.length > 0) {
         fnAddSaveButtonEventListener(dataHighRiskSQL, strUserId, strUserDocId)
+    }
+
+    if (access !== 'admin' && dataResultPK5Fix.length > 0) {
+        fnAddSaveButtonEventListenerFix(dataResultPK5Fix, strUserId, strUserDocId)
     }
 }
 
@@ -108,8 +128,8 @@ async function fnDrawTablePerformance(data) {
     sides.forEach((side, index) => {
         const idSides = (index + 2).toString(); // + 2 เพราะใน SQL เริ่มต้นด้วย 2
         const foundRisks = data.filter(risk => risk.idSides == idSides);
-
         if (foundRisks.length > 0) {
+            console.log(foundRisks[0])
             let headRisksContent = [];
             let strObjRisk = foundRisks[0].objRisk;
 
@@ -147,27 +167,6 @@ async function fnDrawTablePerformance(data) {
             strHTML += ` <span id='spanRisking${foundRisks[0].id}'>${foundRisks[0].risking ? foundRisks[0].risking : '-'}</span> `;
             strHTML += " </div> ";
             strHTML += "</td>";
-
-            // if (foundRisks[0].improvementControl) {
-            //     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-            //     strHTML += " <div style='text-indent: 17px;'> ";
-            //     strHTML += ` <span id='displayTextImprovementControl${foundRisks[0].id}'>${foundRisks[0].improvementControl}</span> `;
-            //     strHTML += " </div> ";
-            //     strHTML += "</td>";
-            // } else {
-            //     strHTML += "<td id='ImprovementControl" + foundRisks[0].id + "' class='text-left align-top' style='width: 12%;'>";
-            //     strHTML += "<div style='text-align: center;'>";
-            //     strHTML += "    <textarea id='textImprovementControl" + foundRisks[0].id + "' name='textImprovementControl" + foundRisks[0].id + "' rows='6' cols='10' style='width: 100%;'></textarea> ";
-            //     strHTML += "</div> ";
-            //     strHTML += "<div class='text-end'>";
-            //     strHTML += "    <button class='btn btn-secondary' type='submit' id='submitImprovementControl" + foundRisks[0].id + "' onclick='fnSubmitText(\"" + foundRisks[0].id + "\", \"improvementControl\")'>ยืนยัน</button>";
-            //     strHTML += "</div>";
-            //     strHTML += "<div class='text-start' style='text-indent: 17px;'>";
-            //     strHTML += "    <span id='displayTextImprovementControl" + foundRisks[0].id + "' style='white-space: pre-wrap;'></span>";
-            //     strHTML += "    <i class='las la-pencil-alt' id='editIconImprovementControl" + foundRisks[0].id + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"improvementControl\")'></i> ";
-            //     strHTML += "</div>";
-            //     strHTML += "</td>";
-            // }
 
             strHTML += "<td class='text-left align-top' style='width: 12%;'>";
             strHTML += " <div style='text-indent: 17px;'> ";
@@ -322,7 +321,7 @@ async function fnDrawTablePerformance(data) {
             }
         }
     });
-
+    console.log(strHTML)
     return strHTML;
 }
 
@@ -470,6 +469,29 @@ async function fnGetDataResultConPKF5(userId) {
     }
 }
 
+async function fnGetDataResultPK5Fix(userId) {
+    var dataSend = {
+        userId: userId
+    }
+
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultPK5Fix', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
 function fnSubmitText(index, sides) {
     var textarea = ''
@@ -559,7 +581,7 @@ function fnEditText(index, sides) {
     textarea.value = displayText.innerText.trim();
 }
 
-function fnSaveDraftDocument(data , strUserId, strUserDocId,  event)  {
+function fnSaveDraftDocument(data , strUserId, strUserDocId,  event, type)  {
     event.preventDefault(); // ป้องกันการส่งฟอร์ม
     var dataSend = []
     var strDisplayTextPC = ''
@@ -606,6 +628,7 @@ function fnSaveDraftDocument(data , strUserId, strUserDocId,  event)  {
             });
             return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
         }
+        // เพิ่มประเภทการส่ง 
 
         Swal.fire({
             title: "",
@@ -619,7 +642,13 @@ function fnSaveDraftDocument(data , strUserId, strUserDocId,  event)  {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const results = await fnSetDataFormPKF5(dataSend)
+                    let results = ''
+                    if (type == 'HighRisk') {
+                        results = await fnSetDataFormPKF5(dataSend)
+                    } else {
+                        results = await fnUpdateFormPKF5Fix(dataSend)
+                    }
+                    console.log(results)
                     if (results && results == 'success' ) {
                         Swal.fire({
                             title: "",
@@ -647,13 +676,26 @@ function fnAddSaveButtonEventListener(data, strUserId, strUserDocId) {
         saveButton.addEventListener('click', function(event) {
             event.preventDefault();
             // โค้ดสำหรับการบันทึกข้อมูล
-            fnSaveDraftDocument(data, strUserId, strUserDocId, event);
+            fnSaveDraftDocument(data, strUserId, strUserDocId, event, 'HighRisk');
         });
     } else {
         console.error('Element with id btnSaveData not found.');
     }
 }
 
+
+function fnAddSaveButtonEventListenerFix(data, strUserId, strUserDocId) {
+    const saveButton = document.getElementById('btnSaveData');
+    if (saveButton) {
+        saveButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            // โค้ดสำหรับการบันทึกข้อมูล
+            fnSaveDraftDocument(data, strUserId, strUserDocId, event, 'FixRisk');
+        });
+    } else {
+        console.error('Element with id btnSaveData not found.');
+    }
+}
 /* start ส่วนของลายเซ็นฯ */
 
 function fnDrawSignatureSection(strSignPath, type) {
@@ -1148,6 +1190,269 @@ async function fnSubmitAssessor() {
         });
     }
 }
+
+function fnDrawModalSetPKF5Fix() {
+    var strHTML = '';
+    var strHTML2 = '';
+    // draw modal without signature section
+
+    strHTML += " <div class='form-group' style='margin-top: 10px;'> ";
+    strHTML += " <label for='date' style='margin-bottom: 10px;'>ด้านการติดตามปค.๕</label> ";
+    strHTML += " <div class='row' style='margin-bottom: 10px;'> ";
+    strHTML += "     <div class='col-6'> "; // แถว 1
+    strHTML += "         <select id='inputSides' class='form-control'> ";
+    strHTML += "            <option value='' seleted>กรุณาเลือกด้านที่ติดตาม</option> ";
+    strHTML += "            <option value='2'>ด้านการกำลังพล</option> ";
+    strHTML += "            <option value='3'>ด้านยุทธการ</option> ";
+    strHTML += "            <option value='4'>ด้านการข่าว</option> ";
+    strHTML += "            <option value='5'>ด้านการส่งกำลังบำรุง</option> ";
+    strHTML += "            <option value='6'>ด้านการสื่อสาร</option> ";
+    strHTML += "            <option value='7'>ด้านระบบเทคโนโลยีสารสนเทศในการบริหารจัดการ</option> ";
+    strHTML += "            <option value='8'>ด้านกิจการพลเรือน</option> ";
+    strHTML += "            <option value='9'>ด้านการงบประมาณ</option> ";
+    strHTML += "            <option value='10'>ด้านการเงินและการบัญชี</option> ";
+    strHTML += "            <option value='11'>ด้านพัสดุและทรัพย์สิน</option> ";
+    strHTML += "         </select>";
+    strHTML += "    <div id='inputSidesError' class='error'>กรุณาใส่ด้านที่ติดตาม</div> ";
+    strHTML += "     </div> ";
+    strHTML += "     <div class='col-6'> ";
+    strHTML += "         <input type='text' id='inputHeadRisk' class='form-control' placeholder='หัวข้อคำถามที่ติดตาม' value='การบริหารจัดการเครื่องแม่ข่ายและดำเนินงานของเครือข่ายสารสนเทศ'> ";
+    strHTML += "         <div id='inputHeadRiskError' class='error'>กรุณาใส่หัวข้อคำถามที่ติดตาม</div> ";
+    strHTML += "     </div> ";
+    strHTML += " </div> ";
+
+    strHTML += " <div class='row' style='margin-bottom: 10px;'> "; // แถว 2
+    strHTML += "     <div> ";
+    strHTML += "         <input type='text' id='inputObjRisk' class='form-control' placeholder='วัตถุประสงค์' value='เพื่อ....'> ";
+    strHTML += "         <div id='inputObjRiskError' class='error'>กรุณาใส่วัตถุประสงค์</div> ";
+    strHTML += "     </div> ";
+    strHTML += " </div> ";
+
+    strHTML += " <div class='row' style='margin-bottom: 10px;'> "; // แถว 2
+    strHTML += "     <div> ";
+    strHTML += "         <input type='text' id='inputRisking' class='form-control' placeholder='ความเสี่ยงที่ยังมีอยู่' value='ทดสอบความเสี่ยวที่ยังมีอยู่'> ";
+    strHTML += "         <div id='inputRiskingError' class='error'>กรุณาใส่ความเสี่ยงที่ยังมีอยู่</div> ";
+    strHTML += "     </div> ";
+    strHTML += " </div> ";
+
+    strHTML += " <div class='row' style='margin-bottom: 10px;'> "; // แถว 4
+    strHTML += "     <div class='col-6'> ";
+    strHTML += "         <input type='text' id='inputImprovement' class='form-control' placeholder='การปรับปรุงการควบคุมภายใน' value='ให้เจ้าหน้าที่ติดตามประเมินผลการควบคุมภายใน'> ";
+    strHTML += "         <div id='inputImprovementError' class='error'>กรุณาใส่การปรับปรุงการควบคุมภายใน</div> ";
+    strHTML += "     </div> ";
+    strHTML += "     <div class='col-6'> ";
+    strHTML += "         <input type='text' id='inputAgentcy' class='form-control' placeholder='หน่วยงานที่รับผิดชอบ' value='แผนกตรวจการป้องกันความเสียหาย กตค.จร.ทร'> ";
+    strHTML += "         <div id='inputAgentcyError' class='error'>กรุณาใส่หน่วยงานที่รับผิดชอบ</div> ";
+    strHTML += "     </div> ";
+    strHTML += " </div> ";
+
+    strHTML += " <div class='row'> "; // แถว 3
+    strHTML += "     <div class='col-6'> ";
+    strHTML += "         <input type='text' id='inputProgress' class='form-control' placeholder='สถานการณ์ดำแนินการ % ความคืบหน้า' value='100'> ";
+    strHTML += "         <div id='inputProgressError' class='error'>กรุณาใส่สถานการณ์ดำแนินการ % ความคืบหน้า</div> ";
+    strHTML += "     </div> ";
+    strHTML += "     <div class='col-6'> ";
+    strHTML += "         <input type='text' id='inputSolution' class='form-control' placeholder='ปัญหาอุปสรรคและแนวทางแก้ไข' value='ไม่มี'> ";
+    strHTML += "         <div id='inputSolutionError' class='error'>กรุณาใส่ปัญหาและแนวทางแก้ไข</div> ";
+    strHTML += "     </div> ";
+    strHTML += " </div> ";
+
+    strHTML += " </div> ";
+ 
+    strHTML2 += " <button type='button' id='submitSetPKF5FixButton' class='btn btn-primary'>บันทึกข้อมูล</button> ";
+    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> ";
+       
+    $("#dvBodySetFollowPKF5Modal").html(strHTML);
+    $("#dvFooterSetFollowPKF5Modal").html(strHTML2);
+
+    $('#submitSetPKF5FixButton').on('click', fnSubmitSetPKF5Fix);
+}
+
+function fnSubmitSetPKF5Fix () {
+    if (fnValidateSetPKF5FixForm()) {
+        const strUserId = $('#inputIdUsers').val();
+        const strSideId = $('#inputSides').val();
+        const strUserName = fnGetCookie("username");
+
+
+        const strHeadRisk = $('#inputHeadRisk').val();
+        const strObjRisk = $('#inputObjRisk').val();
+        const strRisking = $('#inputRisking').val();
+        const strImprovement = $('#inputImprovement').val();
+        const strAgentcy = $('#inputAgentcy').val();
+        const strProgress = $('#inputProgress').val();
+        const strSolution = $('#inputSolution').val();
+
+        const dataSend =  {
+            userId: strUserId,
+            sideId: strSideId,
+            username: strUserName,
+            headRisk: strHeadRisk,
+            objRisk: strObjRisk,
+            risking: strRisking,
+            improvement: strImprovement,
+            agentcy: strAgentcy,
+            progress: strProgress,
+            solution: strSolution
+        };
+
+        Swal.fire({
+            title: "",
+            text: "คุณต้องการบันทึกข้อมูลลายเซ็นใช่หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "บันทึกข้อมูล",
+            cancelButtonText: "ยกเลิก"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const resultId = await fnInsertFormPKF5Fix(dataSend)
+                    if (resultId) {
+
+                        $('#setFollowPKF5Modal').modal('hide');
+                        $('.modal-backdrop').remove();
+    
+                        Swal.fire({
+                            title: "",
+                            text: "บันทึกข้อมูลสำเร็จ",
+                            icon: "success"
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                            icon: "error"
+                        });
+                    }
+    
+    
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    }
+}
+
+function fnValidateSetPKF5FixForm() {
+    let isValid = true;
+
+    // Validate inputSides
+    const inputSides = $('#inputSides').val();
+    if (!inputSides) {
+        $('#inputSidesError').show();
+        isValid = false;
+    } else {
+        $('#inputSidesError').hide();
+    }
+
+    // Validate inputHeadRisk
+    const inputHeadRisk = $('#inputHeadRisk').val();
+    if (!inputHeadRisk) {
+        $('#inputHeadRiskError').show();
+        isValid = false;
+    } else {
+        $('#inputHeadRiskError').hide();
+    }
+
+    // Validate inputObjRisk
+    const inputObjRisk = $('#inputObjRisk').val();
+    if (!inputObjRisk) {
+        $('#inputObjRiskError').show();
+        isValid = false;
+    } else {
+        $('#inputObjRiskError').hide();
+    }
+
+    // Validate inputRiskError
+    const inputRisking = $('#inputRisking').val();
+    if (!inputRisking) {
+        $('#inputRiskingError').show();
+        isValid = false;
+    } else {
+        $('#inputRiskingError').hide();
+    }
+
+    
+    
+    // Validate inputImprovement
+    const inputImprovement = $('#inputImprovement').val();
+    if (!inputImprovement) {
+        $('#inputImprovementError').show();
+        isValid = false;
+    } else {
+        $('#inputHeadRiskError').hide();
+    }
+
+    // Validate inputAgentcy
+    const inputAgentcy = $('#inputAgentcy').val();
+    if (!inputAgentcy) {
+        $('#inputAgentcyError').show();
+        isValid = false;
+    } else {
+        $('#inputHeadRiskError').hide();
+    }
+
+    // Validate inputProgress
+    const inputProgress = $('#inputProgress').val();
+    if (!inputProgress) {
+        $('#inputProgressError').show();
+        isValid = false;
+    } else {
+        $('#inputProgressError').hide();
+    }
+
+    // Validate inputSolution
+    const inputSolution = $('#inputSolution').val();
+    if (!inputSolution) {
+        $('#inputSolutionError').show();
+        isValid = false;
+    } else {
+        $('#inputSolutionError').hide();
+    }
+    return isValid;
+}
+
+async function fnInsertFormPKF5Fix(dataSend) {
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnInsertFormPKF5Fix', dataSend)
+        var res = response.data.result
+        if (res) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnUpdateFormPKF5Fix(dataSend) {
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnUpdateFormPKF5Fix', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'การบันทึกข้อมูลไม่สำเร็จ กรุณาติดต่อ admin',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
 
 async function fnSetDataAssessorPKF5(dataSend) {
     try {

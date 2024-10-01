@@ -298,3 +298,16 @@ function fnCheckFalsy(value) {
     return value;
   }
 }
+
+function fnProcessTextASM(text) {
+  var keyword = 'โดยการ';
+  var index = text.indexOf(keyword);
+
+  if (index !== -1) {
+      // ถ้าพบคำว่า "โดยการ" จะตัดส่วนที่เหลือหลังจาก "โดยการ"
+      return text.substring(index + keyword.length).trim();
+  } else {
+      // ถ้าไม่พบคำว่า "โดยการ" ให้ return ข้อความเดิม
+      return text;
+  }
+}

@@ -141,7 +141,8 @@ async function fnDrawTablePerformance(objData, strUserId, idSideFix) { /* ด้
         if (data[i].idQR) {
             strHTML += " <input type='hidden' id='inputIdQR" + data[i].id + "' name='inputIdQR' value='" + data[i].idQR + "'>  "
             strHTML += " <input type='hidden' id='inputHeadRisk" + data[i].id + "' name='inputHeadRisk' value='" + data[i].headRisk + "'>  " // สร้างแยกเพราะต้องเอา value ไปใช้ต่อ
-            strHTML += " <input type='hidden' id='inputObjRisk" + data[i].id + "' name='inputObjRisk' value='" + data[i].objRisk + "'>  " // สร้างแยกเพราะต้องเอา value ไปใช้ต่อ
+            // strHTML += " <input type='hidden' id='inputObjRisk" + data[i].id + "' name='inputObjRisk' value='" + data[i].objRisk + "'>  " // สร้างแยกเพราะต้องเอา value ไปใช้ต่อ
+            strHTML += "<div id='inputObjRisk" + data[i].id + "' style='display:none;'>" + data[i].objRisk + "</div>"
         }
 
         // headRisk
@@ -757,7 +758,7 @@ function fnSaveChanceRiskModal(strPFM_EVId, strUserId, idSideFix) {
             var strCheckedValue = fnStringToInt($('input[name="inputValChanceRisk"]:checked').val()) // = spanEffectRisk
             var strSumResult  = (strEffectRisk && strCheckedValue) ? (strEffectRisk * strCheckedValue) : ''
             var strHeadRisk = $('#inputHeadRisk' + strPFM_EVId).val()
-            var strObjRisk = $('#inputObjRisk' + strPFM_EVId).val()
+            var strObjRisk = $('#inputObjRisk' + strPFM_EVId).html()
             var strRisking = $('#risking' + strPFM_EVId).text()
             var strActControl = $('#displayTextActivityControl' + strPFM_EVId).text()
             var strImpControl = $('#displayTextImprovementControl' + strPFM_EVId).text()
@@ -875,7 +876,7 @@ function fnSaveEffectRiskModal(strPFM_EVId, strUserId, idSideFix) {
             var strCheckedValue = fnStringToInt($('input[name="inputValEffectRisk"]:checked').val()) // = spanEffectRisk
             var strSumResult  = (strChanceRisk && strCheckedValue) ? (strChanceRisk * strCheckedValue) : ''
             var strHeadRisk = $('#inputHeadRisk' + strPFM_EVId).val()
-            var strObjRisk = $('#inputObjRisk' + strPFM_EVId).val()
+            var strObjRisk = $('#inputObjRisk' + strPFM_EVId).html()
             var strRisking = $('#risking' + strPFM_EVId).text()
             var strActControl = $('#displayTextActivityControl' + strPFM_EVId).text()
             var strImpControl = $('#displayTextImprovementControl' + strPFM_EVId).text()
@@ -1716,12 +1717,15 @@ async function fnSubmitSideName () {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const results = await fnSetDataSideNamePFM(data)
-                    if (results && results == 'success' ) {
-
+                    const resultId = await fnSetDataSideNamePFM(data)
+                    if (resultId) {
                         strNameUnit.text(inputNameSides);
                         $('#sideNameModal').modal('hide');
                         $('.modal-backdrop').remove();
+
+                        if (!strIdConPFM) { // เช็คว่าถ้า strIdConPFM ยังไม่ข้อมูลในเทเบิ้ล
+                            $('#inputIdConPFM').val(resultId)
+                        }
 
                         Swal.fire({
                             title: "",
@@ -1763,7 +1767,7 @@ async function fnSetDataSideNamePFM(dataSend) {
     try {
         const response = await axios.post(apiUrl + '/api/documents/fnSetSideNamePFM', dataSend)
         var res = response.data.result
-        if (res.length > 0) {
+        if (res) {
             return res
         } else {
             return []

@@ -61,7 +61,7 @@ async function fnDrawTableForm(access,valSides) {
     var nameUnit = (dataConASMSQL && dataConASMSQL.length > 0) ? dataConASMSQL[0].nameUnit : ' (ระบุชื่อหน่วยงาน) '
     var currentYear = new Date().getFullYear();
     var currentThaiYear = currentYear + 543;
-    var DateFix = 'ณ วันที่ ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(currentThaiYear)
+    var DateFix = 'สำหรับระยะเวลาดำเนินงานสิ้นสุด ๓๐ เดือน กันยายน ' + fnConvertToThaiNumeralsAndPoint(currentThaiYear)
     strHTML += " <div class='title' style='margin-top: 20px;'> " 
     strHTML += " <input type='hidden' id='inputIdConASM' name='inputIdConASM' value='" + fnCheckFalsy(idConASM) + "'>  "
     strHTML += " <span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted'>" + fnCheckFalsy(nameUnit) + "</span> "
@@ -82,7 +82,7 @@ async function fnDrawTableForm(access,valSides) {
     strHTML += "</tr>"
     strHTML += "</thead>"
     strHTML += "<tbody>"
-    strHTML += await fnDrawTableAssessmentForm(dataASM)
+    strHTML += await fnDrawTableAssessmentForm(dataASM, strUserId, idSideFix, selectedSide.NameSides)
     strHTML += "</tbody>"
     strHTML += "</table>"
 
@@ -102,7 +102,7 @@ async function fnDrawTableForm(access,valSides) {
     }
 }
 
-async function fnDrawTableAssessmentForm(dataASM) { /* ด้านการข่าว */
+async function fnDrawTableAssessmentForm(dataASM, strUserId, idSideFix, nameSides) { /* ด้านการข่าว */
     var strHTML = "";
 
     // สร้าง array สำหรับเก็บผลลัพธ์ที่จัดเรียง
@@ -115,6 +115,7 @@ async function fnDrawTableAssessmentForm(dataASM) { /* ด้านการข�
         return {
             ...formItem,
             idASM : items.id,
+            // resultNo: parseFloat(items.resultNo),
             descResultASM: items.descResultASM
         };
     });
@@ -155,7 +156,7 @@ async function fnDrawTableAssessmentForm(dataASM) { /* ด้านการข�
                 if (result[i].description) {
                     strHTML += "<tr style='width: 50%;'><td>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
                 } else {
-                    strHTML += "<tr style='width: 50%;'><td>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + fnCreateTextAreaAndButton(result[i].idASM, result[i].descResultASM) + "</td></tr>";
+                    strHTML += "<tr style='width: 50%;'><td>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + await fnCreateTextAreaAndButton(result[i].id, result[i].idASM, result[i].descResultASM, strUserId, idSideFix, nameSides) + "</td></tr>";
                 }
             }
         }
@@ -165,29 +166,87 @@ async function fnDrawTableAssessmentForm(dataASM) { /* ด้านการข�
     /* $("#dvTableReportAssessment")[0].innerHTML = strHTML; */
 }
 
-function fnCreateTextAreaAndButton(id, description) {
+async function fnCreateTextAreaAndButton(idNO, idASM, description, strUserId, idSideFix, nameSides) {
     var strHTML = ''
-    if (description) {
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='30' style='display:none;'></textarea> "
-        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(" + id + ")' style='display:none;'>ยืนยัน</button> "
-        strHTML += " </div> "
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <span class='text-left' id='displayText" + id + "' style='text-indent: 19px;white-space: pre-wrap;'>" + description + "</span> "
-        strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + id + "\")'></i> "
-        strHTML += " </div> "
+    var arrCaseRisk = ''
+    var arrCaseImprove = ''
+    if (idNO === 107 || idNO === 110) { // กรณีข้อ 2.2 กับ 3.1
+        if (idNO === 107) {
+            arrCaseRisk =  await fnGetDataResultCaseRisk(strUserId, idSideFix)
+            if (arrCaseRisk) {
+                strHTML += fnGenerateDataCaseRisk(arrCaseRisk, nameSides);
+            }
+        } else { // idNO = 110
+            arrCaseImprove = await fnGetDataResultEndQR(strUserId, idSideFix)
+            console.log(arrCaseImprove)
+            if (arrCaseImprove) {
+                strHTML += fnGenerateDataImprove(arrCaseImprove, nameSides);
+            }
+        }
     } else {
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <textarea id='comment_" + id + "' name='comment_" + id + "' rows='1' cols='30'></textarea> "
-        strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + id + "' onclick='fnSubmitText(" + id + ")'>ยืนยัน</button> "
-        strHTML += " </div> "
-        strHTML += " <div style='display:flex;'> "
-        strHTML += " <span class='text-left' id='displayText" + id + "' style='text-indent: 19px;white-space: pre-wrap;'></span> "
-        strHTML += " <i class='las la-pencil-alt' id='editIcon" + id + "' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + id + "\")'></i> "
-        strHTML += " </div> "
+        if (description) {
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <textarea id='comment_" + idASM + "' name='comment_" + idASM + "' rows='1' cols='30' style='display:none;'></textarea> "
+            strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + idASM + "' onclick='fnSubmitText(" + idASM + ")' style='display:none;'>ยืนยัน</button> "
+            strHTML += " </div> "
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <span class='text-left' id='displayText" + idASM + "' style='text-indent: 19px;white-space: pre-wrap;'>" + description + "</span> "
+            strHTML += " <i class='las la-pencil-alt' id='editIcon" + idASM + "' style='cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + idASM + "\")'></i> "
+            strHTML += " </div> "
+        } else {
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <textarea id='comment_" + idASM + "' name='comment_" + idASM + "' rows='1' cols='30'></textarea> "
+            strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + idASM + "' onclick='fnSubmitText(" + idASM + ")'>ยืนยัน</button> "
+            strHTML += " </div> "
+            strHTML += " <div style='display:flex;'> "
+            strHTML += " <span class='text-left' id='displayText" + idASM + "' style='text-indent: 19px;white-space: pre-wrap;'></span> "
+            strHTML += " <i class='las la-pencil-alt' id='editIcon" + idASM + "' style='display:none; cursor:pointer; margin-left: 10px;margin-top: 5px;' onclick='fnEditText(\"" + idASM + "\")'></i> "
+            strHTML += " </div> "
+        }
     }
+    
     return  strHTML
 }
+
+function fnGenerateDataCaseRisk(arrCaseRisk, nameSides) {
+    var datafix = `หน่วยได้มีการระบุความเสี่ยง${nameSides} อย่างครอบคลุมตามภารกิจที่ดำเนินการอย่างต่อเนื่อง กำหนดวิธีการจัดการอย่างเหมาะสม แต่อย่างไรก็ตามยังมีความเสี่ยงที่ยังมีอยู่ ดังนี้`;
+    var dataNofix = `หน่วยได้มีการระบุความเสี่ยง${nameSides}อย่างครอบคลุมตามภารกิจที่ดำเนินการอย่างต่อเนื่องกำหนดวิธีการจัดการอย่างเหมาะสมเพื่อให้ความเสี่ยงที่เกิดขึ้นอยู่ในระดับที่ยอมรับได้หรือทำให้เกิดความเสี่ยง`;
+
+    var strHTML = "<div style='display:flex; flex-direction: column;'>";
+
+    if (arrCaseRisk && arrCaseRisk.length > 0) {
+        strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + datafix + "</span>";
+        arrCaseRisk.forEach(function(item) {
+            strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>- " + item.OPM_Desc + "</span>";
+        });
+    } else {
+        strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + dataNofix + "</span>";
+    }
+
+    strHTML += "</div>";
+    return strHTML;
+}
+
+function fnGenerateDataImprove(arrCaseImprove, nameSides) {
+    var datafix = `หน่วยมีการกำหนดนโยบายจากผู้บังคับบัญชา วิธีการ และขั้นตอนต่างๆ ในการกำหนดกิจกรรม${nameSides} เพื่อจัดการความเสี่ยงที่เกิดขึ้นให้อยู่ในระดับที่ยอมรับได้ หรือทำให้เกิดความเสี่ยงน้อยลง ดังนี้`;
+    var dataNofix = `หน่วยมีการกำหนดนโยบายจากผู้บังคับบัญชาวิธีการและขั้นตอนต่างๆในการกำหนดกิจกรรม${nameSides} เพื่อจัดการความเสี่ยงที่เกิดขึ้นให้อยู่ในระดับที่ยอมรับได้ `;
+
+    var strHTML = "<div style='display:flex; flex-direction: column;'>";
+    if (arrCaseImprove && arrCaseImprove.length > 0) {
+        strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + datafix + "</span>";
+        arrCaseImprove.forEach(function(item) {
+            if (item.descResultEndQR) {
+                strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>- " + fnProcessTextASM(item.descResultEndQR) + "</span>";
+            }
+        });
+    } else {
+        strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + dataNofix + "</span>";
+    }
+
+    strHTML += "</div>";
+    return strHTML;
+}
+
 /* ฟังก์ชันสำหรับการยืนยันข้อความ */
 function fnSubmitText(id) {
     var textarea = document.getElementById('comment_' + id);
@@ -1103,12 +1162,15 @@ async function fnSubmitSideName() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const results = await fnSetDataSideNameASM(data)
-                    if (results && results == 'success' ) {
+                    const resultId = await fnSetDataSideNameASM(data)
+                    if (resultId) {
 
                         strNameUnit.text(inputNameSides);
                         $('#sideNameModal').modal('hide');
                         $('.modal-backdrop').remove();
+                        if (!strIdConASM) { // เช็คว่าถ้า strIdConASM ยังไม่ข้อมูลในเทเบิ้ล
+                            $('#inputIdConASM').val(resultId)
+                        }
 
                         Swal.fire({
                             title: "",
@@ -1149,7 +1211,7 @@ async function fnSetDataSideNameASM(dataSend) {
     try {
         const response = await axios.post(apiUrl + '/api/documents/fnSetSideNameASM', dataSend)
         var res = response.data.result
-        if (res.length > 0) {
+        if (res) {
             return res
         } else {
             return []
@@ -1242,6 +1304,55 @@ async function fnGetDataResultConASM(userId, sideId) {
 
     try {
         const response = await axios.post(apiUrl + '/api/documents/fnGetResultConASM', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultCaseRisk(userId, sideId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId
+    }
+
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultCaseRisk', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetDataResultEndQR(userId, sideId, otherId) {
+    var dataSend = {
+        userId: userId,
+        sideId: sideId,
+        otherId: otherId
+    }
+
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultEndQR', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
