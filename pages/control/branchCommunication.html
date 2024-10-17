@@ -261,16 +261,17 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(async function() {
         var valUserRole = fnGetCookie("userRole") || '';
+        var valUserName = fnGetCookie("username");
         var valSideId = '6'
           
         if (valUserRole == 'admin') {
-          fnGetDataSelect(valUserRole ,valSideId)
+          await fnGetDataSelect(valUserRole ,valSideId)
         }
 
         fnGetDataInternalControl(valUserRole ,valSideId)
-        fnSetSidebarMenuConTrol('branchCommunication')
+        fnSetSidebarMenuConTrol('branchCommunication', valUserName)
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);

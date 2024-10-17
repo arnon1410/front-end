@@ -21,6 +21,29 @@ function fnSetHeaderUser(){
     return strHTML
 }
 
+function fnSetHeaderCollationAdmin(strUserName){
+    var strHTML = ''
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>"
+    if (strUserName === 'AdIcoonci') { // ถ้าเป็น สปช
+        strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>หน่วยผู้ตรวจสอบภายใน</td>"
+    }
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>หน่วยที่รับประเมิน</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>วันที่ส่งเอกสาร</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>"     
+    return strHTML
+}
+
+function fnSetHeaderCollationUser(){
+    var strHTML = ''
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>หน่วยผู้ตรวจสอบภายใน</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>วันที่ส่งเอกสาร</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>"     
+    return strHTML
+}
+
 async function fnDrawTable(access ,sideId ,objData, namePages) {
      // Get data selete before create table 
     var strHTML = ''
@@ -200,6 +223,135 @@ function fnGetDataTrUser(access, data, sideId, namePages) {
     return strHTML;
 }
 
+async function fnDrawTableCollation (access) {
+    var strHTML = ''
+    var strUserName = fnGetCookie("username")
+
+    strHTML += "<table id='tb_Form' class='table table-hover table-nowrap' width: 100%;>"
+    strHTML += "<thead class='table-light'>"
+
+    strHTML += "<tr class='table-dark'>"
+    if (access == 'admin') {
+        strHTML += fnSetHeaderCollationAdmin(strUserName) 
+    } else {
+        strHTML += fnSetHeaderCollationUser() 
+    }
+    strHTML += "</tr>"
+
+    strHTML += "</thead>"
+    strHTML += "<tbody>"
+
+    if (access == 'admin') {
+        strHTML += await fnGetDataTrCollationAdmin(strUserName)
+    } else {
+        strHTML += await fnGetDataTrCollationUser(strUserName)
+    }
+
+    strHTML += "</tbody>"
+    strHTML += "</table>"
+
+    $("#dvContentTable")[0].innerHTML = strHTML
+
+    fnMergeColumn('#tb_Form', true);
+
+}
+
+async function fnGetDataTrCollationAdmin(strUserName) {
+    var strHTML = ""
+    var strUnitId = $('#selectUnitCol').val()
+    var strYear = $('#selectBudgetCol').val()
+    var strStatus = $('#selectStatusCol').val()
+
+    var strUserId = "";
+    if (strUserName === 'AdIconigd' || strUserName === 'AdIconiao') {
+        strUserId = fnGetCookie("userId");
+    } else {
+        strUserId = $('#selectUnitCheck').val()
+    }
+    
+    var dataSQL = await fnGetResultCollation(strUserId, strYear, strStatus, strUnitId)
+    // เพิ่ม Get data collation 
+    if (dataSQL.length > 0) {
+        for (var i = 0; i < dataSQL.length; i++) {
+            strHTML += "<tr>"
+            strHTML += "<td id='No" + (i + 1) + "' class='text-center align-middle fristTD' style='width: 5%;'>" + (i + 1) + "<input type='hidden' id='idNo" + (i + 1) + "' value='"+ dataSQL[i].id +"'/></td>"
+            if (strUserName === 'AdIcoonci') { // ถ้าเป็น สปช
+                strHTML += "<td id='tdReceiveName" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>" + (dataSQL[i].receiveName ? (dataSQL[i].receiveName) : '-') + "</td>"
+            }
+            strHTML += "<td id='tdSendName" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>" + (dataSQL[i].sendName ? (dataSQL[i].sendName) : '-') + "</td>"
+            strHTML += "<td id='tdDateUpdate" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;'>" + (dataSQL[i].updatedAt ? fnFormatDateToThai(dataSQL[i].updatedAt) : '-') + "</td>"
+        
+            if (dataSQL[i].statusID != 1 && dataSQL[i].fileName) {
+                strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>ส่งเอกสารสมบูรณ์</span></div></td>"
+            } else {
+                strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-notprocess me-1'>ยังไม่ดำเนินการ</span></div></td>"
+            }
+        
+
+            // เพิ่ม button ส่งและดูเอกสาร 
+            strHTML += "<td class='text-center align-middle lastTD'>"
+            if (strUserName === 'AdIconigd' || strUserName === 'AdIconiao') { // ถ้าเป็น จร. หรือ สตน.
+                strHTML += `<button id='btnUploadDoc${dataSQL[i].id}' type='button' class='btn btn-primary btn-sm' onclick='fnUploadCollationDocConfig(\`${dataSQL[i].id}\`, \`${dataSQL[i].userDocID}\`, \`${dataSQL[i].sendName}\`)'; data-bs-toggle='modal' data-bs-target='#setCollationDocumentModal' style='margin-right: 5px;'>`;
+                strHTML += "<i class='lab la-telegram-plane mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>อัปโหลดเอกสาร</span>"
+                strHTML += "</button>"
+            }
+
+            strHTML += `<button id='btnEditDoc${dataSQL[i].id}' type='button' class='btn btn-warning btn-sm' onclick='fnViewCollationDocConfig(\`${dataSQL[i].id}\`)' style='margin-right: 5px;'>`;
+            strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>ดูเอกสาร<span>"
+            strHTML += "</button>"
+
+        strHTML += "</tr>"
+        }
+    } else {
+        strHTML += "<tr>";
+        strHTML += `<td colspan='6' class='text-center align-top' style='width: 100%;'>`;
+        strHTML += ` <span id='spanNotHaveData'>ไม่พบข้อมูล</span> `;
+        strHTML += "<tr>";
+    }
+    return strHTML
+}
+
+async function fnGetDataTrCollationUser(access) {
+    var strHTML = ""
+
+    var strUserId = "";
+    var currentYear = new Date().getFullYear();
+    var strYear = currentYear + 543;
+    var strStatus = ""
+    var strUnitId = fnGetCookie("userId")
+        
+    var dataSQL = await fnGetResultCollation(strUserId, strYear, strStatus, strUnitId)
+    // เพิ่ม Get data collation 
+    if (dataSQL.length > 0) {
+        for (var i = 0; i < dataSQL.length; i++) {
+            strHTML += "<tr>"
+            strHTML += "<td id='No" + (i + 1) + "' class='text-center align-middle fristTD' style='width: 5%;'>" + (i + 1) + "<input type='hidden' id='idNo" + (i + 1) + "' value='"+ dataSQL[i].id +"'/></td>"
+            strHTML += "<td id='tdReceiveName" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>" + (dataSQL[i].receiveName ? (dataSQL[i].receiveName) : '-') + "</td>"
+            strHTML += "<td id='tdDateUpdate" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;'>" + (dataSQL[i].updatedAt ? fnFormatDateToThai(dataSQL[i].updatedAt) : '-') + "</td>"
+        
+            if (dataSQL[i].statusID != 1 && dataSQL[i].fileName) {
+                strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>ส่งเอกสารสมบูรณ์</span></div></td>"
+            } else {
+                strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-notprocess me-1'>ยังไม่ดำเนินการ</span></div></td>"
+            }
+
+            // เพิ่ม button ดูเอกสาร 
+            strHTML += "<td class='text-center align-middle lastTD'>"
+            strHTML += `<button id='btnEditDoc${dataSQL[i].id}' type='button' class='btn btn-warning btn-sm' onclick='fnViewCollationDocConfig(\`${dataSQL[i].id}\`)' style='margin-right: 5px;'>`;
+            strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>ดูเอกสาร<span>"
+            strHTML += "</button>"
+
+        strHTML += "</tr>"
+        }
+    } else {
+        strHTML += "<tr>";
+        strHTML += `<td colspan='6' class='text-center align-top' style='width: 100%;'>`;
+        strHTML += ` <span id='spanNotHaveData'>ไม่พบข้อมูล</span> `;
+        strHTML += "<tr>";
+    }
+    return strHTML
+}
+
 function fnGetDataModal() {
     var arrData = fnGetDataInternalControl() // call function get data
     var strHTML = ''
@@ -251,43 +403,84 @@ function fnGetDataModal() {
     
 }
 
-async function fnGetDataSelect(access ,sideId) {
+async function fnGetDataSelect(access ,sideId, isPages) {
     // var arrData = fnGetDataRates() // call function get data
     var strHTML = ''
-    var username = fnGetCookie("username")
-    var dataSQL = await fnGetDataUserControl(username)
+    var strUserName = fnGetCookie("username")
+    var dataSQL = await fnGetDataUserControl(strUserName)
     // draw modal
-    strHTML += " <div class='row mb-3'>"
+    if (isPages == 'collation') {
+        strHTML += " <div class='row mb-3'> "
 
-    strHTML += " <div class='col-sm-2 ms-auto' style='width: 170px;'>"
-    strHTML += " <select id='selectUnit' class='form-select text-center' aria-label='Default select example'>"
-    strHTML += " <option value='' selected>หน่วยรับตรวจ</option>"
-    for (var i = 0; i < dataSQL.length; i++) {
-        strHTML += "<option value='"+ dataSQL[i].id + "'>"+ dataSQL[i].shortName +"</option>"
+        if (strUserName === 'AdIcoonci') {
+            strHTML += " <div class='col-sm-2 ms-auto' style='width: 230px;'> "
+            strHTML += "    <select id='selectUnitCheck' class='form-select text-center' aria-label='Default select example'> "
+            strHTML += "        <option value='' selected>หน่วยผู้ตรวจสอบภายใน</option> "
+            strHTML += "        <option value='1'>จร.ทร.</option> "
+            strHTML += "        <option value='44'>สตน.ทร.</option> "
+            strHTML += "    </select> "
+            strHTML += " </div> "
+        }
+
+        strHTML += " <div class='col-sm-2' style='width: 200px;'> "
+        strHTML += "    <select id='selectUnitCol' class='form-select text-center' aria-label='Default select example'> "
+        strHTML += "        <option value='' selected>หน่วยที่รับประเมิน</option> "
+        for (var i = 0; i < dataSQL.length; i++) {
+            strHTML += "    <option value='"+ dataSQL[i].id + "'>"+ dataSQL[i].shortName +"</option> "
+        }
+        strHTML += "    </select> "
+        strHTML += " </div> "
+    
+        strHTML += " <div class='col-sm-2'>"
+        strHTML += "    <select id='selectBudgetCol' class='form-select text-center' aria-label='Default select example'> "
+        strHTML += "        <option value='2567' selected>งบปี ๖๗</option> "
+        strHTML += "        <option value='2568'>งบปี ๖๘</option> "
+        strHTML += "        <option value='2569'>งบปี ๖๙</option> "
+        strHTML += "        <option value='2570'>งบปี ๗๐</option> "
+        strHTML += "    </select> "
+        strHTML += " </div> "
+    
+        strHTML += " <div class='col-sm-2'> "
+        strHTML += "    <select id='selectStatusCol' class='form-select text-center' aria-label='Default select example'> "
+        strHTML += "        <option value='' selected>สถานะ</option> "
+        strHTML += "        <option value='1'>ยังไม่ดำเนินการ</option> "
+        strHTML += "        <option value='4'>ส่งเอกสารแล้ว</option> "
+        strHTML += "    </select> "
+        strHTML += " </div>"
+
+        strHTML += " </div>"  
+    } else {
+        strHTML += " <div class='row mb-3'>"
+        strHTML += " <div class='col-sm-2 ms-auto' style='width: 170px;'>"
+        strHTML += "    <select id='selectUnit' class='form-select text-center' aria-label='Default select example'>"
+        strHTML += "        <option value='' selected>หน่วยรับตรวจ</option>"
+        for (var i = 0; i < dataSQL.length; i++) {
+            strHTML += "    <option value='"+ dataSQL[i].id + "'>"+ dataSQL[i].shortName +"</option>"
+        }
+        strHTML += "    </select>"
+        strHTML += " </div>"
+    
+        strHTML += " <div class='col-sm-2'>"
+        strHTML += "    <select id='selectBudget' class='form-select text-center' aria-label='Default select example'>"
+        strHTML += "        <option value='2567' selected>งบปี ๖๗</option>"
+        strHTML += "        <option value='2568'>งบปี ๖๘</option>"
+        strHTML += "        <option value='2569'>งบปี ๖๙</option>"
+        strHTML += "        <option value='2570'>งบปี ๗๐</option>"
+        strHTML += "    </select>"
+        strHTML += " </div>"
+    
+        strHTML += " <div class='col-sm-2'>"
+        strHTML += "    <select id='selectStatus' class='form-select text-center' aria-label='Default select example'>"
+        strHTML += "        <option value='' selected>สถานะ</option> "
+        strHTML += "        <option value='1'>ยังไม่ดำเนินการ</option> "
+        strHTML += "        <option value='2'>รอการตรวจสอบ</option>"
+        strHTML += "        <option value='3'>เอกสารไม่สมบูรณ์</option> "
+        strHTML += "        <option value='4'>สมบูรณ์ครบถ้วน</option> "
+        strHTML += "    </select> "
+        strHTML += " </div>"
+
+        strHTML += " </div>"
     }
-    strHTML += " </select>"
-    strHTML += " </div>"
-
-    strHTML += " <div class='col-sm-2'>"
-    strHTML += " <select id='selectBudget' class='form-select text-center' aria-label='Default select example'>"
-    strHTML += " <option value='2567' selected>งบปี ๖๗</option>"
-    strHTML += " <option value='2568'>งบปี ๖๘</option>"
-    strHTML += " <option value='2569'>งบปี ๖๙</option>"
-    strHTML += " <option value='2570'>งบปี ๗๐</option>"
-    strHTML += " </select>"
-    strHTML += " </div>"
-
-    strHTML += " <div class='col-sm-2'>"
-    strHTML += " <select id='selectStatus' class='form-select text-center' aria-label='Default select example'>"
-    strHTML += " <option value='' selected>สถานะ</option>"
-    strHTML += " <option value='notprocess'>ยังไม่ดำเนินการ</option>"
-    strHTML += " <option value='warning'>รอการตรวจสอบ</option>"
-    strHTML += " <option value='incomplete'>เอกสารไม่สมบูรณ์</option>"
-    strHTML += " <option value='success'>สมบูรณ์ครบถ้วน</option>"
-    strHTML += " </select>"
-    strHTML += " </div>"
-
-    strHTML += " </div>"
 
     // document.getElementById("dvHeadSelectAssessment").innerHTML = strHTML
     $("#dvHeadSelectAssessment")[0].innerHTML = strHTML
@@ -303,6 +496,23 @@ async function fnGetDataSelect(access ,sideId) {
     $('#selectStatus').on('change', function() {
         fnDrawTable(access ,sideId)
     });
+
+
+    $('#selectUnitCol').on('change', function() {
+        fnDrawTableCollation(access)
+    });
+
+    $('#selectBudgetCol').on('change', function() {
+        fnDrawTableCollation(access)
+    });
+
+    $('#selectStatusCol').on('change', function() {
+        fnDrawTableCollation(access)
+    });
+
+    $('#selectUnitCheck').on('change', function() {
+        fnDrawTableCollation(access)
+    });
     
 }
 
@@ -315,6 +525,31 @@ async function fnGetResultDocCondition(unitId,sideId,strYear,strStatus) {
     }    
     try {
         const response = await axios.post(apiUrl + '/api/documents/fnGetResultDocCondition', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ลองใหม่อีกครั้ง',
+            icon: 'error'
+        })
+        return []
+    }
+}
+
+async function fnGetResultCollation(userId, strYear, strStatus, sendId) {
+    var dataSend = {
+        userId : userId,
+        sendId : sendId,
+        year : strYear,
+        status : strStatus
+    }    
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultCollation', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res
@@ -428,9 +663,9 @@ function fnSubmitCommentModal() {
         const strUsername = fnGetCookie("username")
         const strTextComment = $('#textCommentArea').val();
 
-        const selectUnitId = $('#selectUnit').val() || ''
-        const selectYear = $('#selectBudget').val() || ''
-        const selectStatus = $('#selectStatus').val() || ''
+        // const selectUnitId = $('#selectUnit').val() || ''
+        // const selectYear = $('#selectBudget').val() || ''
+        // const selectStatus = $('#selectStatus').val() || ''
 
         const data =  {
             idUserDoc: strIdUserDoc,
@@ -538,7 +773,6 @@ function fnEditDocConfig(access, userID, namePages, statusID, sideID, formID) {
         });
     }
 }
-
 
 function fnSetStatusDocConfig (userDocId, sideId, nameSides) {
     var strHTML = ''
@@ -704,50 +938,165 @@ function fnValidateSetStatusDocForm () {
 
     return isValid;
 }
-// function fnUploadDocConfig (username, sideName, formName) {
-//     var strHTML = ''
-//     var strHTML2 = ''
 
-//     // draw modal
-//     strHTML += " <div class='mb-3'> "
-//     strHTML += " <label for='headCheckTopic' class='lableHead'>หัวข้อที่ตรวจสอบ</label> "
-//     strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ sideName +"' readonly> "
-//     strHTML += " </div> "
+function fnUploadCollationDocConfig (collationId, userDocId, sendName) {
+    var strHTML = ''
+    var strHTML2 = ''
+    // draw modal
+    strHTML += " <div class='mb-3'> "
+    strHTML += " <label for='unitReceiving' class='lableHead'>หน่วยที่รับประเมิน :</label> "
+    strHTML += " <input type='text' class='form-control' id='unitReceiving' value='" + sendName + "' style='background: darkgray;' readonly> "
+    strHTML += " </div> "
 
-//     strHTML += " <div class='mb-3'> "
-//     strHTML += " <label for='headCheckTopic' class='lableHead'>ชื่อรายการเอกสาร</label> "
-//     strHTML += " <input type='text' class='form-control' id='headCheckTopic' value='"+ formName +"' readonly> "
-//     strHTML += " </div> "
+    strHTML += " <div id='dvuploadfile' class='mb-3'> "
+    strHTML += " <label for='formFile' class='lableHead'>ไฟล์ที่แนบ :</label> "
+    strHTML += " <input class='form-control form-control-sm' id='formFile' type='file' accept='.doc, .docx, .pdf'> "
 
-//     strHTML += " <div id='dvuploadfile' class='mb-3'> "
-//     strHTML += " <label for='formFile' class='lableHead'>ไฟล์ที่แนบ</label> "
-//     strHTML += " <input class='form-control form-control-sm' id='formFile' type='file'> "
-//     strHTML += " </div> "
+    strHTML += " </div> "
 
 
-//     strHTML2 += " <button type='button' class='btn btn-primary'>บันทึกข้อมูล</button> "
-//     strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "            
+    strHTML2 += " <button id='btnSaveDataUpload' type='button' class='btn btn-primary'>บันทึกข้อมูล</button> "
+    strHTML2 += " <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>ยกเลิก</button> "            
 
 
-//     $("#dvBodyUploadDocModal")[0].innerHTML = strHTML
-//     $("#dvFooterUploadDocModal")[0].innerHTML = strHTML2
+    $("#dvBodyModalCollationDocumentModal")[0].innerHTML = strHTML
+    $("#dvFooterModalCollationDocumentModal")[0].innerHTML = strHTML2
 
-// }
-// function fnViewDocConfig (fileName, fileSave , filePath ) {
-//     var strFileName = fileName
-//     var strFileSave = fileSave
-//     var strFilePath = filePath
-//     if (strFileName && strFileSave && strFilePath) {
-//         // ทำตัว modal ที่ เก็บไฟล์ pdf
+    $('#btnSaveDataUpload').on('click', function() {
+        fnSaveDataUploadDocument(collationId, userDocId);
+    });
+}
 
-//     } else {
-//         Swal.fire({
-//             title: "",
-//             text: "กรุณาอัปโหลดเอกสาร เนื่องจากยังไม่มีเอกสารดังกล่าว",
-//             icon: "warning"
-//         });
-//     }
-// }
+function fnSaveDataUploadDocument(collationId, userDocId) {
+    Swal.fire({
+        title: "",
+        text: "คุณต้องการบันทึกข้อมูลใช่หรือไม่?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "บันทึกข้อมูล",
+        cancelButtonText: "ยกเลิก"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const resSQL = await fnSetFileDocPDF(collationId, userDocId);
+                if (resSQL) {
+                    Swal.fire({
+                        title: "",
+                        text: "บันทึกข้อมูลสำเร็จ",
+                        icon: "success"
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            location.reload();
+                            $('#setCollationDocumentModal').modal('hide');
+                            $('.modal-backdrop').remove();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: "",
+                        text: "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง ",
+                        icon: "error"
+                    });
+                }
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    });
+}
+
+function fnSetFileDocPDF(collationId, userDocId) {
+    const inputFile = document.getElementById('formFile');
+    const file = inputFile.files[0];
+    if (!file) {
+        Swal.fire({
+            title: "",
+            text: "กรุณาเลือกไฟล์ก่อน",
+            icon: "warning"
+        });
+        return;
+    }
+
+    const fileName = file.name;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    return new Promise((resolve, reject) => {
+        reader.onload = async function () {
+            try {
+                const response = await axios.post(apiUrl + '/api/store/fnSetCollationFileDocPDF', {
+                    userDocId: userDocId, 
+                    collationId: collationId,
+                    username: fnGetCookie("username") || '',
+                    image: reader.result,
+                    fileName: fileName
+                }, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                inputFile.value = ""; // ล้าง input file หลังอัพโหลดเสร็จ
+                const res = response.data;
+                if (res) {
+                    resolve(res);
+                }
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        };
+
+        reader.onerror = function () {
+            console.error(reader.error);
+            reject(reader.error);
+        };
+    });
+}
+
+async function fnViewCollationDocConfig(collationId) {
+    try {
+        const response = await axios.post(apiUrl + '/api/store/fnGetCollationFileDocPDF', {
+            collationId: collationId,
+            username: fnGetCookie("username") || ''
+        }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const res = response.data;
+        if (res && res.image) {
+            // แปลง Base64 string เป็น Blob
+            const byteCharacters = atob(res.image.split(',')[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // เปิดไฟล์ PDF ในแท็บใหม่
+            window.open(pdfUrl, "_blank");
+        } else {
+            Swal.fire({
+                title: "",
+                text: "ไม่พบไฟล์เอกสาร",
+                icon: "error"
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire({
+            title: "",
+            text: "เกิดข้อผิดพลาดในการดึงไฟล์เอกสาร",
+            icon: "error"
+        });
+    }
+}
 
 function fnUploadSignatureConfig (username, sideName) {
     var strHTML = ''
@@ -842,7 +1191,6 @@ function fnMergeColumn(tableSelector, data) {
     }
 }
 
-
 async function fnSetDataComment(dataSend) {
     try {
         const response = await axios.post(apiUrl + '/api/documents/fnUpdateCommentForAdmin', dataSend)
@@ -880,6 +1228,3 @@ async function fnSetDataStatusDoc(dataSend) {
         return []
     }
 }
-
-
-

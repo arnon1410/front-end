@@ -22,7 +22,8 @@
             <div class="field">
                <input type="password" class="form-control" id="password" name="password">
                <label for="password" class="form-label">Password</label>
-            </div>
+               <i class="las la-eye-slash" id="togglePassword" style="cursor: pointer; position: absolute; right: 15px; top: 50%; transform: translateY(-50%);"></i>
+           </div>
             <div class="content">
                <div class="checkbox">
                   <input type="checkbox" id="remember-me">
@@ -50,6 +51,16 @@
     
     <script>
         $(document).ready(function() {
+            $('#togglePassword').on('click', function () {
+               // สลับ type ระหว่าง 'password' และ 'text'
+               const passwordField = $('#password');
+               const passwordFieldType = passwordField.attr('type') === 'password' ? 'text' : 'password';
+               passwordField.attr('type', passwordFieldType);
+
+               // สลับไอคอนระหว่าง 'fa-eye' และ 'fa-eye-slash'
+               $(this).toggleClass('las la-eye las la-eye-slash');
+            });
+
             $('#formLogin').on('submit', function(e) {
                 e.preventDefault(); // ป้องกันการ submit ฟอร์มแบบปกติ
             
@@ -70,7 +81,7 @@
                   password: password
                 }
                //  console.log(data)
-               axios.post('http://localhost:3000/api/auth/login', data)
+               axios.post(apiUrl + 'api/auth/login', data)
                .then(response => {
                   var res = response.data
                   if (res.status === 'success') {
@@ -88,7 +99,7 @@
                               fnSetCookie('shortName', res.shortName);
                               fnSetCookie('userRole', res.userRole);
                               // end cookie
-                              window.location.href = '../control/dashboard.html?authen=' + res.userRole; // เปลี่ยนเส้นทางไปยังหน้าที่ต้องการ
+                              window.location.href = 'pages/control/dashboard.html?authen=' + res.userRole; // เปลี่ยนเส้นทางไปยังหน้าที่ต้องการ
                            }
                         });
                   }

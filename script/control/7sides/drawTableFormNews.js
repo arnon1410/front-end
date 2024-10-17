@@ -248,8 +248,8 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
             strHeadId = strOtherSplit[1]
             strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
             strDesc = $('#displayTextSum' + strEndNoInput).text()
-            dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdOtherQR, head_id: strHeadId, descResultEndQR: strDesc, type:'mainEndQR'}) // ใช้ร่วมกับ Main เนื่องจากเก็บที่ table เดียวกัน
-        
+            dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdOtherQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'}) // ใช้ร่วมกับ Main เนื่องจากเก็บที่ table เดียวกัน
+
         });
     }
 
@@ -321,12 +321,13 @@ function fnCreateInputRadioAndSpan(text, headId, validate, idEndQR, isradio, des
 
     if (validate && validate == '1') {
         strHTML += "<div style='display:flex;'>";
-        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} ${isdisabled} />`;
+        // strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} ${isdisabled}  disabled/>`;
+        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} disabled/>`;
         strHTML += "<span>" + text + "</span>";
         strHTML += "</div>";
     } else { // กรณีไม่เพียงพอ
         strHTML += "<div style='display:flex;margin-bottom: 10px;'>";
-        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} />`;
+        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} disabled/>`;
         strHTML += "<span>" + text + "</span>";
         strHTML += "</div>";
         if (isradio == '0' && description) { // 
@@ -499,6 +500,132 @@ function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, isch
 
     return strHTML2;
 }
+
+$(document).on('change', 'input[type="checkbox"]', function() {
+    let strStatus = ''
+
+    let checkboxId = $(this).attr('id'); // ดึงค่า ID
+    let isChecked = $(this).is(':checked'); // ตรวจสอบสถานะ checked
+
+    let strCheckboxVal = $(this).val();
+    let strSplitVal = strCheckboxVal.split(',')[0].trim();
+   
+    var checkedMainAT = $('input[name="mainActivities"]:checked').filter(function() {
+        return $(this).val().startsWith(`${strSplitVal},`);
+    });
+
+    let strTextArea = $(`#commentSum${strSplitVal}_0`)
+    let strButton = $(`#btnSubmitSum${strSplitVal}_0`)
+    let strDisplayText = $(`#displayTextSum${strSplitVal}_0`)
+    let strEditIcon = $(`#editIconSum${strSplitVal}_0`)
+
+    let strInputEnough = $(`#inputRadioSumOfSide${strSplitVal}_1`);
+    let strInputNotEnough = $(`#inputRadioSumOfSide${strSplitVal}_0`);
+
+    // นับจำนวน have-checkbox
+    var haveCheckboxCount = checkedMainAT.filter('.have-checkbox').length;
+
+    // นับจำนวน nothave-checkbox
+    var nothaveCheckboxCount = checkedMainAT.filter('.nothave-checkbox').length;
+
+    // นับจำนวน notapp-checkbox
+    var notAppCheckboxCount = checkedMainAT.filter('.notapp-checkbox').length;
+
+    // แสดงผลลัพธ์
+    // console.log("จำนวน have-checkbox:", haveCheckboxCount);
+    // console.log("จำนวน nothave-checkbox:", nothaveCheckboxCount);
+    // console.log("จำนวน notapp-checkbox:", notAppCheckboxCount);
+
+    const checkboxStates = {
+        have: haveCheckboxCount > 0,
+        nothave: nothaveCheckboxCount > 0,
+        notapp: notAppCheckboxCount > 0
+    };
+    
+    // ใช้ key เพื่อลดการเขียน if หลายครั้ง
+    switch (true) {
+        case checkboxStates.have && checkboxStates.nothave && checkboxStates.notapp:
+            console.log("มีทั้ง have-checkbox, nothave-checkbox และ notapp-checkbox");
+            strInputEnough.prop('checked', false);
+            strInputNotEnough.prop('checked', true);
+            strTextArea.show();           // แสดง textarea
+            strButton.show();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.show();        // ซ่อนข้อความแสดงผล
+            break;
+    
+        case checkboxStates.have && checkboxStates.nothave && !checkboxStates.notapp:
+            console.log("มี have-checkbox และ nothave-checkbox แต่ไม่มี notapp-checkbox");
+            strInputEnough.prop('checked', false);
+            strInputNotEnough.prop('checked', true);
+            strTextArea.show();           // แสดง textarea
+            strButton.show();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.show();        // ซ่อนข้อความแสดงผล
+            break;
+    
+        case checkboxStates.have && !checkboxStates.nothave && checkboxStates.notapp:
+            console.log("มี have-checkbox และ notapp-checkbox แต่ไม่มี nothave-checkbox");
+            strInputEnough.prop('checked', true);
+            strInputNotEnough.prop('checked', false);
+            strTextArea.hide();           // แสดง textarea
+            strButton.hide();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.hide();        // ซ่อนข้อความแสดงผล
+            break;
+    
+        case !checkboxStates.have && checkboxStates.nothave && checkboxStates.notapp:
+            console.log("มี nothave-checkbox และ notapp-checkbox แต่ไม่มี have-checkbox");
+            strInputEnough.prop('checked', false);
+            strInputNotEnough.prop('checked', true);
+            strTextArea.show();           // แสดง textarea
+            strButton.show();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.show();        // ซ่อนข้อความแสดงผล
+            break;
+    
+        case checkboxStates.have && !checkboxStates.nothave && !checkboxStates.notapp:
+            console.log("มีเฉพาะ have-checkbox");
+            console.log(strInputEnough)
+            strInputEnough.prop('checked', true);
+            strInputNotEnough.prop('checked', false);
+            strTextArea.hide();           // แสดง textarea
+            strButton.hide();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.hide();        // ซ่อนข้อความแสดงผล
+            break;
+    
+        case !checkboxStates.have && checkboxStates.nothave && !checkboxStates.notapp:
+            console.log("มีเฉพาะ nothave-checkbox");
+            strInputEnough.prop('checked', false);
+            strInputNotEnough.prop('checked', true);
+            strTextArea.show();           // แสดง textarea
+            strButton.show();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.show();        // ซ่อนข้อความแสดงผล
+            break;
+    
+        case !checkboxStates.have && !checkboxStates.nothave && checkboxStates.notapp:
+            console.log("มีเฉพาะ notapp-checkbox");
+            strInputEnough.prop('checked', false);
+            strInputNotEnough.prop('checked', false);
+            strTextArea.hide();           // แสดง textarea
+            strButton.hide();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.hide();        // ซ่อนข้อความแสดงผล
+            break;
+    
+        default:
+            console.log("ไม่มี checkbox ใด ๆ ถูกเลือก");
+            strInputEnough.prop('checked', false);
+            strInputNotEnough.prop('checked', false);
+            strTextArea.hide();           // แสดง textarea
+            strButton.hide();             // แสดง button 
+            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            strDisplayText.hide();        // ซ่อนข้อความแสดงผล
+            break;
+    }
+});
 
 async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameSides, valSides) {  /* ด้านยุทธการ */
     var strHTML = "" ;
@@ -1180,36 +1307,41 @@ function fnUploadDocConfig (text, id, nameSides, idQR) {
 
 async function fnViewDocConfig(text, id, idQR) {
     try {
-        const response = await axios.post(apiUrl + '/api/store/fnGetFileDocPDF', {
+        const response = await axios.post(apiUrl + '/api/store/fnGetQRFileDocPDF', {
             idQR: idQR,
             username: fnGetCookie("username") || ''
         }, {
             headers: {
                 "Content-Type": "application/json"
-            }
+            },
+            responseType: 'blob'
         });
+        const pdfBlob = response.data;
+        const pdfUrl = URL.createObjectURL(pdfBlob)
 
-        const res = response.data;
-        if (res && res.image) {
-            // แปลง Base64 string เป็น Blob
-            const byteCharacters = atob(res.image.split(',')[1]);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
-            const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl, "_blank")
+        // version 1
+        // const res = response.data;
+        // if (res && res.image) {
+        //     // แปลง Base64 string เป็น Blob
+        //     const byteCharacters = atob(res.image.split(',')[1]);
+        //     const byteNumbers = new Array(byteCharacters.length);
+        //     for (let i = 0; i < byteCharacters.length; i++) {
+        //         byteNumbers[i] = byteCharacters.charCodeAt(i);
+        //     }
+        //     const byteArray = new Uint8Array(byteNumbers);
+        //     const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
+        //     const pdfUrl = URL.createObjectURL(pdfBlob);
 
-            // เปิดไฟล์ PDF ในแท็บใหม่
-            window.open(pdfUrl, "_blank");
-        } else {
-            Swal.fire({
-                title: "",
-                text: "ไม่พบไฟล์เอกสาร",
-                icon: "error"
-            });
-        }
+        //     // เปิดไฟล์ PDF ในแท็บใหม่
+        //     window.open(pdfUrl, "_blank");
+        // } else {
+        //     Swal.fire({
+        //         title: "",
+        //         text: "ไม่พบไฟล์เอกสาร",
+        //         icon: "error"
+        //     });
+        // }
     } catch (error) {
         console.error(error);
         Swal.fire({
@@ -1318,7 +1450,7 @@ function fnSetFileDocPDF(idQR) {
     return new Promise((resolve, reject) => {
         reader.onload = async function () {
             try {
-                const response = await axios.post(apiUrl + '/api/store/fnSetFileDocPDF', {
+                const response = await axios.post(apiUrl + '/api/store/fnSetQRFileDocPDF', {
                     idQR: idQR,
                     username: fnGetCookie("username") || '',
                     image: reader.result,
@@ -2112,6 +2244,10 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
                             title: "",
                             text: "บันทึกข้อมูลสำเร็จ",
                             icon: "success"
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
                         });
                     } else {
                         Swal.fire({

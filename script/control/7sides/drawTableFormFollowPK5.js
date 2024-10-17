@@ -58,7 +58,7 @@ async function fnDrawTableForm(access) {
     strHTML += " <div class='text-end'>แบบติดตาม ปค.๕</div> "
     strHTML += " <div class='title'><input type='hidden' id='inputIdConPKF5' name='inputIdConPKF5' value='" + idConPKF5 + "'></div> "
     strHTML += " <div class='title'><span class='unit-label'>หน่วยงาน</span><span id='spanNameUnit' style='width: 232px;' class='underline-dotted'>" + shortName + "</span> </div>"
-    strHTML += " <div class='title'>รายงานผลการติดตามการปฏิบัติตามแผนการปรับปรุงการควบ</div> "
+    strHTML += " <div class='title'>รายงานผลการติดตามการปฏิบัติตามแผนการปรับปรุงการควบคุมภายใน</div> "
     strHTML += " <div class='title'>" + DateFix + "</div> "
     strHTML += " <div class='a4-size'> "
     strHTML += "<table id='tb_PKF5'>"

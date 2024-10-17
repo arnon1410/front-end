@@ -50,11 +50,11 @@ function fnSetSidebarMenuConTrol(namePages){
 function fnCreateBtnTabForm (data, namePages) {
     var strHTML = ""
     var menuItems = []
-    if (namePages == 'Appointment') {
-        strHTML += " <button type='button' class='btn gradient-btn' onclick='fnGetDataModal()'  data-bs-toggle='modal' data-bs-target='#AssessmentModal' style='margin-top: 20px;'> "
-        strHTML += " <span class='las la-plus'></span> "
-        strHTML += " นำเข้าข้อมูล "
-        strHTML += " </button> "
+    if (namePages == 'collation') {
+        // strHTML += " <button type='button' class='btn gradient-btn' onclick='fnGetDataModal()'  data-bs-toggle='modal' data-bs-target='#AssessmentModal' style='margin-top: 20px;'> "
+        // strHTML += " <span class='lab la-telegram-plane'></span> "
+        // strHTML += " ส่งเอกสารการสอบทาน "
+        // strHTML += " </button> "
     }
     else {
         strHTML += " <div class='dropdown'> "
@@ -84,7 +84,6 @@ function fnCreateBtnTabForm (data, namePages) {
                 }
             });
         }
-        console.log(menuItems)
         for (var i = 0; i < menuItems.length; i++) {
             var menuItemA = menuItems[i];
             if (menuItemA.opStatusID === 1) { // ยังไม่เคยกดบันทึก
@@ -111,10 +110,3 @@ function showAlert(text) {
         confirmButtonText: 'OK'
     });
 }
-  
-  
-
-    
-    
-    
-

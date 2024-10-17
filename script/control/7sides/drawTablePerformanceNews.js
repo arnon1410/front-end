@@ -1902,8 +1902,3 @@ async function fnSetDataSignaturePFM(dataSend) {
         return []
     }
 }
-
-
-
-
-

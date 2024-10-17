@@ -83,7 +83,7 @@
     </div>
     <div class="sidebar-avatar">
       <div>
-        <img src="https://media-exp1.licdn.com/dms/image/C4D03AQF9R2lxnH4fOw/profile-displayphoto-shrink_800_800/0/1639841285929?e=1654128000&v=beta&t=QvocDiNfivbaAzHjsX9fnl9eFa1ZSo4SBHeH4jZANEk" alt="avatar">
+        <img src="" alt="avatar">
       </div>
       <div class="avatar-info">
         <div class="avatar-text" style="text-align: center;">
@@ -154,9 +154,17 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        fnSetSidebarMenuConTrol('sendReport')
-        fnGetDataInternalControl()
+    $(document).ready(async function() {
+        var varUserRole = fnGetCookie("userRole") || ''; 
+        var valUserName = fnGetCookie("username");
+
+        if (varUserRole == 'admin') {
+          // await fnGetDataSelect(varUserRole, '', 'sendReport')
+        }
+        console.log(varUserRole)
+        fnSetSidebarMenuConTrol('sendReport', valUserName)
+        fnGetDataInternalControl(varUserRole)
+        // fnDrawTableSendReport(valUserRole)
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
@@ -188,56 +196,58 @@
 
 
 
-    function fnGetDataInternalControl() {
+    function fnGetDataInternalControl(valUserRole) {
 
       var valUserId = fnGetCookie("userId") || '';
-      var valSideId = '4'
-      var valUserRole = fnGetCookie("userRole") || '';
-
-      if (valUserId) {      
-        var data = {
-          userId: valUserId,
-          sideId: valSideId
-        }
-        axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
-        .then(response => {
-          var result = response.data.result
-          if (result) {
-            // call data 
-            fnDrawTable(valUserRole, valSideId, result)
-            return result
-          }
-        })
-        .catch(error => 
-          Swal.fire({
-              title: 'เกิดข้อผิดพลาด',
-              text: "ลองใหม่อีกครั้ง",
-              icon: 'warning',
-              confirmButtonColor: '#3085d6',
-              confirmButtonText: 'ยันยืน',
-          }).then((result) => {
-              if (result.isConfirmed) {
-                  // เปลี่ยนเส้นทางไปยัง logout.php
-                  fnClearAllCookies()
-                  window.location.href = '../../pages/main/signin.html';
-              }
-          })
-        )
-      } else {
-        Swal.fire({
-            title: 'เกิดข้อผิดพลาด',
-            text: "ลองใหม่อีกครั้ง",
-            icon: 'warning',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'ยันยืน',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // เปลี่ยนเส้นทางไปยัง logout.php
-                fnClearAllCookies()
-                window.location.href = '../../pages/main/signin.html';
-            }
-        });
+      var isAdmin = ''
+      if (valUserRole == 'admin') {
+        isAdmin = '1'
       }
+
+      // if (valUserId) {      
+      //   var data = {
+      //     userId: valUserId,
+      //     sideId: valSideId
+      //   }
+      //   axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
+      //   .then(response => {
+      //     var result = response.data.result
+      //     if (result) {
+      //       // call data 
+      //       fnDrawTable(valUserRole, valSideId, result)
+      //       return result
+      //     }
+      //   })
+      //   .catch(error => 
+      //     Swal.fire({
+      //         title: 'เกิดข้อผิดพลาด',
+      //         text: "ลองใหม่อีกครั้ง",
+      //         icon: 'warning',
+      //         confirmButtonColor: '#3085d6',
+      //         confirmButtonText: 'ยันยืน',
+      //     }).then((result) => {
+      //         if (result.isConfirmed) {
+      //             // เปลี่ยนเส้นทางไปยัง logout.php
+      //             fnClearAllCookies()
+      //             window.location.href = '../../pages/main/signin.html';
+      //         }
+      //     })
+      //   )
+      // } else {
+      //   Swal.fire({
+      //       title: 'เกิดข้อผิดพลาด',
+      //       text: "ลองใหม่อีกครั้ง",
+      //       icon: 'warning',
+      //       confirmButtonColor: '#3085d6',
+      //       confirmButtonText: 'ยันยืน',
+      //   }).then((result) => {
+      //       if (result.isConfirmed) {
+      //           // เปลี่ยนเส้นทางไปยัง logout.php
+      //           fnClearAllCookies()
+      //           window.location.href = '../../pages/main/signin.html';
+      //       }
+      //   });
+      // }
     }
 </script>
 </html>
