@@ -4,22 +4,47 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="../../css/control/dashboard.css" /> -->
-    <link rel="stylesheet" href="../../css/control/waiting.css" /> 
+    <link rel="stylesheet" href="../../css/control/dashboard.css" />
+    <!-- <link rel="stylesheet" href="../../css/control/waiting.css" />  -->
     <link rel="stylesheet" href="../../css/sweetalert2/sweetalert2.min.css" >
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css'>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.js'></script>
     <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Sarabun'>
     
-    <!-- <link rel="stylesheet" href="css/test.css"> -->
-    <link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.3/components/charts/chart-4/assets/css/chart-4.css">    
     
-    <!-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> -->
     
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../../css/bootstarp/css/bootstrap.min.css">
+    <script src="../../script/bootstarp/js/popper.min.js"></script>
+    <script src="../../script/bootstarp/js/bootstrap.min.js"></script> 
 
     <title>Dashboard</title>
+    <style>
+        td {
+          border-top: 1px solid black; /* เพิ่มเส้นกรอบด้านบน */
+          border-bottom: 1px solid black; /* เพิ่มเส้นกรอบด้านล่าง */
+          padding: 8px; /* เพิ่ม padding เพื่อให้ข้อมูลในเซลล์มีพื้นที่ว่าง */
+        }
+        .textHeadTable {
+            /* border: 1px solid white; เพิ่มเส้นกรอบให้กับ th และ td */
+            /* padding: 8px; เพิ่ม padding เพื่อให้ข้อมูลในเซลล์มีพื้นที่ว่าง */
+        }
+        .fristTD {
+          border-left: 1px solid black;
+          border-right: 1px solid black;
+        }
+        .lastTD {
+          border-right: 1px solid black;
+        }
+        .btn {
+          position: relative;
+          margin-right: 5px;
+        }
+        .error {
+          color: red;
+          font-size: 0.9em;
+          display: none;
+        }
+      </style>
 </head>
 <body>
 <input type="checkbox" name="" id="menu-toggle">
@@ -28,7 +53,7 @@
 <div class="sidebar">
   <div class="sidebar-container">
     <div class="brand">
-      <h3>
+      <h3 style='font-family: "Poppins", sans-serif;'>
         <span class="las la-anchor"></span>
         NIGD
       </h3>
@@ -58,7 +83,7 @@
         <span class="las la-bars"></span>
       </label>
       <div class="header-title">
-        <h1>Dashboard</h1>
+        <h1 style='font-family: "Poppins", sans-serif;'>Dashboard</h1>
         <p id='textStatusUser'></p>
       </div>
     </div>
@@ -69,7 +94,7 @@
       </button> -->
     </div>
   </header>
-  <main>
+  <!-- <main>
   <section style='border-radius: 10px;'>
     <div class="dots">
       <span style="--i:1;"></span>
@@ -90,12 +115,390 @@
     </div>
     <span style='margin-left:70px; font-size:24px'>อยู่ระหว่างการพัฒนาระบบ</span>
   </section>
-  </main>
+  </main> -->
+
+  <!-- Part USER -->
+  <!-- <main>
+    <section>
+      <h3 class="section-head" style="margin-top: 10px;">ความก้าวหน้าการดำเนินการด้านต่าง ๆ</h3>
+      <div class="analytics">
+        <div class="analytic">
+          <div class="analytic-icon">
+            <span class="las la-users"></span></div>
+            <div class="analytic-info">
+                <h4>สมบูรณ์ครบถ้วน</h4>
+                <h1 class="text-success">5 <small style="font-size: 20px;" >ด้าน</small></h1>
+            </div>
+        </div>
+        <div class="analytic">
+          <div class="analytic-icon">
+            <span class="las la-users"></span></div>
+            <div class="analytic-info">
+                <h4>เอกสารไม่สมบูรณ์</h4>
+                <h1 class="text-danger"> 1 <small style="font-size: 20px;" >ด้าน</small></h1>
+            </div>
+        </div>
+        <div class="analytic">
+          <div class="analytic-icon"><span class="las la-users"></span></div>
+          <div class="analytic-info">
+            <h4>กำลังดำเนินการ</h4>
+            <h1 class="text-warning"> 3 <small style="font-size: 20px;" >ด้าน</small></h1>
+          </div>
+        </div>
+        <div class="analytic">
+          <div class="analytic-icon"><span class="las la-users"></span></div>
+          <div class="analytic-info">
+            <h4>ยังไม่ดำเนินการ</h4>
+            <h1> 1 <small style="font-size: 20px;">ด้าน</small></h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    <h3 class="section-head">ภาพรวมทั้งหมดของเอกสาร</h3>
+    <main class="bgColorMain">
+      <div class="container-fluid">
+          <div class="card shadow border-0">
+              <div class="card-header">
+                  <div id="dvHeadSelectAssessment">
+
+                  </div>
+                  <div class="table-responsive" id="dvContentTable">
+                    <table id='tb_Form' class='table table-hover table-nowrap' width: 100%;>
+                      <thead class='table-light'>
+                  
+                      <tr class='table-dark'>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>ด้านที่ตรวจสอบ</td>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>
+                      </tr>
+                  
+                      </thead>
+                          <tbody>
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>1</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านกำลังพล</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>2</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการยุทธการ</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>3</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการข่าว</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>4</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านส่งกำลังบำรุง</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>5</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านสื่อสาร</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-incomplete me-1'>เอกสารไม่สมบูรณ์</span></div></td>
+                            <td class="text-center">
+                                <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>6</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านระบบเทคโนโลยีในการบริหารจัดการ</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
+                            <td class="text-center">
+                                <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>7</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านกิจการพลเรือน</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                                <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>8</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการงบประมาณ</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                                <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>9</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการเงินและการบัญชี</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                                <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>10</td>
+                            <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านพัสดุและทรัพย์สิน</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-notprocess me-1'>ยังไม่ดำเนินการ</span></div></td>
+                            <td class="text-center">
+                                <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                  </div>
+              
+          </div>
+      </div>
+</main>
+  </main> -->
+
+  <!-- Part Admin -->
+  <main>
+    <section>
+      <h3 class="section-head" style="margin-top: 10px;">ความก้าวหน้าการดำเนินการของแต่ละหน่วย</h3>
+      <div class="analytics">
+        <div class="analytic">
+          <div class="analytic-icon">
+            <span class="las la-users"></span></div>
+            <div class="analytic-info">
+                <h4>สมบูรณ์ครบถ้วน</h4>
+                <h1 class="text-success">20 <small style="font-size: 20px;" >หน่วย</small></h1>
+            </div>
+        </div>
+        <div class="analytic">
+          <div class="analytic-icon">
+            <span class="las la-users"></span></div>
+            <div class="analytic-info">
+                <h4>เอกสารไม่สมบูรณ์</h4>
+                <h1 class="text-danger"> 5 <small style="font-size: 20px;" >หน่วย</small></h1>
+            </div>
+        </div>
+        <div class="analytic">
+          <div class="analytic-icon"><span class="las la-users"></span></div>
+          <div class="analytic-info">
+            <h4>กำลังดำเนินการ</h4>
+            <h1 class="text-warning"> 15 <small style="font-size: 20px;" >หน่วย</small></h1>
+          </div>
+        </div>
+        <div class="analytic">
+          <div class="analytic-icon"><span class="las la-users"></span></div>
+          <div class="analytic-info">
+            <h4>ยังไม่ดำเนินการ</h4>
+            <h1> 2 <small style="font-size: 20px;">หน่วย</small></h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    <h3 class="section-head">ภาพรวมทั้งหมดของแต่ละหน่วย</h3>
+    <main class="bgColorMain">
+      <div class="container-fluid">
+          <div class="card shadow border-0">
+              <div class="card-header">
+                  <!-- Start Selete Content -->
+                  <div id="dvHeadSelectAssessment">
+                    <div class='row mb-3'>
+
+                      <div class='col-sm-2 ms-auto'>
+                         <select id='selectStatus' class='form-select text-center' aria-label='Default select example'>
+                             <option value='' selected>ด้านที่ตรวจสอบ</option> 
+                             <option value='1'>ด้านกำลังพล</option> 
+                             <option value='2'>ด้านการยุทธการ</option>
+                             <option value='3'>ด้านการข่าว</option> 
+                         </select> 
+                      </div>
+                      
+                      <div class='col-sm-2'>
+                         <select id='selectUnit' class='form-select text-center' aria-label='Default select example'>
+                             <option value='' selected>หน่วยรับตรวจ</option>
+                             <option value='1' selected>สลก.ทร.</option>
+                             <option value='2'>สบ.ทร.</option>
+                             <option value='3'>กพ.ทร.</option>
+                             <option value='4'>ขว.ทร.</option>
+                          </select>
+                      </div>
+                      
+                      <div class='col-sm-2'>
+                         <select id='selectBudget' class='form-select text-center' aria-label='Default select example'>
+                             <option value='2567' selected>งบปี ๖๗</option>
+                             <option value='2568'>งบปี ๖๘</option>
+                             <option value='2569'>งบปี ๖๙</option>
+                             <option value='2570'>งบปี ๗๐</option>
+                         </select>
+                      </div>
+                      
+                      <div class='col-sm-2'>
+                         <select id='selectStatus' class='form-select text-center' aria-label='Default select example'>
+                             <option value='' selected>สถานะ</option> 
+                             <option value='1'>ยังไม่ดำเนินการ</option> 
+                             <option value='2'>รอการตรวจสอบ</option>
+                             <option value='3'>เอกสารไม่สมบูรณ์</option> 
+                             <option value='4'>สมบูรณ์ครบถ้วน</option> 
+                         </select> 
+                      </div>
+                      
+                      </div>
+                  </div>
+                  <!-- Start Table Content -->
+                  <div class="table-responsive" id="dvContentTable">
+                    <table id='tb_Form' class='table table-hover table-nowrap' width: 100%;>
+                      <thead class='table-light'>
+                  
+                      <tr class='table-dark'>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>ด้านที่ตรวจสอบ</td>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>หน่วยงาน</td>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>
+                      <td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>
+                      </tr>
+                  
+                      </thead>
+                          <tbody>
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>1</td>
+                            <td id='tdUnitName' class='text-center align-middle fristTD' style='width: 40%;white-space: pre-wrap;' rowspan="4">ด้านกำลังพล</td>
+                            <td id='tdUnitName'  class='text-center align-middle e' style='width: 30%;white-space: pre-wrap;'>สลก.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>2</td>
+                            <td id='tdUnitName'  class='text-center align-middle ' style='width: 30%;white-space: pre-wrap;'>สบ.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>3</td>
+                            <td id='tdUnitName'  class='text-center align-middle ' style='width: 30%;white-space: pre-wrap;'>กพ.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>4</td>
+                            <td id='tdUnitName'  class='text-center align-middle ' style='width:30%;white-space: pre-wrap;'>ขว.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+
+
+
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>1</td>
+                            <td id='tdUnitName' class='text-center align-middle fristTD' style='width: 40%;white-space: pre-wrap;' rowspan="4">ด้านการยุทธการ</td>
+                            <td id='tdUnitName'  class='text-center align-middle ' style='width: 30%;white-space: pre-wrap;'>สลก.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>2</td>
+                            <td id='tdUnitName'  class='text-center align-middle ' style='width: 30%;white-space: pre-wrap;'>สบ.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>3</td>
+                            <td id='tdUnitName'  class='text-center align-middle ' style='width: 30%;white-space: pre-wrap;'>กพ.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr>
+    
+                          <tr>
+                            <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>4</td>
+                            <td id='tdUnitName'  class='text-center align-middle ' style='width: 30%;white-space: pre-wrap;'>ขว.ทร.</td>
+                            <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
+                            <td class="text-center">
+                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
+                                <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
+                              </button>
+                            </td>
+                          </tr> 
+                        
+                        </tbody>
+                      </table>
+                  </div>
+              
+          </div>
+      </div>
+</main>
+  </main> -->
 </div>
 <script src="../../script/jquery/jquery-3.7.1.js"></script>
+<script src="../../script/bootstarp/js/bootstrap.min.js"></script> 
+<script src="../../script/bootstarp/js/bootstrap.js"></script>
 <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
-<!-- <script src="../../script/navbar3.js"></script> -->
-<!-- <script src="../../script/test.js"></script> -->
+
 <script src="../../script/centerFile.js"></script>
 <!-- <script src="../../script/control/drawTable.js"></script> -->
 <script src="../../script/control/sidebar.js"></script>

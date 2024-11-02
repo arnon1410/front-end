@@ -154,9 +154,9 @@ async function fnDrawTableAssessmentForm(dataASM, strUserId, idSideFix, nameSide
         if (result) {
             for (var i = 0; i < result.length; i++) {
                 if (result[i].description) {
-                    strHTML += "<tr style='width: 50%;'><td>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
+                    strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
                 } else {
-                    strHTML += "<tr style='width: 50%;'><td>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + await fnCreateTextAreaAndButton(result[i].id, result[i].idASM, result[i].descResultASM, strUserId, idSideFix, nameSides) + "</td></tr>";
+                    strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + await fnCreateTextAreaAndButton(result[i].id, result[i].idASM, result[i].descResultASM, strUserId, idSideFix, nameSides) + "</td></tr>";
                 }
             }
         }
@@ -450,7 +450,7 @@ function fnSaveDraftDocument(data , dataCon, strUserId, strSideId, strUserDocId,
     data.forEach(formItem => {
         strDisplayText = $('#displayText' + formItem.id).text();
         descResultASM = formItem.descResultASM === null ? '' : formItem.descResultASM;
-        if (descResultASM !== strDisplayText) { // หาข้อมูลที่มีการแก้ไข
+        if (strDisplayText && (descResultASM !== strDisplayText)) { // หาข้อมูลที่มีการแก้ไข
             dataSend.push({
                 idASM: formItem.id,
                 userId: strUserId,  // หรือใช้ strUserId ถ้ามีการประกาศ

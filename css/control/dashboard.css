@@ -17,14 +17,70 @@
   padding: 0;
   margin: 0;
   text-decoration: none;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Sarabun', sans-serif;
   list-style-type: none;
   box-sizing: border-box;
 }
 body {
+  font-family: 'Sarabun' !important;
   background-color: var(--main-accent) !important;
   overflow-x: hidden;
 }
+.bgColorMain{
+  background-color: var(--bg-2) !important;
+}
+
+.textHeadTable{
+  font-weight: bold;
+}
+
+.table td {
+  font-size: 1rem;
+}
+.me-1 {
+margin-right: .25rem !important;
+}
+.badge {
+text-transform: uppercase;
+line-height: .75;
+}
+.bg-label-success {
+background-color: #e8fadf !important;
+color: #71dd37 !important;
+}
+.bg-label-incomplete {
+background-color: #FF8080 !important;
+color: #FFF !important;
+}
+.bg-label-warning {
+background-color: #fff2d6 !important;
+color: #ffab00 !important;
+}
+.bg-label-notprocess {
+background-color: #797d7f   !important;
+color: #FFF !important;
+} 
+.bg-label-info {
+background-color: #d7f5fc !important;
+color: #03c3ec !important;
+}
+
+.colorCircle {
+  display: block;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 55px;
+  max-width: fit-content;
+  margin: auto;
+}
+
+.circle{
+  display: inline-block;
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+}
+
 
 img {
   width: 100%;
@@ -101,7 +157,9 @@ Sidebar
   justify-content: center;
 }
 .brand h3 {
-  color: #444;
+  background: linear-gradient(-135deg, #c850c0, #4158d0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-size: 3rem;
 }
 .brand h3 span {
@@ -245,9 +303,9 @@ header {
   font-size: 1rem;
 }
 
-main {
+/* main {
   padding: 2.5rem 0;
-}
+} */
 .analytics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -281,7 +339,7 @@ main {
 }
 .analytic:first-child .analytic-icon {
   background-color: #dce5ff;
-  color: #6883db;
+  color: #2ec3a3;
 }
 .analytic:nth-child(2) .analytic-icon {
   background-color: #ebf7f5;
@@ -289,11 +347,11 @@ main {
 }
 .analytic:nth-child(3) .analytic-icon {
   background-color: #ebf7f5;
-  color: #2ec3a3;
+  color: #FFBF00;
 }
 .analytic:nth-child(4) .analytic-icon {
   background-color: var(--main-accent);
-  color: var(--color-main);
+  color: #000;
 }
 .analytic-icon {
   width: 40px;
@@ -301,9 +359,16 @@ main {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  margin-right: 0.8rem;
+  margin-right: 0.7rem;
 }
 .section-head {
+  font-size: 1.4rem;
+  color: var(--main);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.section-head-Table {
   font-size: 1.4rem;
   color: var(--main);
   font-weight: 600;
@@ -314,13 +379,31 @@ main {
   grid-gap: 3rem;
   grid-template-columns: 45% auto;
 }
-.rev-content {
+.container-fluid {
   background-color: #fff;
   box-shadow: var(--shadow);
   border-radius: 15px;
-  padding: 1rem 2rem;
+  padding: 2rem 73rem 2rem 2rem; /* กำหนด padding ด้านขวาเป็น 73rem และอื่น ๆ ตามต้องการ */
   text-align: center;
+  margin: 0 auto; /* จัดกลาง */
+  width: 100%; /* ทำให้กว้างเต็มที่ */
 }
+
+.table-responsive {
+  width: 100%; /* ให้ตารางขยายเต็มความกว้าง */
+  overflow-x: auto; /* ให้สามารถเลื่อนซ้ายขวาได้ */
+}
+
+#tb_Form {
+  width: 100%; /* ให้ตารางขยายเต็มความกว้าง */
+  border-collapse: collapse; /* ทำให้เส้นขอบตารางติดกัน */
+}
+
+.table-light th, .table-light td {
+  padding: 1rem; /* เพิ่ม padding ให้กับเซลล์ในตาราง */
+  text-align: center; /* จัดกลางข้อความในเซลล์ */
+}
+
 .rev-content img {
   width: 180px;
   margin: 1.5rem 0;
@@ -418,10 +501,15 @@ main {
     grid-template-columns: repeat(2, 1fr);
   }
   .block-grid {
-    grid-template-columns: 100%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
   }
+  
   .revenue-card {
-    order: 2;
+    width: 100%;
+    max-width: 1200px; /* กำหนด max-width ตามต้องการ */
+    margin: 0 auto;
   }
 }
 @media only screen and (max-width: 580px) {

@@ -1306,7 +1306,15 @@ function fnDrawModalAssessor(strPrefixAsessor, strPosition, strDateAsessor) {
         todayHighlight: true,
         minViewMode: 2,
         maxViewMode: 2,
+    }).on('changeDate', function (e) {
+        var date = e.date;
+        // แปลงปี ค.ศ. เป็น พ.ศ.
+        var yearBuddhist = date.getFullYear() + 543;
+        $(this).datepicker('update', new Date(yearBuddhist, date.getMonth(), date.getDate()));
     });
+    
+    // ปรับการแสดงผลเป็น พ.ศ. ในปฏิทิน
+    $('.datepicker-year').datepicker('setDate', new Date(new Date().getFullYear() + 543, new Date().getMonth(), new Date().getDate()));
 
     $('#submitAssessorButton').on('click', fnSubmitAssessor);
 }

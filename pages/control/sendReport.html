@@ -155,17 +155,12 @@
 
 <script>
     $(document).ready(async function() {
-        var varUserRole = fnGetCookie("userRole") || ''; 
+        var valUserRole = fnGetCookie("userRole") || ''; 
         var valUserName = fnGetCookie("username");
 
-        if (varUserRole == 'admin') {
-          // await fnGetDataSelect(varUserRole, '', 'sendReport')
-        }
-        console.log(varUserRole)
         fnSetSidebarMenuConTrol('sendReport', valUserName)
-        fnGetDataInternalControl(varUserRole)
-        // fnDrawTableSendReport(valUserRole)
-
+        fnGetDataInternalControl(valUserRole, valUserName)
+ 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
 
@@ -196,58 +191,57 @@
 
 
 
-    function fnGetDataInternalControl(valUserRole) {
-
+    function fnGetDataInternalControl(valUserRole, valUserName) {
       var valUserId = fnGetCookie("userId") || '';
-      var isAdmin = ''
-      if (valUserRole == 'admin') {
-        isAdmin = '1'
+      var valUnitId = ''
+      if (valUserName == 'AdIconigd' || valUserName == 'AdIconiao') {
+        valUnitId = valUserId
       }
-
-      // if (valUserId) {      
-      //   var data = {
-      //     userId: valUserId,
-      //     sideId: valSideId
-      //   }
-      //   axios.post('http://localhost:3000/api/documents/fnGetResultDoc', data)
-      //   .then(response => {
-      //     var result = response.data.result
-      //     if (result) {
-      //       // call data 
-      //       fnDrawTable(valUserRole, valSideId, result)
-      //       return result
-      //     }
-      //   })
-      //   .catch(error => 
-      //     Swal.fire({
-      //         title: 'เกิดข้อผิดพลาด',
-      //         text: "ลองใหม่อีกครั้ง",
-      //         icon: 'warning',
-      //         confirmButtonColor: '#3085d6',
-      //         confirmButtonText: 'ยันยืน',
-      //     }).then((result) => {
-      //         if (result.isConfirmed) {
-      //             // เปลี่ยนเส้นทางไปยัง logout.php
-      //             fnClearAllCookies()
-      //             window.location.href = '../../pages/main/signin.html';
-      //         }
-      //     })
-      //   )
-      // } else {
-      //   Swal.fire({
-      //       title: 'เกิดข้อผิดพลาด',
-      //       text: "ลองใหม่อีกครั้ง",
-      //       icon: 'warning',
-      //       confirmButtonColor: '#3085d6',
-      //       confirmButtonText: 'ยันยืน',
-      //   }).then((result) => {
-      //       if (result.isConfirmed) {
-      //           // เปลี่ยนเส้นทางไปยัง logout.php
-      //           fnClearAllCookies()
-      //           window.location.href = '../../pages/main/signin.html';
-      //       }
-      //   });
-      // }
+      if (valUserId) {      
+        var dataSend = {
+          userId: valUserId,
+          unitId: valUnitId
+        }
+        axios.post(apiUrl + '/api/documents/fnGetResultDocPK6', dataSend)
+        .then(response => {
+          var result = response.data.result
+          if (result) {
+            if (valUserName == 'AdIconigd' || valUserName == 'AdIconiao') {
+              fnCreateBtnTabForm(result, 'sendReport')
+            }
+            fnDrawTableSendReport(valUserRole, result)
+          }
+        })
+        .catch(error => 
+          Swal.fire({
+              title: 'เกิดข้อผิดพลาด',
+              text: "ลองใหม่อีกครั้ง",
+              icon: 'warning',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'ยันยืน',
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  // เปลี่ยนเส้นทางไปยัง logout.php
+                  fnClearAllCookies()
+                  window.location.href = '../../pages/main/signin.html';
+              }
+          })
+        )
+      } else {
+        Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: "ลองใหม่อีกครั้ง",
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'ยันยืน',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // เปลี่ยนเส้นทางไปยัง logout.php
+                fnClearAllCookies()
+                window.location.href = '../../pages/main/signin.html';
+            }
+        });
+      }
     }
 </script>
 </html>

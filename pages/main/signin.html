@@ -62,6 +62,7 @@
             });
 
             $('#formLogin').on('submit', function(e) {
+               console.log('test')
                 e.preventDefault(); // ป้องกันการ submit ฟอร์มแบบปกติ
             
                 // ตรวจสอบว่า username และ password ว่างหรือไม่
@@ -81,7 +82,7 @@
                   password: password
                 }
                //  console.log(data)
-               axios.post(apiUrl + 'api/auth/login', data)
+               axios.post(apiUrl + '/api/auth/login', data)
                .then(response => {
                   var res = response.data
                   if (res.status === 'success') {
@@ -99,7 +100,7 @@
                               fnSetCookie('shortName', res.shortName);
                               fnSetCookie('userRole', res.userRole);
                               // end cookie
-                              window.location.href = 'pages/control/dashboard.html?authen=' + res.userRole; // เปลี่ยนเส้นทางไปยังหน้าที่ต้องการ
+                              window.location.href = '../control/dashboard.html?authen=' + res.userRole; // เปลี่ยนเส้นทางไปยังหน้าที่ต้องการ
                            }
                         });
                   }

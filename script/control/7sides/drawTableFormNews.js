@@ -81,7 +81,8 @@ async function fnDrawTableForm(access, valSides, objData) {
 
     strHTML += " <div class='dvFooterForm'> "
     if (access !== 'admin') {
-        strHTML += "    <button type='submit' class='btn btn-success' id='btnSaveData'>บันทึกฉบับร่าง</button>"
+        strHTML += "    <button type='submit' class='btn btn-primary' id='btnSaveData'>บันทึกฉบับร่าง</button>"
+        strHTML += "    <button type='submit' class='btn btn-success' id='btnPrintData'>พิมพ์ฉบับร่าง</button>"
     }
     strHTML += " </div> "
 
@@ -92,6 +93,7 @@ async function fnDrawTableForm(access, valSides, objData) {
     $("#dvFormReport")[0].innerHTML = strHTML
     if (access !== 'admin') {
         fnAddSaveButtonEventListener(data, idSideFix)
+        fnPrintDataButtonEventListener()
     }
     
 }
@@ -136,6 +138,7 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
     var strIdRadio = ''
     var strIdEndQR = ''
     var strEndNoInput = ''
+    var strEndNoInputSplit = ''
     var strEndSplit = ''
 
     // set variable ส่วนเพิ่มคำถาม
@@ -193,6 +196,41 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
         errorMessage = 'กรุณากรอกข้อมูลคำถาม';
     }
     
+    if (checkedEndAT.length > 0 && validateData) {
+        // validateData = true
+        checkedEndAT.each(function() {
+            if (stopLoop) {
+                return false;  // ออก loop jQuery .each() 
+            }
+            // strEndNoInput = fnExtractNumbersFromArray($(this).attr('id'))
+            strIdRadio = $(this).attr('id').match(/[\d.]+$/)[0];
+            strEndSplit = $(this).val().split(',') // value id ที่จะเอาไป update และ Id หัวข้อหลัก
+            
+            strIdEndQR = strEndSplit[0]
+            strHeadId = strEndSplit[1]
+            if (strIdRadio === '1') { // มีการควบคุมเพียงพอ
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '1', descResultEndQR: '', type:'mainEndQR'})
+            } else { // กรณีไม่เพียงพอ
+                strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
+                if (strEndNoInput.includes('.')) {
+                    strEndNoInputSplit = strEndNoInput.replace(/\./g, '\\.'); // หนีจุด (replace '.' with '\.')
+                } else {
+                    strEndNoInputSplit = strEndNoInput
+                }
+                strDesc = $('#displayTextSum' + strEndNoInputSplit).text()
+                if (strDesc) {
+                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'})
+                } else {
+                    errorMessage = 'กรุณากรอกข้อมูลท้ายคำถาม';  // เก็บข้อความ error ไว้
+                    validateData = false;
+                    stopLoop = true;  // หยุดการวนลูปใน iteration ถัดไป
+                    return false;  // หยุด loop
+                }
+            }
+            
+        });
+    }
+    
     // ตรวจสอบและแสดง Swal.fire() หลังจาก loop จบ
     if (!validateData && errorMessage.trim()) {
         Swal.fire({
@@ -201,34 +239,6 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
             icon: 'error'
         });
     }
-
-    if (checkedEndAT.length > 0) {
-        // validateData = true
-        checkedEndAT.each(function() {
-            // strEndNoInput = fnExtractNumbersFromArray($(this).attr('id'))
-            strIdRadio = $(this).attr('id').slice(21)
-            strEndSplit = $(this).val().split(',') // value id ที่จะเอาไป update และ Id หัวข้อหลัก
-            
-            strIdEndQR = strEndSplit[0]
-            strHeadId = strEndSplit[1]
- 
-            if (strIdRadio === '1') { // มีการควบคุมเพียงพอ
-                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '1', descResultEndQR: '', type:'mainEndQR'})
-            } else { // กรณีไม่เพียงพอ
-                strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
-                strDesc = $('#displayTextSum' + strEndNoInput).text()
-                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'})
-            }
-            
-        });
-    }
-    /* else { ไม่ต้องเช็คแล้ว
-        validateData = false;
-        if (!errorMessage) {  // เช็คว่ามีข้อความ error อยู่แล้วหรือไม่
-            errorMessage = 'กรุณากรอกข้อมูลส่วนท้ายของคำถาม';
-        }
-    }
-    */
 
     if (checkedOtherMainAT.length > 0) {
         // validateData = true
@@ -259,7 +269,7 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
         dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idConQR: strIdConQR, descConQR: strDesc, type:'conQR'})
     } 
 
-
+    console.log(dataSend)
     if (dataSend.length > 0 && validateData) { // ถ้าข้อมูลถูกต้องแล้ว
        Swal.fire({
             title: "",
@@ -305,6 +315,10 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
 
 
 
+}
+
+async function fnPrintDataDraftDocument (event) {
+    window.print()
 }
 
 function fnCreateInputRadioAndSpan(text, headId, validate, idEndQR, isradio, description, isdisabled, isOrigin) {
@@ -450,9 +464,9 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
         } else { // หัวข้อย่อยทั้งหมด
             if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
                 if (item.id_subcontrol) {
-                    strHTML += "<tr><td style='width: 55%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 } else {
-                    strHTML += "<tr><td style='width: 55%;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 }
             } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
                 if (item.id_innercontrol) { // 1
@@ -484,7 +498,7 @@ function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, isch
     }
 
     strHTML2 += "<tr>";
-    strHTML2 += "<td style='width: 55%; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
+    strHTML2 += "<td style='width: 55%; vertical-align: top; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
     strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
     strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox "+ isHidden +"' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + haveDataChecked + "/>";
     strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label>";
@@ -502,25 +516,28 @@ function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, isch
 }
 
 $(document).on('change', 'input[type="checkbox"]', function() {
-    let strStatus = ''
-
-    let checkboxId = $(this).attr('id'); // ดึงค่า ID
-    let isChecked = $(this).is(':checked'); // ตรวจสอบสถานะ checked
-
     let strCheckboxVal = $(this).val();
     let strSplitVal = strCheckboxVal.split(',')[0].trim();
-   
+    let strCheckVal = ''
+    if (strSplitVal.includes('.')) {
+        strCheckVal = strSplitVal.replace(/\./g, '\\.'); // หนีจุด (replace '.' with '\.')
+    } else {
+        strCheckVal = strSplitVal
+    }
+
     var checkedMainAT = $('input[name="mainActivities"]:checked').filter(function() {
         return $(this).val().startsWith(`${strSplitVal},`);
     });
 
-    let strTextArea = $(`#commentSum${strSplitVal}_0`)
-    let strButton = $(`#btnSubmitSum${strSplitVal}_0`)
-    let strDisplayText = $(`#displayTextSum${strSplitVal}_0`)
-    let strEditIcon = $(`#editIconSum${strSplitVal}_0`)
+    let strTextArea = $(`#commentSum${strCheckVal}_0`)
+    let strButton = $(`#btnSubmitSum${strCheckVal}_0`)
+    let strDisplayText = $(`#displayTextSum${strCheckVal}_0`)
+    let strEditIcon = $(`#editIconSum${strCheckVal}_0`)
 
-    let strInputEnough = $(`#inputRadioSumOfSide${strSplitVal}_1`);
-    let strInputNotEnough = $(`#inputRadioSumOfSide${strSplitVal}_0`);
+    let strInputEnough = $(`#inputRadioSumOfSide${strCheckVal}_1`);
+    let strInputNotEnough = $(`#inputRadioSumOfSide${strCheckVal}_0`);
+
+    let strDescription = $(`#displayTextSum${strCheckVal}_0`).text()
 
     // นับจำนวน have-checkbox
     var haveCheckboxCount = checkedMainAT.filter('.have-checkbox').length;
@@ -548,9 +565,15 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             console.log("มีทั้ง have-checkbox, nothave-checkbox และ notapp-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
-            strTextArea.show();           // แสดง textarea
-            strButton.show();             // แสดง button 
-            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            if (strDescription && strDescription.trim() !== '') {
+                strTextArea.hide();       // ซ่อน textarea
+                strButton.hide();         // ซ่อน button
+                strEditIcon.show();       // แสดง ไอคอนการแก้ไข
+            } else {
+                strTextArea.show();       // แสดง textarea
+                strButton.show();         // แสดง button
+                strEditIcon.hide();       // ซ่อน ไอคอนการแก้ไข
+            }
             strDisplayText.show();        // ซ่อนข้อความแสดงผล
             break;
     
@@ -558,9 +581,15 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             console.log("มี have-checkbox และ nothave-checkbox แต่ไม่มี notapp-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
-            strTextArea.show();           // แสดง textarea
-            strButton.show();             // แสดง button 
-            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            if (strDescription && strDescription.trim() !== '') {
+                strTextArea.hide();       // ซ่อน textarea
+                strButton.hide();         // ซ่อน button
+                strEditIcon.show();       // แสดง ไอคอนการแก้ไข
+            } else {
+                strTextArea.show();       // แสดง textarea
+                strButton.show();         // แสดง button
+                strEditIcon.hide();       // ซ่อน ไอคอนการแก้ไข
+            }
             strDisplayText.show();        // ซ่อนข้อความแสดงผล
             break;
     
@@ -578,9 +607,15 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             console.log("มี nothave-checkbox และ notapp-checkbox แต่ไม่มี have-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
-            strTextArea.show();           // แสดง textarea
-            strButton.show();             // แสดง button 
-            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            if (strDescription && strDescription.trim() !== '') {
+                strTextArea.hide();       // ซ่อน textarea
+                strButton.hide();         // ซ่อน button
+                strEditIcon.show();       // แสดง ไอคอนการแก้ไข
+            } else {
+                strTextArea.show();       // แสดง textarea
+                strButton.show();         // แสดง button
+                strEditIcon.hide();       // ซ่อน ไอคอนการแก้ไข
+            }
             strDisplayText.show();        // ซ่อนข้อความแสดงผล
             break;
     
@@ -599,9 +634,15 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             console.log("มีเฉพาะ nothave-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
-            strTextArea.show();           // แสดง textarea
-            strButton.show();             // แสดง button 
-            strEditIcon.hide();           // ซ่อนไอคอนการแก้ไข
+            if (strDescription && strDescription.trim() !== '') {
+                strTextArea.hide();       // ซ่อน textarea
+                strButton.hide();         // ซ่อน button
+                strEditIcon.show();       // แสดง ไอคอนการแก้ไข
+            } else {
+                strTextArea.show();       // แสดง textarea
+                strButton.show();         // แสดง button
+                strEditIcon.hide();       // ซ่อน ไอคอนการแก้ไข
+            }
             strDisplayText.show();        // ซ่อนข้อความแสดงผล
             break;
     
@@ -883,7 +924,7 @@ async function fnDrawTableReportAssessmentOther(strSides, arrSides, strUserId, i
                 }
             } else { // หัวข้อย่อยทั้งหมด
                 if ((items.is_subcontrol && items.is_subcontrol == 1) || (items.is_innercontrol && items.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
-                    strHTML += "<tr><td style='width: 55%;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
                 } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ items.is_innercontrol == 0
                     if (items.id_innercontrol) { // 1
                         strHTML += fnCreateCheckboxAndTextAreaRow(items.id_innercontrol, items.text, items.id, items.head_id, '26%', items.checkbox ? items.checkbox : '', items.descResultQR  ? items.descResultQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
@@ -1231,6 +1272,19 @@ function fnAddSaveButtonEventListener(data, idSideFix) {
     }
 }
 
+function fnPrintDataButtonEventListener() {
+    const saveButton = document.getElementById('btnPrintData');
+    if (saveButton) {
+        saveButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            // โค้ดสำหรับการบันทึกข้อมูล
+            fnPrintDataDraftDocument(event);
+        });
+    } else {
+        console.error('Element with id btnPrintData not found.');
+    }
+}
+
 function fnAddEventListenersSum(id) {
     const button = document.getElementById(`btnSubmitSum${id}`);
     if (button) {
@@ -1280,7 +1334,7 @@ function fnUploadDocConfig (text, id, nameSides, idQR) {
 
     strHTML += " <div id='dvuploadfile' class='mb-3'> "
     strHTML += " <label for='formFile' class='lableHead'>ไฟล์ที่แนบ</label> "
-    strHTML += " <input class='form-control form-control-sm' id='formFile' type='file' accept='.doc, .docx, .pdf'> "
+    strHTML += " <input class='form-control form-control-sm' id='formFile' type='file' accept='.pdf'> "
 
     strHTML += " </div> "
 
@@ -2185,9 +2239,9 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
             } else {
                 if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) {
                     if (item.id_subcontrol) {
-                        strHTML += "<tr><td style='width: 55%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     } else {
-                        strHTML += "<tr><td style='width: 55%;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     }
                 } else {
                     if (item.id_innercontrol) {
@@ -2239,16 +2293,20 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
                         $('#OtherRiskModal').modal('hide');
                         $('.modal-backdrop').remove();
                         $('#trSidesOther').css('display', 'none');
-
                         Swal.fire({
                             title: "",
                             text: "บันทึกข้อมูลสำเร็จ",
                             icon: "success"
-                        }).then(async (result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
                         });
+                        // Swal.fire({
+                        //     title: "",
+                        //     text: "บันทึกข้อมูลสำเร็จ",
+                        //     icon: "success"
+                        // }).then(async (result) => {
+                        //     if (result.isConfirmed) {
+                        //         // location.reload();
+                        //     }
+                        // });
                     } else {
                         Swal.fire({
                             title: "",

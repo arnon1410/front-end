@@ -44,6 +44,29 @@ function fnSetHeaderCollationUser(){
     return strHTML
 }
 
+function fnSetHeaderSendReportAdmin(strUserName){
+    var strHTML = ''
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>"
+    if (strUserName === 'AdIcoonci') { // ถ้าเป็น สปช
+        strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>หน่วยผู้ตรวจสอบภายใน</td>"
+    }
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>หัวข้อเอกสารที่จัดส่ง</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>วันที่ส่งเอกสาร</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>"     
+    return strHTML
+}
+
+function fnSetHeaderSendReportUser(){
+    var strHTML = ''
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'></td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>วันที่ส่งเอกสาร</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>"
+    strHTML += "<td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>"     
+    return strHTML
+}
+
 async function fnDrawTable(access ,sideId ,objData, namePages) {
      // Get data selete before create table 
     var strHTML = ''
@@ -106,26 +129,26 @@ async function fnGetDataTrAdmin(access, sideId, namePages) {
         
             strHTML += "<td class='text-center align-middle lastTD'>"
             strHTML += `<button id='btnSetComment${i + 1}' type='button' class='btn btn-success btn-sm' onclick='fnSetCommentUserConfig("set", \`${sideId}\`, \`${dataSQL[i].comment}\`, \`${dataSQL[i].id}\`,\`${dataSQL[i].opStatusName}\`)'; data-bs-toggle='modal' data-bs-target='#conmentModal' style='margin-right: 5px;'>`;
-            strHTML += "<i class='las la-comment-alt mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
+            strHTML += "<i class='las la-comment-alt mr-1' aria-hidden='true' style='margin-right:5px'></i><span>คำแนะนำ</span>"
             strHTML += "</button>"
 
             // if (dataSQL[i].opStatusName !== 'notprocess') {
             strHTML += `<button id='btnEditDoc${i + 1}' type='button' class='btn btn-warning btn-sm' onclick='fnEditDocConfig(\`${access}\`, \`${dataSQL[i].userID}\`, \`${namePages}\`, \`${dataSQL[i].opStatusID}\`, \`${dataSQL[i].opSideID}\`, \`${dataSQL[i].opFormID}\`)' style='margin-right: 5px;'>`;
-            strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
+            strHTML += "<i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
             strHTML += "</button>"
             // } else {
             //     strHTML += "<button id='btnEditDoc" + (i + 1) + "' type='button' class='btn btn-warning btn-sm'; onclick='fnEditDocConfig()' style='margin-right: 5px;'>"
-            //     strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
+            //     strHTML += "<i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>แสดงฟอร์ม<span>"
             //     strHTML += "</button>"
             // }
         
             if (dataSQL[i].opStatusName !== 'success') {
                 strHTML += `<button id='btnSetStatus${i + 1}' type='button' class='btn btn-primary btn-sm' onclick='fnSetStatusDocConfig(\`${dataSQL[i].id}\`,\`${sideId}\`,\`${namePages}\`)' data-bs-toggle='modal' data-bs-target='#setStatusDocModal' style='margin-right: 5px;'>`;
-                strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>บันทึกสถานะ<span>"
+                strHTML += "<i class='las la-pen mr-1' aria-hidden='true' style='margin-right:5px'></i><span>บันทึกสถานะ<span>"
                 strHTML += "</button>"
             } else {
                 strHTML += "<button id='btnSetStatus" + (i + 1) + "' type='button' class='btn btn-primary btn-sm'; onclick='fnSetStatusDocConfig()' style='margin-right: 5px;'>"
-                strHTML += "<i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>บันทึกสถานะ<span>"
+                strHTML += "<i class='las la-pen mr-1' aria-hidden='true' style='margin-right:5px'></i><span>บันทึกสถานะ<span>"
                 strHTML += "</button>"
             }
             strHTML += "</td>"
@@ -292,12 +315,12 @@ async function fnGetDataTrCollationAdmin(strUserName) {
             strHTML += "<td class='text-center align-middle lastTD'>"
             if (strUserName === 'AdIconigd' || strUserName === 'AdIconiao') { // ถ้าเป็น จร. หรือ สตน.
                 strHTML += `<button id='btnUploadDoc${dataSQL[i].id}' type='button' class='btn btn-primary btn-sm' onclick='fnUploadCollationDocConfig(\`${dataSQL[i].id}\`, \`${dataSQL[i].userDocID}\`, \`${dataSQL[i].sendName}\`)'; data-bs-toggle='modal' data-bs-target='#setCollationDocumentModal' style='margin-right: 5px;'>`;
-                strHTML += "<i class='lab la-telegram-plane mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>อัปโหลดเอกสาร</span>"
+                strHTML += "<i class='lab la-telegram-plane mr-1' aria-hidden='true' style='margin-right:5px'></i><span>อัปโหลดเอกสาร</span>"
                 strHTML += "</button>"
             }
 
             strHTML += `<button id='btnEditDoc${dataSQL[i].id}' type='button' class='btn btn-warning btn-sm' onclick='fnViewCollationDocConfig(\`${dataSQL[i].id}\`)' style='margin-right: 5px;'>`;
-            strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>ดูเอกสาร<span>"
+            strHTML += "<i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ดูเอกสาร<span>"
             strHTML += "</button>"
 
         strHTML += "</tr>"
@@ -338,8 +361,96 @@ async function fnGetDataTrCollationUser(access) {
             // เพิ่ม button ดูเอกสาร 
             strHTML += "<td class='text-center align-middle lastTD'>"
             strHTML += `<button id='btnEditDoc${dataSQL[i].id}' type='button' class='btn btn-warning btn-sm' onclick='fnViewCollationDocConfig(\`${dataSQL[i].id}\`)' style='margin-right: 5px;'>`;
-            strHTML += "<i class='las la-search mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>ดูเอกสาร<span>"
+            strHTML += "<i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ดูเอกสาร<span>"
             strHTML += "</button>"
+
+        strHTML += "</tr>"
+        }
+    } else {
+        strHTML += "<tr>";
+        strHTML += `<td colspan='6' class='text-center align-top' style='width: 100%;'>`;
+        strHTML += ` <span id='spanNotHaveData'>ไม่พบข้อมูล</span> `;
+        strHTML += "<tr>";
+    }
+    return strHTML
+}
+
+async function fnDrawTableSendReport(access, objData) {
+    var strHTML = ''
+    var strUserName = fnGetCookie("username")
+    var dataSQL = objData
+    strHTML += "<table id='tb_Form' class='table table-hover table-nowrap' width: 100%;>"
+    strHTML += "<thead class='table-light'>"
+
+    strHTML += "<tr class='table-dark'>"
+    if (access == 'admin') {
+        strHTML += fnSetHeaderSendReportAdmin(strUserName) 
+    }
+
+    strHTML += "</tr>"
+
+    strHTML += "</thead>"
+    strHTML += "<tbody>"
+
+    if (access == 'admin') {
+        strHTML += await fnGetDataTrSendReportAdmin(strUserName, dataSQL)
+    }
+
+    strHTML += "</tbody>"
+    strHTML += "</table>"
+
+    $("#dvContentTable")[0].innerHTML = strHTML
+
+    fnMergeColumn('#tb_Form', true);
+
+}
+
+async function fnGetDataTrSendReportAdmin(strUserName, dataSQL) {
+    var strHTML = ""
+    var strUserId = "";
+    if (strUserName === 'AdIconigd' || strUserName === 'AdIconiao') {
+        strUserId = fnGetCookie("userId");
+    } else {
+        strUserId = $('#selectUnitCheck').val()
+    }
+    
+    // เพิ่ม Get data collation 
+    if (dataSQL.length > 0) {
+        for (var i = 0; i < dataSQL.length; i++) {
+            strHTML += "<tr>"
+            strHTML += "<td id='No" + (i + 1) + "' class='text-center align-middle fristTD' style='width: 5%;'>" + (i + 1) + "<input type='hidden' id='idNo" + (i + 1) + "' value='"+ dataSQL[i].id +"'/></td>"
+
+            strHTML += "<td id='tdFormName" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>" + (dataSQL[i].formName ? (dataSQL[i].formName) : '-') + "</td>"
+            if (strUserName === 'AdIcoonci') { // ถ้าเป็น สปช
+                strHTML += "<td id='tdReceiveName" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>" + (dataSQL[i].receiveName ? (dataSQL[i].receiveName) : '-') + "</td>"
+            }
+            strHTML += "<td id='tdDateUpdate" + (i + 1) + "'  class='text-center align-middle' style='width: 55%;'>" + (dataSQL[i].updatedAt ? fnFormatDateToThai(dataSQL[i].updatedAt) : '-') + "</td>"
+        
+            if (dataSQL[i].statusID != 1) {
+                strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>ส่งเอกสารสมบูรณ์</span></div></td>"
+            } else {
+                strHTML += "<td id='status" + (i + 1) + "'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-notprocess me-1'>ยังไม่ดำเนินการ</span></div></td>"
+            }
+        
+
+            // เพิ่ม button ส่งและดูเอกสาร 
+            strHTML += "<td class='text-center align-middle lastTD'>"
+            if (strUserName === 'AdIconigd' || strUserName === 'AdIconiao') { // ถ้าเป็น จร. หรือ สตน.
+                strHTML += `<button id='btnUploadDoc${dataSQL[i].id}' type='button' class='btn btn-primary btn-sm' onclick='fnUploadCollationDocConfig(\`${dataSQL[i].id}\`, \`${dataSQL[i].userDocID}\`, \`${dataSQL[i].sendName}\`)'; data-bs-toggle='modal' data-bs-target='#setCollationDocumentModal' style='margin-right: 5px;'>`;
+                strHTML += "<i class='lab la-telegram-plane mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ส่งเอกสาร</span>"
+                strHTML += "</button>"
+            }
+
+            if (strUserName === 'AdIconigd' || strUserName === 'AdIconiao') { // ถ้าเป็น จร. หรือ สตน.
+                strHTML += `<button id='btnEditDoc${dataSQL[i].id}' type='button' class='btn btn-warning btn-sm' onclick='fnViewCollationDocConfig(\`${dataSQL[i].id}\`)' style='margin-right: 5px;'>`;
+                strHTML += "<i class='las la-pen mr-1' aria-hidden='true' style='margin-right:5px'></i><span>แก้ไขเอกสาร<span>"
+                strHTML += "</button>"
+            } else {
+                strHTML += `<button id='btnEditDoc${dataSQL[i].id}' type='button' class='btn btn-warning btn-sm' onclick='fnViewCollationDocConfig(\`${dataSQL[i].id}\`)' style='margin-right: 5px;'>`;
+                strHTML += "<i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ดูเอกสาร<span>"
+                strHTML += "</button>"
+            }
+
 
         strHTML += "</tr>"
         }

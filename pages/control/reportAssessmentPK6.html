@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+    <link href='https://fonts.googleapis.com/css2?family=Sarabun&display=swap' rel='stylesheet'>
+    <!-- <link rel='stylesheet' href='../../css/control/formReport.css' /> -->
+    <link rel="stylesheet" href="../../css/sweetalert2/sweetalert2.min.css" >
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css'>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel='stylesheet' href='../../css/bootstarp/css/bootstrap.min.css'>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .a4-size {
+            width: 21cm;
+            height: 23.7cm;
+            /* border: 1px solid black; */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .title {
+            text-align: center;
+            font-size: 18px;
+            /* margin-bottom: 10px; */
+        }
+        .dvSignature {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 16px;
+        }
+        .dvSignature > div {
+            width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */
+        }
+        .dvAssessor {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 16px;
+        }
+        .dvAssessor > div {
+            width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */
+        }
+        .dvFooterForm {
+            width: 100%;
+            text-align: center;
+            margin-top: 5%;
+            margin-bottom: 20px;
+        }
+        .dv-btn-Signature {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 16px;
+        }
+        .dv-btn-Signature > div {
+            width: 270px; /* ปรับขนาดของ div เพื่อให้จุดเท่ากัน */   
+        }
+        #displayTextCommentEvaluation {
+            white-space: pre-wrap;
+        }
+        .form-group canvas {
+            border: none;
+            border-bottom: 1px solid #000;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+        }
+        .canvas-container {
+            border: 1px solid #ccc;
+            position: relative;
+        }
+        .clear-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f8f8f8;
+            border: 1px solid #ccc;
+            padding: 5px;
+            cursor: pointer;
+        }
+        img {
+            width: 100px;
+            height: 30px;
+        }
+        .underline-dotted {
+            border-bottom: 2px dotted #000;
+            display: inline-block; /* Ensures the dotted underline is correctly applied */
+            margin-bottom: 5px; /* Optional: Adds space between the sections */
+            text-align: center;
+        }
+        .unit-label {
+            margin-right: 5px; /* Add a small margin between the label and the underlined text */
+        }
+        .title-divA {
+            margin-top: 10px; 
+            line-height: 1.8;
+        }
+        .title-divB {
+            margin-top: 5px; 
+            line-height: 1.8;
+        }
+        .title-spanA {
+            margin-left: 43px;
+        }
+        .title-spanB {
+            margin-left: 8%;
+        }
+        
+    </style>
+
+    <title>แบบ ปค.๖</title>
+</head>
+<body>
+    <div id='dvFormAssessment'>
+       <!-- Content -->
+    </div>
+
+    <!-- Start Modal สร้างฟอร์ม กรอกข้อมูลลายเซ็น -->
+    <div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signatureModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodySignatureModal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterSignatureModal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal สร้างฟอร์ม กรอกข้อมูลลายเซ็น -->
+
+    <!-- Start Modal สร้างฟอร์ม ผู้ประเมิน -->
+    <div class="modal fade" id="assessorModal" tabindex="-1" aria-labelledby="assessorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assessorModalLabel">กรอกข้อมูลผู้ประเมิน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodyAssessorModal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterAssessorModal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal สร้างฟอร์ม ผู้ประเมิน -->
+
+
+    <!-- Start Modal สร้างฟอร์ม กรอกข้อมูลแบบติดตาม ปค.๕ -->
+    <div class="modal fade" id="setFollowPKF5Modal" tabindex="-1" aria-labelledby="setFollowPKF5ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="setFollowPKF5ModalLabel">กรอกข้อมูลแบบติดตาม ปค.๕ (งบ.ปี ๖๗)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dvBodySetFollowPKF5Modal">
+                    <!-- ตำแหน่งที่จะแสดงเนื้อหาภายใน Modal Body -->
+                </div>
+                <div class="modal-footer" id="dvFooterSetFollowPKF5Modal">
+                    <!-- ตำแหน่งที่จะแสดงปุ่มใน Modal Footer -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal สร้างฟอร์ม ผู้ประเมิน -->
+
+</body>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src='../../script/jquery/jquery-3.7.1.js'></script>
+    <script src='../../script/bootstarp/js/bootstrap.min.js'></script>
+    <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.th.min.js"></script>
+    <script src='../../script/centerFile.js'></script>
+    <script src='../../script/control/data/data_PK6.js'></script> 
+    <script src='../../script/control/7sides/drawTableFormPK6.js'></script>
+
+    <!-- เพิ่ม Axios library -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    $(document).ready(function() {
+        fnGetDataInternalControl()
+});
+
+    function fnGetDataInternalControl() {
+        /* start ส่วนของสิทธิผู้ใช้งาน */
+        var valAccess = fnGetCookie("userRole") || '';
+        /* end ส่วนของสิทธิผู้ใช้งาน */
+       
+        // call data 
+        fnDrawTableForm(valAccess)
+    }
+</script>
+</html>

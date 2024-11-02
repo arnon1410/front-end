@@ -129,9 +129,12 @@ async function fnDrawTablePerformance(data) {
         const idSides = (index + 2).toString(); // + 2 เพราะใน SQL เริ่มต้นด้วย 2
         const foundRisks = data.filter(risk => risk.idSides == idSides);
         if (foundRisks.length > 0) {
-            console.log(foundRisks[0])
             let headRisksContent = [];
-            let strObjRisk = foundRisks[0].objRisk;
+            let uniqueObjRisk = new Set(foundRisks.map(risk => risk.objRisk));
+
+            // เช็คว่ามี objRisk เดียวกันทั้งหมดหรือไม่
+            let isObjRiskSame = uniqueObjRisk.size === 1;
+            let strObjRisk = isObjRiskSame ? [...uniqueObjRisk][0] : null;
 
             foundRisks.forEach(risk => {
                 if (!headRisksContent.includes(risk.headRisk)) {
@@ -141,25 +144,44 @@ async function fnDrawTablePerformance(data) {
 
             const headRisks = headRisksContent.join('<br>- ');
 
-            // First row with rowspan for the first column
+            // เริ่มการสร้าง HTML
             strHTML += "<tr>";
             strHTML += `<td rowspan='${foundRisks.length}' id='headRisk${foundRisks[0].id}' class='text-left align-top' style='width: 25%;'>`;
             strHTML += " <div> ";
             strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${fnConvertToThaiNumeralsAndPoint(idSides - 1)}. ${side}</span> `;
             strHTML += " </div> ";
-            strHTML += " <div> ";
-            strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${tab}วัตถุประสงค์</span> `;
-            strHTML += " </div> ";
-            strHTML += " <div> ";
-            strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' class='text-left align-top'>${tab}${strObjRisk}</span> `;
-            strHTML += " </div> ";
-            strHTML += " <div> ";
-            strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${tab}กิจกรรม</span> `;
-            strHTML += " </div> ";
-            strHTML += " <div> ";
-            strHTML += " <div> ";
-            strHTML += ` <span style='display: block; padding-left: 17px;' id='spanHeadRisk${foundRisks[0].id}' style="display: block; text-indent: 17px;">- ${headRisks}</span> `;
-            strHTML += " </div> ";
+
+            if (isObjRiskSame) {
+                // ถ้า objRisk เหมือนกันทั้งหมด
+                strHTML += " <div> ";
+                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${tab}กิจกรรม</span> `;
+                strHTML += " </div> ";
+                strHTML += " <div> ";
+                strHTML += ` <span style='display: block; padding-left: 17px;' id='spanHeadRisk${foundRisks[0].id}'>- ${headRisks}</span> `;
+                strHTML += " </div> ";
+                strHTML += " <div> ";
+                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${tab}วัตถุประสงค์</span> `;
+                strHTML += " </div> ";
+                strHTML += " <div> ";
+                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' class='text-left align-top'>${tab}${strObjRisk}</span> `;
+                strHTML += " </div> ";
+            } else {
+                // ถ้า objRisk ไม่เหมือนกัน
+                foundRisks.forEach(risk => {
+                    strHTML += " <div> ";
+                    strHTML += ` <span id='spanHeadRisk${risk.id}' style='font-weight: bold;'>${tab}กิจกรรม</span> `;
+                    strHTML += " </div> ";
+                    strHTML += " <div> ";
+                    strHTML += ` <span style='display: block; padding-left: 17px;' id='spanHeadRisk${risk.id}'>- ${risk.headRisk}</span> `;
+                    strHTML += " </div> ";
+                    strHTML += " <div> ";
+                    strHTML += ` <span id='spanHeadRisk${risk.id}' style='font-weight: bold;'>${tab}วัตถุประสงค์</span> `;
+                    strHTML += " </div> ";
+                    strHTML += " <div> ";
+                    strHTML += ` <span id='spanHeadRisk${risk.id}' class='text-left align-top'>${tab}${risk.objRisk}</span> `;
+                    strHTML += " </div> ";
+                });
+            }
             strHTML += "</td>";
 
             strHTML += "<td class='text-left align-top' style='width: 12%;'>";
@@ -373,7 +395,7 @@ async function fnDrawCommentDivEvaluation(prefixAsessor,signPath,position,dateAs
 
     strHTML += " <div id='dvAssessor' class='dvAssessor' style='position: relative; text-align: center;'> ";
     if (position) {
-        strHTML += `<div><div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
+        strHTML += ` <div>ตำแหน่ง: <span style="width: 205px;" class="underline-dotted">${position}</span></div>`
     } else {
         strHTML += ` <div>ตำแหน่ง <span style="width: 211px;text-align: left;" class="underline-dotted">:</span></div> `
     }

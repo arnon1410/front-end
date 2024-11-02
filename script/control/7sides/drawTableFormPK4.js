@@ -126,7 +126,7 @@ async function fnDrawTableAssessmentForm(dataSQL, strUserId, nameUnit) {
         if (result) {
             for (var i = 0; i < result.length; i++) {
                 if (result[i].description) {
-                    strHTML += "<tr style='width: 50%;'><td>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
+                    strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
                 } else {
                     strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + await fnCreateTextAreaAndButton(result[i].id, result[i].idPK4, result[i].descResultPK4, strUserId, nameUnit) + "</td></tr>";
                 }
