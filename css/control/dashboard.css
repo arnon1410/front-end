@@ -380,10 +380,12 @@ header {
   grid-template-columns: 45% auto;
 }
 .container-fluid {
+  --bs-gutter-x: 0 !important;
+  /* background: linear-gradient(-135deg, #c850c0, #4158d0); */
   background-color: #fff;
   box-shadow: var(--shadow);
-  border-radius: 15px;
-  padding: 2rem 73rem 2rem 2rem; /* กำหนด padding ด้านขวาเป็น 73rem และอื่น ๆ ตามต้องการ */
+  /* border-radius: 15px; */
+  padding: 0rem 0rem 0rem 0rem; /* กำหนด padding ด้านขวาเป็น 73rem และอื่น ๆ ตามต้องการ */
   text-align: center;
   margin: 0 auto; /* จัดกลาง */
   width: 100%; /* ทำให้กว้างเต็มที่ */

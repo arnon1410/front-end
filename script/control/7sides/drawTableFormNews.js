@@ -1113,13 +1113,16 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
-                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")'>
+                    <button id='btnEditFile${id}' type='button' class='btn btn-warning btn-sm btn-custom' onclick='fnEditFileDocConfig("${id}")'>
+                        <i class='las la-pencil-alt' aria-hidden='true'></i><span>แก้ไข</span>
+                    </button>                    
+                    <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' title='${fileName}'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
@@ -1135,13 +1138,16 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
-                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' style='display:none;' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
+                    <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
+                    </button>
+                    <button id='btnEditFile${id}' type='button' class='btn btn-warning btn-sm btn-custom' onclick='fnEditFileDocConfig("${id}")' style='display:none;'>
+                        <i class='las la-pencil-alt' aria-hidden='true'></i><span>แก้ไข</span>
                     </button>
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
@@ -1161,10 +1167,13 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
+                    <button id='btnEditFile${id}' type='button' class='btn btn-warning btn-sm btn-custom' onclick='fnEditFileDocConfig("${id}")' style='display:none;'>
+                        <i class='las la-pencil-alt' aria-hidden='true'></i><span>แก้ไข</span>
+                    </button>
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
@@ -1185,10 +1194,13 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
+                    <button id='btnEditFile${id}' type='button' class='btn btn-warning btn-sm btn-custom' onclick='fnEditFileDocConfig("${id}")' style='display:none;'>
+                        <i class='las la-pencil-alt' aria-hidden='true'></i><span>แก้ไข</span>
+                    </button>
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
@@ -1207,10 +1219,13 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                         <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                     </button>
+                    <button id='btnEditFile${id}' type='button' class='btn btn-warning btn-sm btn-custom' onclick='fnEditFileDocConfig("${id}")' style='display:none;'>
+                        <i class='las la-pencil-alt' aria-hidden='true'></i><span>แก้ไข</span>
+                    </button>
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
@@ -1234,10 +1249,13 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                 <button id='btnUploadDoc${id}' type='button' class='btn btn-primary btn-sm btn-custom' onclick='fnUploadDocConfig("${text}", "${id}", "${nameSides}", "${idQR}")' data-bs-toggle='modal' data-bs-target='#relateDocumentModal' style='display:none;'>
                     <i class='las la-upload' aria-hidden='true'></i><span>อัปโหลด</span>
                 </button>
+                <button id='btnEditFile${id}' type='button' class='btn btn-warning btn-sm btn-custom' onclick='fnEditFileDocConfig("${id}")' style='display:none;'>
+                    <i class='las la-pencil-alt' aria-hidden='true'></i><span>แก้ไข</span>
+                </button>
                 <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                     <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                 </button>
-                <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}")' style='display:none;'>
+                <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
                     <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                 </button>
             </div>
@@ -1327,8 +1345,8 @@ function fnUploadDocConfig (text, id, nameSides, idQR) {
     strHTML += " <label for='formFile' class='lableHead'>ประเภทชั้นความลับของเอกสาร</label> "
     strHTML += " <select id='selectTypeSecret' class='form-select' aria-label='Default select example'> "
     strHTML += " <option value='show' selected>ลับ</option> "
-    strHTML += " <option value='verySecret'>ลับมาก</option> "
-    strHTML += " <option value='mostSecret'>ลับที่สุด</option> "
+    // strHTML += " <option value='verySecret'>ลับมาก</option> "
+    // strHTML += " <option value='mostSecret'>ลับที่สุด</option> "
     strHTML += " </select> "
     strHTML += " </div> "
 
@@ -1406,48 +1424,66 @@ async function fnViewDocConfig(text, id, idQR) {
     }
 }
 
-function fnChangeToFillDocConfig(text, id) {
+function fnChangeToFillDocConfig(text, id, description) {
     document.getElementById(`btnUploadDoc${id}`).style.display = 'none';
     document.getElementById(`btnFillDoc${id}`).style.display = 'none';
     document.getElementById(`comment_${id}`).style.display = 'block';
     document.getElementById(`submitButton${id}`).style.display = 'block';
     document.getElementById(`displayText${id}`).style.display = 'block';
 
+    if (description) {
+        document.getElementById(`comment_${id}`).value = description
+    }
+
     fnAddEventListeners(id) // Add event
 }
 
+function fnEditFileDocConfig (id) {
+    document.getElementById(`btnUploadDoc${id}`).style.display = 'block';
+    document.getElementById(`btnFillDoc${id}`).style.display = 'block';
+    document.getElementById(`btnEditFile${id}`).style.display = 'none'; // ซ่อนตัวมัน
+    document.getElementById(`btnViewDoc${id}`).style.display = 'none'; // ซ่อนตัวมัน
+    document.getElementById(`comment_${id}`).style.display = 'none';
+    document.getElementById(`submitButton${id}`).style.display = 'none';
+    document.getElementById(`displayText${id}`).style.display = 'none';
+} 
+
 function fnSaveDataUploadDocument(id, idQR) {
-    var selectInput = $("#selectTypeSecret").val()
-    let checkbox = ''
-    var displayText = ''
-    var editIcon = ''
-    if (selectInput == 'verySecret') {
-        $('#relateDocumentModal').modal('hide');
+    // แก้ อัปเดตวันที่ 2/11/67
+    // var selectInput = $("#selectTypeSecret").val()
+    // let checkbox = ''
+    // var displayText = ''
+    // var editIcon = ''
+    // if (selectInput == 'verySecret') {
+    //     $('#relateDocumentModal').modal('hide');
 
-        checkbox = $('#checkbox' + id);
-        displayText = $('#displayText' + id);
-        editIcon = $('#editIcon' + id);
-        displayText.css('display', 'block');
-        editIcon.css('display', 'block');
-        displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับมาก');
+    //     checkbox = $('#checkbox' + id);
+    //     displayText = $('#displayText' + id);
+    //     editIcon = $('#editIcon' + id);
+    //     displayText.css('display', 'block');
+    //     editIcon.css('display', 'block');
+    //     displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับมาก');
         
-        $('#btnUploadDoc'+ id).hide();
-        $('#btnFillDoc'+ id).hide();
+    //     $('#btnUploadDoc'+ id).hide();
+    //     $('#btnFillDoc'+ id).hide();
         
-    } else if (selectInput == 'mostSecret') {
-        $('#relateDocumentModal').modal('hide');
+    // } else if (selectInput == 'mostSecret') {
+    //     $('#relateDocumentModal').modal('hide');
 
-        checkbox = $('#checkbox' + id);
-        displayText = $('#displayText' + id);
-        editIcon = $('#editIcon' + id);
-        displayText.css('display', 'block');
-        editIcon.css('display', 'block');
-        displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับที่สุด');
+    //     checkbox = $('#checkbox' + id);
+    //     displayText = $('#displayText' + id);
+    //     editIcon = $('#editIcon' + id);
+    //     displayText.css('display', 'block');
+    //     editIcon.css('display', 'block');
+    //     displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับที่สุด');
         
-        $('#btnUploadDoc'+ id).hide();
-        $('#btnFillDoc'+ id).hide();
-    } else { // กรณีที่มีไฟล์แนบ
-        $('#relateDocumentModal').modal('hide');
+    //     $('#btnUploadDoc'+ id).hide();
+    //     $('#btnFillDoc'+ id).hide();
+    // } else { // กรณีที่มีไฟล์แนบ
+
+    // }
+
+    $('#relateDocumentModal').modal('hide');
         Swal.fire({
             title: "",
             text: "คุณต้องการบันทึกข้อมูลใช่หรือไม่?",
@@ -1467,8 +1503,13 @@ function fnSaveDataUploadDocument(id, idQR) {
                             text: "บันทึกข้อมูลสำเร็จ",
                             icon: "success"
                         });
+                        // แก้ 
+                        $('#btnUploadDoc' + id).hide();
+                        $('#btnEditFile' + id).show();
                         $('#btnViewDoc' + id).show();
                         $('#btnFillDoc' + id).hide();
+
+                        $("#btnViewDoc" + id).attr("title", resSQL.fileName || "");
                     } else {
                         Swal.fire({
                             title: "",
@@ -1482,7 +1523,6 @@ function fnSaveDataUploadDocument(id, idQR) {
                 }
             }
         });
-    }
 }
 
 function fnSetFileDocPDF(idQR) {
@@ -1515,7 +1555,7 @@ function fnSetFileDocPDF(idQR) {
                     }
                 });
                 inputFile.value = ""; // ล้าง input file หลังอัพโหลดเสร็จ
-                const res = response.data;
+                const res = { ...response.data, fileName: fileName }; 
                 if (res) {
                     resolve(res);
                 }
@@ -2678,23 +2718,48 @@ function fnSubmitTextSum(val, event) {
 
 /* ฟังก์ชันสำหรับการแก้ไขข้อความ */
 function fnEditText(id) {
-    const textarea = document.getElementById('comment_' + id);
-    const button = document.getElementById('submitButton' + id);
-    const editIcon = document.getElementById('editIcon' + id);
+    const btnTextarea = document.getElementById('comment_' + id);
+    const btnSubmit = document.getElementById('submitButton' + id);
+    const btnEditIcon = document.getElementById('editIcon' + id);
 
-    if (button) {
-        fnAddEventListeners(id)
+    const btnUpload = document.getElementById('btnUploadDoc' + id);
+    const btnFillDoc = document.getElementById('btnFillDoc' + id);
+
+    const checkedHaveData =  document.getElementById('haveData_' + id);
+
+    const displayText = document.getElementById('displayText' + id)
+
+    if (checkedHaveData) {
+        if (checkedHaveData.checked) {
+            /* แสดง ปุ่มอัปโหลด และ ปุ่มกรอกข้อมูล */
+            btnUpload.style.display = 'inline';
+            btnFillDoc.style.display = 'inline';
+
+            /* ซ่อนไอคอนแก้ไข และ text */
+            btnEditIcon.style.display = 'none';
+            displayText.style.display = 'none';
+        } else {
+            /* แสดง btnTextarea และปุ่ม */
+            btnTextarea.style.display = 'inline';
+            btnSubmit.style.display = 'inline';
+
+            /* ซ่อนไอคอนแก้ไข */
+            btnEditIcon.style.display = 'none';
+
+            /* เติมข้อความที่จะแก้ไขใน btnTextarea */
+            btnTextarea.value = displayText.innerText.trim();
+        }
+    } else {
+        /* แสดง btnTextarea และปุ่ม */
+        btnTextarea.style.display = 'inline';
+        btnSubmit.style.display = 'inline';
+
+        /* ซ่อนไอคอนแก้ไข */
+        btnEditIcon.style.display = 'none';
+
+        /* เติมข้อความที่จะแก้ไขใน btnTextarea */
+        btnTextarea.value = displayText.innerText.trim();
     }
-
-    /* แสดง textarea และปุ่ม */
-    textarea.style.display = 'inline';
-    button.style.display = 'inline';
-
-    /* ซ่อนไอคอนแก้ไข */
-    editIcon.style.display = 'none';
-
-    /* เติมข้อความที่จะแก้ไขใน textarea */
-    textarea.value = document.getElementById('displayText' + id).innerText.trim();
 }
 
 function fnEditTextSum(val) {
