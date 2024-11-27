@@ -1,31 +1,42 @@
-var arr =[
-  {"userId":"13",
-  "userDocId":376,"sideId":2,"username":"Iconiao","idQR":"441","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"442","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"443","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"444","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"445","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"446","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"447","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"448","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"449","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"450","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"451","checkbox":"y","descResultQR":"-","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"452","checkbox":"na","descResultQR":"ไม่มีเรื่องที่เกี่ยวกับคำถาม เนื่องจาก หน.สายวิทยาการ     เป็นหน่วยดำเนินการ","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"453","checkbox":"na","descResultQR":"ไม่มีเรื่องที่เกี่ยวกับคำถาม เนื่องจาก หน.สายวิทยาการ     เป็นหน่วยดำเนินการ","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"454","checkbox":"na","descResultQR":"ไม่มีเรื่องที่เกี่ยวกับคำถาม เนื่องจาก หน.สายวิทยาการ     เป็นหน่วยดำเนินการ","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"455","checkbox":"na","descResultQR":"ไม่มีเรื่องที่เกี่ยวกับคำถาม เนื่องจาก หน.สายวิทยาการ     เป็นหน่วยดำเนินการ","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"456","checkbox":"na","descResultQR":"ไม่มีเรื่องที่เกี่ยวกับคำถาม เนื่องจาก หน.สายวิทยาการ     เป็นหน่วยดำเนินการ","type":"mainQR"}
-,{"userId":"13","userDocId":376,"sideId":2,"username":"Iconiao","idQR":"","checkbox":"na","descResultQR":"ไม่มีเรื่องที่เกี่ยวกับคำถาม เนื่องจาก หน.สายวิทยาการ     เป็นหน่วยดำเนินการ","type":"mainQR"}
-,
-{
-  "userId":"13",
-"userDocId":376,
-"sideId":2,
-"username":"Iconiao",
-"idEndQR":"",
-"head_id":"1",
-"radio":"1",
-"descResultEndQR":"",
-"type":"mainEndQR"
-}]
+const a = [
+  {"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"161","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"162","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"163","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"164","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"165","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"166","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"167","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"168","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"169","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"170","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"171","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"172","checkbox":"na","descResultQR":"-","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"173","checkbox":"na","descResultQR":"-","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"174","checkbox":"na","descResultQR":"-","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"175","checkbox":"na","descResultQR":"-","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"176","checkbox":"na","descResultQR":"-","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"","checkbox":"na","descResultQR":"-","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"177","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"178","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"179","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"180","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"181","checkbox":"n","descResultQR":"กำลังพลบางส่วนไม่เข้ารับการตรวจสอบสุขภาพประจำปีตามห้วงเวลาที่กำหนด","headName":"การบริหารจัดการ","objName":"เพื่อให้กระบวนงานต่าง ๆ ในการบริหารจัดการด้านกำลังพลเป็นไปอย่างเป็นระบบมีขั้นตอนมีประสิทธิภาพ สอดรับกับแนวทางและนโยบาย ทร.รวมทั้งมีความถูกต้องตามกฎ ระเบียบคำสั่งและหลักเกณฑ์ที่กำหนด","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"182","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"183","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"184","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"185","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"186","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"187","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"188","checkbox":"n","descResultQR":"มีการอบรมสาขาและตำแหน่ง","headName":"การศึกษาและฝึกอบรม","objName":"เพื่อให้กระบวนงานต่าง ๆในกิจกรรมการศึกษาและฝึกอบรมเป็นไปตามขั้นตอนสอดคล้องกับระเบียบ ข้อปังคับ หลักเกณฑ์ที่กำหนดและทันต่อเวลาซึ่งจะทำให้การผลิตและการพัฒนากำลังพลเป็นไปอย่างมีประสิทธิภาพ บังเกิดผลสัมฤทธิ์ต่อการปฏิบัติภารกิจของหน่วยงานและไปอย่างต่อเนื่อง","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"189","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"190","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"191","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"192","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"193","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"194","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"195","checkbox":"na","descResultQR":"-","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"196","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"197","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"198","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idQR":"199","checkbox":"y","descResultQR":"","type":"mainQR"}
+,{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idEndQR":"","head_id":"1","radio":"0","descResultEndQR":"ทดสอบบปรับปรุงง","type":"mainEndQR"},{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idEndQR":"","head_id":"2","radio":"0","descResultEndQR":"ทดสอบการปรับปรุง2","type":"mainEndQR"},{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idEndQR":"","head_id":"3","radio":"1","descResultEndQR":"","type":"mainEndQR"},{"userId":"6","userDocId":138,"sideId":2,"username":"Iconodi","idConQR":"","descConQR":"ทดสอบสรุปปปปป","type":"conQR"}]

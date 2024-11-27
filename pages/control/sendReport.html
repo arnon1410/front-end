@@ -88,7 +88,7 @@
       <div class="avatar-info">
         <div class="avatar-text" style="text-align: center;">
           <h6 id='textName'></h6>
-          <small>28-04-67</small>
+          <small id="dateCurrent"></small>
         </div>
         <!-- <span class="las la-angle-double-right"></span> -->
       </div>
@@ -157,9 +157,30 @@
     $(document).ready(async function() {
         var valUserRole = fnGetCookie("userRole") || ''; 
         var valUserName = fnGetCookie("username");
+        var valUserId = fnGetCookie("userId") || '';
+        var avatar = $("img[alt='avatar']");
+        var imageUrl;
 
-        fnSetSidebarMenuConTrol('sendReport', valUserName)
-        fnGetDataInternalControl(valUserRole, valUserName)
+        if (window.location.hostname === "localhost") { // กรณีใช้งาน Local
+          imageUrl = `../../images/logo-${valUserId}.png`;
+        } else { // กรณีใช้งานบน Server
+          imageUrl = `/images/logo-${valUserId}.png`;
+        }
+
+        if (imageUrl) {
+            avatar.attr("src", imageUrl);
+        }
+
+        var today = new Date();
+        var day = today.getDate().toString().padStart(2, '0'); // แปลงวันที่เป็นรูปแบบ 2 หลัก
+        var month = (today.getMonth() + 1).toString().padStart(2, '0'); // เดือน + 1 (0-11) และแปลงเป็น 2 หลัก
+        var year = today.getFullYear() + 543; // แปลงปี ค.ศ. เป็นปี พ.ศ.
+
+        var formattedDate = `${day} / ${month} / ${year}`; // แสดงเฉพาะ 2 หลักสุดท้ายของปี
+        $("#dateCurrent").text(formattedDate);
+
+        fnSetSidebarMenuConTrol('sendReport', valUserName, valUserRole)
+        fnGetDataInternalControl(valUserRole, valUserName, valUserId)
  
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);
@@ -191,8 +212,7 @@
 
 
 
-    function fnGetDataInternalControl(valUserRole, valUserName) {
-      var valUserId = fnGetCookie("userId") || '';
+    function fnGetDataInternalControl(valUserRole, valUserName, valUserId) {
       var valUnitId = ''
       if (valUserName == 'AdIconigd' || valUserName == 'AdIconiao') {
         valUnitId = valUserId

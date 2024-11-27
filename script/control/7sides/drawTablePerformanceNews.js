@@ -201,9 +201,11 @@ async function fnDrawTablePerformance(objData, strUserId, idSideFix) { /* ด้
         strHTML += "</td>"
 
         // improvement
-        strHTML += "<td class='align-top' style=''> "
-        strHTML += fnCreateTextAreaAndButton('ImprovementControl' + data[i].id, data[i].improvementControl)
-        strHTML += "</td>"
+        // แก้วันที่ 24/11/2024 (แก้ตามหัวหน้าเสก)
+        // strHTML += "<td class='align-top' style=''> "
+        // strHTML += fnCreateTextAreaAndButton('ImprovementControl' + data[i].id, data[i].improvementControl)
+        // strHTML += "</td>"
+        strHTML += "<td id='improvementControl" + data[i].id + "'  class='text-left align-top' style='text-indent: 17px; white-space: pre-wrap;'>" + (data[i].improvementControl ? (data[i].improvementControl) : '-') + "</td>"
     
         strHTML += "</tr>"
     }
@@ -709,7 +711,7 @@ function fnOpenModalAndSetRankRisk(index) {
         inputChanceRisk = fnConvertToArabicNumerals($('#spanChanceRisk' + index).text()) || ''
         inputEffectRisk = fnConvertToArabicNumerals($('#spanEffectRisk' + index).text()) || ''
         if (inputChanceRisk && inputEffectRisk) {
-            fnDrawTableMatrix(inputChanceRisk, inputEffectRisk, index)
+            fnDrawTableMatrix(inputEffectRisk, inputChanceRisk, index)
             $('#MatrixRankModal').modal('show');  
         } else {
             if (!inputChanceRisk) {
@@ -1077,9 +1079,10 @@ function fnSaveDraftDocument(data , strUserId, strSideId, strUserDocId, event)  
         strDisplayTextAC = $('#displayTextActivityControl' + formItem.id).text();
         strDisplayTextIM = $('#displayTextImprovementControl' + formItem.id).text();
         activityControl = formItem.activityControl === null ? '' : formItem.activityControl;
-        improvementControl = formItem.improvementControl === null ? '' : formItem.improvementControl;
+        // improvementControl = formItem.improvementControl === null ? '' : formItem.improvementControl;
     
-        if ((activityControl !== strDisplayTextAC ) || (improvementControl !== strDisplayTextIM)) { // หาข้อมูลที่มีการแก้ไข
+        // if ((activityControl !== strDisplayTextAC ) || (improvementControl !== strDisplayTextIM)) { // หาข้อมูลที่มีการแก้ไข
+        if (activityControl !== strDisplayTextAC ) {
             dataSend.push({
                 idPFM: formItem.id,
                 idQR: strIdQR,
@@ -1087,8 +1090,8 @@ function fnSaveDraftDocument(data , strUserId, strSideId, strUserDocId, event)  
                 userDocId: strUserDocId,
                 sideId: strSideId,  // ตรวจสอบว่ามีการประกาศ strSideId หรือไม่
                 username: strUserName,
-                activityControl: strDisplayTextAC,
-                improvementControl: strDisplayTextIM
+                activityControl: strDisplayTextAC
+                // ,improvementControl: strDisplayTextIM
             });
         }
     });
@@ -1103,14 +1106,14 @@ function fnSaveDraftDocument(data , strUserId, strSideId, strUserDocId, event)  
             return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
         }
 
-        if (!dataSend[0].improvementControl) {
-            Swal.fire({
-                title: "",
-                text: "กรุณากรอกการปรับปรุงการควบคุมภายใน",
-                icon: "warning"
-            });
-            return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
-        }
+        // if (!dataSend[0].improvementControl) {
+        //     Swal.fire({
+        //         title: "",
+        //         text: "กรุณากรอกการปรับปรุงการควบคุมภายใน",
+        //         icon: "warning"
+        //     });
+        //     return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
+        // }
         Swal.fire({
             title: "",
             text: "คุณต้องการบันทึกข้อมูลแบบประเมินใช่หรือไม่?",
@@ -1306,15 +1309,7 @@ function fnDrawModalAssessor(strPrefixAsessor, strPosition, strDateAsessor) {
         todayHighlight: true,
         minViewMode: 2,
         maxViewMode: 2,
-    }).on('changeDate', function (e) {
-        var date = e.date;
-        // แปลงปี ค.ศ. เป็น พ.ศ.
-        var yearBuddhist = date.getFullYear() + 543;
-        $(this).datepicker('update', new Date(yearBuddhist, date.getMonth(), date.getDate()));
     });
-    
-    // ปรับการแสดงผลเป็น พ.ศ. ในปฏิทิน
-    $('.datepicker-year').datepicker('setDate', new Date(new Date().getFullYear() + 543, new Date().getMonth(), new Date().getDate()));
 
     $('#submitAssessorButton').on('click', fnSubmitAssessor);
 }

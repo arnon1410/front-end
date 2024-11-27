@@ -1,24 +1,98 @@
-function fnSetSidebarMenuConTrol(namePages){
-    var strHTML = ''
+function fnSetSidebarMenuConTrol(namePages, username, authen) {
+    var strHTML = '';
     var menuItemsMain = [
         { page: 'dashboard', text: 'Dashboard', icon: 'las la-chart-pie' },
-        { page: 'collation', text: 'การสอบทาน', icon: 'las la-award' },
-        { page: 'sendReport', text: 'การจัดส่งรายงาน', icon: 'las la-paper-plane' }
+        { page: 'collation', text: 'การสอบทาน', icon: 'las la-award' }
     ];
-    var menuItemsForm = [
-        // { page: 'Appointment', text: 'คำสั่งแต่งตั้งคณะทำงาน', icon: 'las la-file' },
-        { page: 'branchPersonal', text: 'ด้านกำลังพล', icon: 'las la-user' },
-        { page: 'branchOperation', text: 'ด้านการยุทธการ', icon: 'las la-share-alt' },
-        { page: 'branchNews', text: 'ด้านการข่าว', icon: 'las la-newspaper' },
-        { page: 'branchLogistics', text: 'ด้านส่งกำลังบำรุง', icon: 'las la-box-open' },
-        { page: 'branchCommunication', text: 'ด้านสื่อสาร', icon: 'las la-satellite-dish' },
-        { page: 'branchTechnology', text: 'ด้านระบบเทคโนโลยี', icon: 'las la-globe-americas' },
-        { page: 'branchCivilAffairs', text: 'ด้านกิจการพลเรือน', icon: 'las la-user-check' },
-        { page: 'branchBudget', text: 'ด้านการงบประมาณ', icon: 'las la-balance-scale' },
-        { page: 'branchFinanceAndAcc', text: 'ด้านการเงินและการบัญชี', icon: 'las la-coins' },
-        { page: 'branchPercelsAndProPerty', text: 'ด้านพัสดุและทรัพย์สิน', icon: 'las la-cubes' },
-        { page: 'reportAssessment', text: 'รายงานการประเมินผล', icon: 'lar la-chart-bar' }
-    ];
+
+    if (username === 'AdIconigd' || username === 'AdIconiao' || username === 'AdIcoonci') { // เฉพาะ จร, สตน, สปช 
+        menuItemsMain.push({ page: 'sendReport', text: 'การจัดส่งรายงาน', icon: 'las la-paper-plane' });
+    }
+
+    var menuItemsForm;
+    if (authen === 'admin') { // Admin ทั้งสองกลุ่ม
+        if (username === 'AdIcoonci' || username === 'admin') { // สปช กับ admin
+            menuItemsForm = [
+                { page: 'branchPersonal', text: 'ด้านกำลังพล', icon: 'las la-user' },
+                { page: 'branchOperation', text: 'ด้านการยุทธการ', icon: 'las la-share-alt' },
+                { page: 'branchNews', text: 'ด้านการข่าว', icon: 'las la-newspaper' },
+                { page: 'branchLogistics', text: 'ด้านส่งกำลังบำรุง', icon: 'las la-box-open' },
+                { page: 'branchCommunication', text: 'ด้านสื่อสาร', icon: 'las la-satellite-dish' },
+                { page: 'branchTechnology', text: 'ด้านระบบเทคโนโลยี', icon: 'las la-globe-americas' },
+                { page: 'branchCivilAffairs', text: 'ด้านกิจการพลเรือน', icon: 'las la-user-check' },
+                { page: 'branchBudget', text: 'ด้านการงบประมาณ', icon: 'las la-balance-scale' },
+                { page: 'branchFinanceAndAcc', text: 'ด้านการเงินและการบัญชี', icon: 'las la-coins' },
+                { page: 'branchPercelsAndProPerty', text: 'ด้านพัสดุและทรัพย์สิน', icon: 'las la-cubes' },
+                { page: 'reportAssessment', text: 'รายงานการประเมินผล', icon: 'lar la-chart-bar' }
+            ];
+        } else if (username === 'AdIconigd') { // จร.ทร
+            menuItemsForm = [
+                { page: 'branchPersonal', text: 'ด้านกำลังพล', icon: 'las la-user' },
+                { page: 'branchOperation', text: 'ด้านการยุทธการ', icon: 'las la-share-alt' },
+                { page: 'branchNews', text: 'ด้านการข่าว', icon: 'las la-newspaper' },
+                { page: 'branchLogistics', text: 'ด้านส่งกำลังบำรุง', icon: 'las la-box-open' },
+                { page: 'branchCommunication', text: 'ด้านสื่อสาร', icon: 'las la-satellite-dish' },
+                { page: 'branchTechnology', text: 'ด้านระบบเทคโนโลยี', icon: 'las la-globe-americas' },
+                { page: 'branchCivilAffairs', text: 'ด้านกิจการพลเรือน', icon: 'las la-user-check' },
+                { page: 'reportAssessment', text: 'รายงานการประเมินผล', icon: 'lar la-chart-bar' }
+            ];
+        } else if (username === 'AdIconddi') { // สตน.ทร
+            menuItemsForm = [
+                { page: 'branchBudget', text: 'ด้านการงบประมาณ', icon: 'las la-balance-scale' },
+                { page: 'branchFinanceAndAcc', text: 'ด้านการเงินและการบัญชี', icon: 'las la-coins' },
+                { page: 'branchPercelsAndProPerty', text: 'ด้านพัสดุและทรัพย์สิน', icon: 'las la-cubes' },
+                { page: 'reportAssessment', text: 'รายงานการประเมินผล', icon: 'lar la-chart-bar' }
+            ];
+        } else if (username === 'AdIconddi') { // ด้านกำลังพล
+            menuItemsForm = [
+                { page: 'branchPersonal', text: 'ด้านกำลังพล', icon: 'las la-user' }
+            ];
+        } else if (username === 'XXXXX') { // ด้านการยุทธการ
+            menuItemsForm = [
+                { page: 'branchOperation', text: 'ด้านการยุทธการ', icon: 'las la-share-alt' }
+            ];
+        } else if (username === 'AdIconidi') { // ด้านการข่าว
+            menuItemsForm = [
+                { page: 'branchNews', text: 'ด้านการข่าว', icon: 'las la-newspaper' }
+            ];
+        } else if (username === 'AdIconldi') { // ด้านการส่งกำลังบำรุง
+            menuItemsForm = [
+                { page: 'branchLogistics', text: 'ด้านส่งกำลังบำรุง', icon: 'las la-box-open' },
+                { page: 'branchPercelsAndProPerty', text: 'ด้านพัสดุและทรัพย์สิน', icon: 'las la-cubes' }
+            ];
+        } else if (username === 'AdIconcit') { // ด้านสื่อสารและเทคโนโลยีสารสนเทศ
+            menuItemsForm = [
+                { page: 'branchCommunication', text: 'ด้านสื่อสาร', icon: 'las la-satellite-dish' },
+                { page: 'branchTechnology', text: 'ด้านระบบเทคโนโลยี', icon: 'las la-globe-americas' }
+            ];
+        } else if (username === 'AdIconcad') { // ด้านกิจการพลเรือน
+            menuItemsForm = [
+                { page: 'branchCivilAffairs', text: 'ด้านกิจการพลเรือน', icon: 'las la-user-check' }
+            ];
+        } else if (username === 'AdIconfdi') {
+            menuItemsForm = [
+                { page: 'branchFinanceAndAcc', text: 'ด้านการเงินและการบัญชี', icon: 'las la-coins' }
+            ];
+        } else {
+            menuItemsForm = []; // กรณีที่ username ไม่ตรงกับที่กำหนด
+        }
+    } else { // USER ทั้งหมด
+        menuItemsForm = [
+            { page: 'branchPersonal', text: 'ด้านกำลังพล', icon: 'las la-user' },
+            { page: 'branchOperation', text: 'ด้านการยุทธการ', icon: 'las la-share-alt' },
+            { page: 'branchNews', text: 'ด้านการข่าว', icon: 'las la-newspaper' },
+            { page: 'branchLogistics', text: 'ด้านส่งกำลังบำรุง', icon: 'las la-box-open' },
+            { page: 'branchCommunication', text: 'ด้านสื่อสาร', icon: 'las la-satellite-dish' },
+            { page: 'branchTechnology', text: 'ด้านระบบเทคโนโลยี', icon: 'las la-globe-americas' },
+            { page: 'branchCivilAffairs', text: 'ด้านกิจการพลเรือน', icon: 'las la-user-check' },
+            { page: 'branchBudget', text: 'ด้านการงบประมาณ', icon: 'las la-balance-scale' },
+            { page: 'branchFinanceAndAcc', text: 'ด้านการเงินและการบัญชี', icon: 'las la-coins' },
+            { page: 'branchPercelsAndProPerty', text: 'ด้านพัสดุและทรัพย์สิน', icon: 'las la-cubes' },
+            { page: 'reportAssessment', text: 'รายงานการประเมินผล', icon: 'lar la-chart-bar' }
+        ];
+    }
+    
+
     strHTML += " <ul> "
     strHTML += " <li class='headMenuTitle'><span>หน้าหลัก</span></li> "
 

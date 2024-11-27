@@ -64,11 +64,11 @@
       </div>
       <div class="avatar-info">
         <div class="avatar-text" style="text-align: center;">
-        <h6 id='textName'></h6>
-          <small>28-04-67</small>
+            <h6 id="textName">กรมจเรทหารเรือ</h6>
+            <small id="dateCurrent"></small>
         </div>
         <!-- <span class="las la-angle-double-right"></span> -->
-      </div>
+    </div>
     </div>
     <div class="sidebar-menu" id="dvUlSidebarMenu">
       <!-- Content -->
@@ -124,143 +124,19 @@
         <div class="card shadow border-0">
                 <div id="dvHeadSelectAssessment">
                   <div class="table-responsive" id="dvContentTable">
-                    <img src="../../images/dashbord.jpg" alt="Table content" class="img-fluid" width="100%">
+                    <img src="../../images/dashboard.jpg" alt="Table content" class="img-fluid" width="100%">
                   </div>
                 </div>
-                <!-- <div class="table-responsive" id="dvContentTable">
-                  <table id='tb_Form' class='table table-hover table-nowrap' width: 100%;>
-                    <thead class='table-light'>
-                
-                    <tr class='table-dark'>
-                    <td class='text-center textHeadTable' style='font-size: 18px;'>No.</td>
-                    <td class='text-center textHeadTable' style='font-size: 18px;'>ด้านที่ตรวจสอบ</td>
-                    <td class='text-center textHeadTable' style='font-size: 18px;'>สถานะ</td>
-                    <td class='text-center textHeadTable' style='font-size: 18px;'>Action</td>
-                    </tr>
-                
-                    </thead>
-                        <tbody>
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>1</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านกำลังพล</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
-                          <td class="text-center">
-                            <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>2</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการยุทธการ</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
-                          <td class="text-center">
-                            <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>3</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการข่าว</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
-                          <td class="text-center">
-                            <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>4</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านส่งกำลังบำรุง</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
-                          <td class="text-center">
-                            <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>5</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านสื่อสาร</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-incomplete me-1'>เอกสารไม่สมบูรณ์</span></div></td>
-                          <td class="text-center">
-                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>6</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านระบบเทคโนโลยีในการบริหารจัดการ</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-warning me-1'>กำลังดำเนินการ</span></div></td>
-                          <td class="text-center">
-                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>7</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านกิจการพลเรือน</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
-                          <td class="text-center">
-                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>8</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการงบประมาณ</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
-                          <td class="text-center">
-                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>9</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านการเงินและการบัญชี</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-success me-1'>สมบูรณ์ครบถ้วน</span></div></td>
-                          <td class="text-center">
-                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-  
-                        <tr>
-                          <td id='No1' class='text-center align-middle fristTD' style='width: 5%;'>10</td>
-                          <td id='tdUnitName'  class='text-center align-middle' style='width: 55%;white-space: pre-wrap;'>ด้านพัสดุและทรัพย์สิน</td>
-                          <td id='status'  class='text-center align-middle'style='width: 10%; align-middle'><div class='colorCircle'><span class='badge bg-label-notprocess me-1'>ยังไม่ดำเนินการ</span></div></td>
-                          <td class="text-center">
-                              <button id='btnEditDoc1' type='button' class='btn-primary btn-sm' style='margin-right: 5px;'>
-                              <i class='las la-search mr-1' aria-hidden='true' style='margin-right:5px'></i><span>ตรวจสอบ<span>
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                </div> -->
         </div>
     </div>
   </main>
   <main>
     <section>
-      <h3 class="section-head" style="margin-top: 30px;">ความก้าวหน้าการดำเนินการด้านต่าง ๆ</h3>
-      <div class="analytics">
-        <div class="analytic">
+      <div id="titleProgress">
+        <!-- <h3 class="section-head" style="margin-top: 30px;">ความก้าวหน้าการดำเนินการด้านต่าง ๆ</h3> -->
+      </div>
+      <div id= "contentStatusDoc" class="analytics">
+        <!-- <div class="analytic">
           <div class="analytic-icon">
             <span class="las la-users"></span></div>
             <div class="analytic-info">
@@ -289,7 +165,7 @@
             <h4>ยังไม่ดำเนินการ</h4>
             <h1> 1 <small style="font-size: 20px;">ด้าน</small></h1>
           </div>
-        </div>
+        </div> -->
       </div>
     </section>
   </main>
@@ -492,17 +368,45 @@
     </main>
   </main> -->
 </div>
-<script src="../../script/jquery/jquery-3.7.1.js"></script>
-<script src="../../script/bootstarp/js/bootstrap.min.js"></script> 
-<script src="../../script/bootstarp/js/bootstrap.js"></script>
-<script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
+  <script src="../../script/jquery/jquery-3.7.1.js"></script>
+  <script src="../../script/bootstarp/js/bootstrap.min.js"></script> 
+  <script src="../../script/bootstarp/js/bootstrap.js"></script>
+  <script src='../../script/sweetalert2/sweetalert2.all.min.js'></script>
 
-<script src="../../script/centerFile.js"></script>
-<!-- <script src="../../script/control/drawTable.js"></script> -->
-<script src="../../script/control/sidebar.js"></script>
+  <script src="../../script/centerFile.js"></script>
+  <script src="../../script/control/drawTable.js"></script>
+  <script src="../../script/control/sidebar.js"></script>
+
+  <!-- เพิ่ม Axios library -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-    $(document).ready(function() {
-        fnSetSidebarMenuConTrol('dashboard')
+    $(document).ready(async function() {
+        var valUserName = fnGetCookie("username");
+        var valUserId = fnGetCookie("userId") || '';
+        var valUserRole = fnGetCookie("userRole");
+
+        var avatar = $("img[alt='avatar']");
+        var imageUrl;
+
+        if (window.location.hostname === "localhost") { // กรณีใช้งาน Local
+            imageUrl = `../../images/logo-${valUserId}.png`;
+        } else { // กรณีใช้งานบน Server
+            imageUrl = `/images/logo-${valUserId}.png`;
+        }
+
+        if (imageUrl) {
+            avatar.attr("src", imageUrl);
+        }
+
+        var today = new Date();
+        var day = today.getDate().toString().padStart(2, '0'); // แปลงวันที่เป็นรูปแบบ 2 หลัก
+        var month = (today.getMonth() + 1).toString().padStart(2, '0'); // เดือน + 1 (0-11) และแปลงเป็น 2 หลัก
+        var year = today.getFullYear() + 543; // แปลงปี ค.ศ. เป็นปี พ.ศ.
+
+        var formattedDate = `${day} / ${month} / ${year}`; // แสดงเฉพาะ 2 หลักสุดท้ายของปี
+        $("#dateCurrent").text(formattedDate);
+
+        fnSetSidebarMenuConTrol('dashboard', valUserName, valUserRole)
         
         // ดึงค่าจาก URL parameters หรือจาก sessionStorage ถ้ามีการรีเฟรช
         var authen = fnGetParameterByName('authen') || sessionStorage.getItem('authen');
@@ -513,6 +417,8 @@
         }
 
         fnCheckUserAuthen(authen)
+
+        await fnDrawDataStatusDoc(valUserId, valUserName, valUserRole)
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newUrl }, '', newUrl);

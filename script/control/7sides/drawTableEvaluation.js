@@ -109,6 +109,8 @@ async function fnDrawTableAssessmentForm(dataASM, strUserId, idSideFix, nameSide
     let result = [];
     var maintext = fnGetCollectDataEvalution('maintext')
     var subtext = fnGetCollectDataEvalution('subtext')
+    var arrCaseRiskAndImprove =  await fnGetDataResultCaseRiskAndImprove(strUserId, idSideFix)
+     
     var index = 0
     let combinedSubtext = subtext.map(formItem => {
         var items = dataASM[index++];
@@ -156,7 +158,7 @@ async function fnDrawTableAssessmentForm(dataASM, strUserId, idSideFix, nameSide
                 if (result[i].description) {
                     strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>" + result[i].text + "<br>&emsp;&emsp;&emsp;&emsp;" + (result[i].description || '') + "</td><td></td></tr>";
                 } else {
-                    strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + await fnCreateTextAreaAndButton(result[i].id, result[i].idASM, result[i].descResultASM, strUserId, idSideFix, nameSides) + "</td></tr>";
+                    strHTML += "<tr style='width: 50%;'><td style='vertical-align: top;'>&emsp;&emsp;&emsp;&emsp;" + result[i].text + "</td><td>" + await fnCreateTextAreaAndButton(result[i].id, result[i].idASM, result[i].descResultASM, arrCaseRiskAndImprove, nameSides) + "</td></tr>";
                 }
             }
         }
@@ -166,22 +168,13 @@ async function fnDrawTableAssessmentForm(dataASM, strUserId, idSideFix, nameSide
     /* $("#dvTableReportAssessment")[0].innerHTML = strHTML; */
 }
 
-async function fnCreateTextAreaAndButton(idNO, idASM, description, strUserId, idSideFix, nameSides) {
+async function fnCreateTextAreaAndButton(idNO, idASM, description, arrCaseRiskAndImprove, nameSides) {
     var strHTML = ''
-    var arrCaseRisk = ''
-    var arrCaseImprove = ''
     if (idNO === 107 || idNO === 110) { // กรณีข้อ 2.2 กับ 3.1
         if (idNO === 107) {
-            arrCaseRisk =  await fnGetDataResultCaseRisk(strUserId, idSideFix)
-            if (arrCaseRisk) {
-                strHTML += fnGenerateDataCaseRisk(arrCaseRisk, nameSides);
-            }
+            strHTML += fnGenerateDataCaseRisk(arrCaseRiskAndImprove, nameSides);
         } else { // idNO = 110
-            arrCaseImprove = await fnGetDataResultEndQR(strUserId, idSideFix)
-            console.log(arrCaseImprove)
-            if (arrCaseImprove) {
-                strHTML += fnGenerateDataImprove(arrCaseImprove, nameSides);
-            }
+            strHTML += fnGenerateDataImprove(arrCaseRiskAndImprove, nameSides);
         }
     } else {
         if (description) {
@@ -217,7 +210,7 @@ function fnGenerateDataCaseRisk(arrCaseRisk, nameSides) {
     if (arrCaseRisk && arrCaseRisk.length > 0) {
         strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + datafix + "</span>";
         arrCaseRisk.forEach(function(item) {
-            strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>- " + item.OPM_Desc + "</span>";
+            strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>- " + item.risking + "</span>";
         });
     } else {
         strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + dataNofix + "</span>";
@@ -235,9 +228,7 @@ function fnGenerateDataImprove(arrCaseImprove, nameSides) {
     if (arrCaseImprove && arrCaseImprove.length > 0) {
         strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + datafix + "</span>";
         arrCaseImprove.forEach(function(item) {
-            if (item.descResultEndQR) {
-                strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>- " + fnProcessTextASM(item.descResultEndQR) + "</span>";
-            }
+            strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>- " + item.improve + "</span>";
         });
     } else {
         strHTML += "<span class='text-left' style='text-indent: 19px; white-space: pre-wrap;'>" + dataNofix + "</span>";
@@ -1320,14 +1311,14 @@ async function fnGetDataResultConASM(userId, sideId) {
     }
 }
 
-async function fnGetDataResultCaseRisk(userId, sideId) {
+async function fnGetDataResultCaseRiskAndImprove(userId, sideId) {
     var dataSend = {
         userId: userId,
         sideId: sideId
     }
 
     try {
-        const response = await axios.post(apiUrl + '/api/documents/fnGetResultCaseRisk', dataSend)
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultCaseRiskAndImprove', dataSend)
         var res = response.data.result
         if (res.length > 0) {
             return res

@@ -1,15 +1,15 @@
 var globalTest = [] //อาจจะไม่ใช้วิธีนี้ หาวิธีอื่น
 function fnSetHeader(){
     var strHTML = ''
-    strHTML += "<th class='text-center textHeadTable' style='width: 55%;'>คำถาม</th>"
+    strHTML += "<th class='text-center textHeadTable' style='width: 50%;'>คำถาม</th>"
     strHTML += "<th class='text-center textHeadTable' style='width: 8%;'>มี/ใช่</th>";
-    strHTML += "<th class='text-center textHeadTable' style='width: 8%;'>ไม่มี/ไม่ใช่</th>";
-    strHTML += "<th class='text-center textHeadTable' style='width: 29%;'>คำอธิบาย/คำตอบ</th>"
+    strHTML += "<th class='text-center textHeadTable' style='width: 8%;'>ไม่มี/ ไม่ใช่</th>";
+    strHTML += "<th class='text-center textHeadTable' style='width: 34%;'>คำอธิบาย/คำตอบ</th>"
 
     strHTML += "<tr>";
     strHTML += "<td></td>";
-    strHTML += "<td class='text-center tdUnderline' style='width: 8%;' >&#10003;</td>";
-    strHTML += "<td class='text-center tdUnderline' style='width: 8%;' >&#10005; (NA)</td>";
+    strHTML += "<td class='text-center tdUnderline' style='width: 10%;' >&#10003;</td>";
+    strHTML += "<td class='text-center tdUnderline' style='width: 10%;' >&#10005; (NA)</td>";
     strHTML += "<td></td>";
     strHTML += "</tr>";
 
@@ -56,9 +56,9 @@ async function fnDrawTableForm(access, valSides, objData) {
     
     var idSideFix = selectedSide.id; // ใช้ id ของ object ที่เลือก
 
+    strHTML += " <div class='a4-size'> "
     strHTML += " <div class='title'>แบบสอบถามการควบคุม</div> "
     strHTML += " <div class='subtitle'>" + selectedSide.NameSides + "</div> "
-    strHTML += " <div class='a4-size'> "
     strHTML += " <div class='form-container'> "
     strHTML += " <form id='formSaveFormQuestionnaire'> "
     strHTML += " <table id='tb_" + valSides + "'> "
@@ -67,7 +67,7 @@ async function fnDrawTableForm(access, valSides, objData) {
     strHTML += fnSetHeader() 
     strHTML += " </tr> "
     strHTML += " </thead> "
-    strHTML += " <tbody> "
+    strHTML += " <tbody style='border-bottom: 1px solid;'> "
     if (valSides == 'branchoperation' || valSides == 'branchfinanceandacc') { // ถ้าเป็นด้านยุทธการจะเรียก function นี้
         strHTML += await fnDrawTableReportAssessmentFix(data, strUserId, idSideFix, selectedSide.NameSides, valSides)
     } else {
@@ -82,7 +82,7 @@ async function fnDrawTableForm(access, valSides, objData) {
     strHTML += " <div class='dvFooterForm'> "
     if (access !== 'admin') {
         strHTML += "    <button type='submit' class='btn btn-primary' id='btnSaveData'>บันทึกฉบับร่าง</button>"
-        strHTML += "    <button type='submit' class='btn btn-success' id='btnPrintData'>พิมพ์ฉบับร่าง</button>"
+        // strHTML += "    <button type='submit' class='btn btn-success' id='btnPrintData'>พิมพ์ฉบับร่าง</button>"
     }
     strHTML += " </div> "
 
@@ -93,7 +93,7 @@ async function fnDrawTableForm(access, valSides, objData) {
     $("#dvFormReport")[0].innerHTML = strHTML
     if (access !== 'admin') {
         fnAddSaveButtonEventListener(data, idSideFix)
-        fnPrintDataButtonEventListener()
+        // fnPrintDataButtonEventListener()
     }
     
 }
@@ -125,6 +125,7 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
     var strHeadId = ''
 
     var strDesc = ''
+    var strDescEnd = ''
     // var strUpload = ''
     
     var strSplit = ''
@@ -163,15 +164,22 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
             
             if (strIdCheckbox === 'haveData') { // กรณีที่ติ้ก มี / ใช่ (ถูก)
                 strDesc = $('#displayText' + strNoInput).text()
-                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idQR: strIdQR, checkbox:'y', descResultQR: strDesc, type:'mainQR'})
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix, username: strUserName, idQR: strIdQR, checkbox:'y', descRiskQR: strDesc, descImproveQR: '', type:'mainQR'})
         
             } else if (strIdCheckbox === 'nothaveData') {  // กรณีที่ติ้ก ไม่มี / ไม่ใช่ (ผิด)
                 strDesc = $('#displayText' + strNoInput).text()
+                strDescEnd = fnGetTextAfterKeyword($('#displayTextCombined' + strNoInput).text() , 'ดังนี้')
                 arrFindQR = data.find(item => item.head_id == strHeadId && item.hasOwnProperty('mainControl_id')); // หา Obj หัวข้อหลัก
                 if (strDesc && arrFindQR) {
+                    if (!strDescEnd || strDescEnd.trim() === '') { // ตรวจสอบกรณี strDescEnd เป็น null หรือว่าง
+                        errorMessage = 'กรุณากรอกแนวทางหรือวิธีการปรับปรุงด้วย กรณีเลือก X'; // เก็บข้อความ error ไว้
+                        validateData = false;
+                        stopLoop = true; // หยุดการวนลูปใน iteration ถัดไป
+                        return false; // หยุด loop
+                    }
                     strHeadQR = arrFindQR.text
                     strObjQR = arrFindQR.objectName
-                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'n', descResultQR: strDesc, headName: strHeadQR, objName: strObjQR, type:'mainQR'})
+                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'n', descRiskQR: strDesc, descImproveQR: strDescEnd, headName: strHeadQR, objName: strObjQR, type:'mainQR'})
                 } else {
                     errorMessage = 'กรุณากรอกคำอธิบาย กรณีเลือก X';  // เก็บข้อความ error ไว้
                     validateData = false;
@@ -182,7 +190,7 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
             } else { // กรณีที่ติ้ก ไม่มี / ไม่ใช่ (NA)
                 strDesc = $('#displayText' + strNoInput).text()
                 if (strDesc) {
-                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'na', descResultQR: strDesc, type:'mainQR'})
+                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strIdQR, checkbox:'na', descRiskQR: strDesc, descImproveQR: '', type:'mainQR'})
                 } else {
                     errorMessage = 'กรุณากรอกคำอธิบาย กรณีเลือก NA';  // เก็บข้อความ error ไว้
                     validateData = false;
@@ -199,9 +207,9 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
     if (checkedEndAT.length > 0 && validateData) {
         // validateData = true
         checkedEndAT.each(function() {
-            if (stopLoop) {
-                return false;  // ออก loop jQuery .each() 
-            }
+            // if (stopLoop) {
+            //     return false;  // ออก loop jQuery .each() 
+            // }
             // strEndNoInput = fnExtractNumbersFromArray($(this).attr('id'))
             strIdRadio = $(this).attr('id').match(/[\d.]+$/)[0];
             strEndSplit = $(this).val().split(',') // value id ที่จะเอาไป update และ Id หัวข้อหลัก
@@ -211,21 +219,22 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
             if (strIdRadio === '1') { // มีการควบคุมเพียงพอ
                 dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '1', descResultEndQR: '', type:'mainEndQR'})
             } else { // กรณีไม่เพียงพอ
-                strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
-                if (strEndNoInput.includes('.')) {
-                    strEndNoInputSplit = strEndNoInput.replace(/\./g, '\\.'); // หนีจุด (replace '.' with '\.')
-                } else {
-                    strEndNoInputSplit = strEndNoInput
-                }
-                strDesc = $('#displayTextSum' + strEndNoInputSplit).text()
-                if (strDesc) {
-                    dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'})
-                } else {
-                    errorMessage = 'กรุณากรอกข้อมูลท้ายคำถาม';  // เก็บข้อความ error ไว้
-                    validateData = false;
-                    stopLoop = true;  // หยุดการวนลูปใน iteration ถัดไป
-                    return false;  // หยุด loop
-                }
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: '', type:'mainEndQR'})
+                // strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
+                // if (strEndNoInput.includes('.')) {
+                //     strEndNoInputSplit = strEndNoInput.replace(/\./g, '\\.'); // หนีจุด (replace '.' with '\.')
+                // } else {
+                //     strEndNoInputSplit = strEndNoInput
+                // }
+                // strDesc = $('#displayTextSum' + strEndNoInputSplit).text()
+                // if (strDesc) {
+                //     dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'})
+                // } else {
+                //     errorMessage = 'กรุณากรอกข้อมูลท้ายคำถาม';  // เก็บข้อความ error ไว้
+                //     validateData = false;
+                //     stopLoop = true;  // หยุดการวนลูปใน iteration ถัดไป
+                //     return false;  // หยุด loop
+                // }
             }
             
         });
@@ -245,7 +254,10 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
         checkedOtherMainAT.each(function() {
             strOtherNoInput = fnExtractNumbersFromArray($(this).attr('id'))
             strDesc = $('#displayText' + strOtherNoInput).text()
-            dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strOtherNoInput, descResultOtherQR: strDesc, type:'subQR'})
+            strDescEnd = fnGetTextAfterKeyword($('#displayTextCombined' + strNoInput).text() , 'ดังนี้')
+            if (strOtherNoInput) {
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idQR: strOtherNoInput, descResultOtherQR: strDesc, type:'subQR'})
+            }
         });
     }
 
@@ -253,12 +265,14 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
         // validateData = true
         checkedOtherEndAT.each(function() {
             strOtherSplit = $(this).val().split(',') // value id ที่จะเอาไป update และ Id หัวข้อหลัก
-            
             strIdOtherQR = strOtherSplit[0]
             strHeadId = strOtherSplit[1]
             strEndNoInput = $(this).attr('id').replace('inputRadioSumOfSide', '') // แปลงจาก displayTextSum1_1 -> 1_1
             strDesc = $('#displayTextSum' + strEndNoInput).text()
-            dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdOtherQR, head_id: strHeadId, radio: '0', descResultEndQR: strDesc, type:'mainEndQR'}) // ใช้ร่วมกับ Main เนื่องจากเก็บที่ table เดียวกัน
+            if (strIdOtherQR) {
+                dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdOtherQR, head_id: strHeadId, radio: '0', descResultEndQR: '', type:'mainEndQR'}) // ใช้ร่วมกับ Main เนื่องจากเก็บที่ table เดียวกัน
+            }
+            //dataSend.push({ userId: strUserId, userDocId: strUserDocId, sideId: idSideFix,  username: strUserName, idEndQR: strIdEndQR, head_id: strHeadId, radio: '0', descResultEndQR: '', type:'mainEndQR'})
 
         });
     }
@@ -318,52 +332,109 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
 }
 
 async function fnPrintDataDraftDocument (event) {
-    window.print()
+    Swal.fire({
+        title: 'ยืนยันการพิมพ์?',
+        text: "ต้องการซ่อนข้อมูลชั่วคราวเพื่อพิมพ์ใช่ไหม?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ซ่อนองค์ประกอบที่ไม่ต้องการให้แสดงใน preview
+            // $('#btnSaveData, #btnPrintData').addClass('hidden-print');
+
+            // เปิดหน้าต่างการ preview print
+            window.print();
+
+            // แสดงองค์ประกอบกลับหลังพิมพ์เสร็จ
+            $('#btnSaveData, #btnPrintData').removeClass('hidden-print');
+        }
+    });
 }
 
-function fnCreateInputRadioAndSpan(text, headId, validate, idEndQR, isradio, description, isdisabled, isOrigin) {
+function fnCreateInputRadioAndSpan(text, headId, validate, idEndQR, isradio, isOrigin) {
     var strHTML = "";
     var isCheckedRadio = isradio ? 'checked' : '';
-    var strOrigin = ''
-    var strValInput = ''
-    var strId = headId + "_" + validate
+    var strOrigin = '';
+    var strId = headId + "_" + validate;
+
+    
     if (isOrigin == 'main') {
-        strOrigin = 'mainEndActivities' +  headId
+        strOrigin = 'mainEndActivities' + headId;
     } else {
-        strOrigin = 'subEndActivities' +  headId
+        strOrigin = 'subEndActivities' + headId;
     }
 
+    // สร้างส่วนที่มี validate == '1'
     if (validate && validate == '1') {
         strHTML += "<div style='display:flex;'>";
-        // strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} ${isdisabled}  disabled/>`;
-        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} disabled/>`;
+        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this)' ${isCheckedRadio} disabled/>`;
         strHTML += "<span>" + text + "</span>";
         strHTML += "</div>";
-    } else { // กรณีไม่เพียงพอ
-        strHTML += "<div style='display:flex;margin-bottom: 10px;'>";
-        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this, "${description}")' ${isCheckedRadio} disabled/>`;
+    } else { // สร้างกรณีไม่เพียงพอ
+        strHTML += "<div style='display:flex;'>";
+        strHTML += `<input type='radio' id='inputRadioSumOfSide${strId}' name='${strOrigin}' style='margin: 5px 10px 0px 0px;' value='${idEndQR},${headId}' onchange='fnToggleTextSum("${strId}", this)' ${isCheckedRadio} disabled/>`;
         strHTML += "<span>" + text + "</span>";
         strHTML += "</div>";
-        if (isradio == '0' && description) { // 
-            strHTML += "<div style='display:flex;'>";
-            strHTML += "<textarea id='commentSum" + strId + "' name='commentSum" + strId + "' rows='2' cols='33' value='' style='display:none;'></textarea>";
-            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='btnSubmitSum" + strId + "' style='display:none;'>ยืนยัน</button>";
-            strHTML += "</div>";
-            strHTML += "<div style='display:flex;'>";
-            strHTML += "<p class='text-left pComment' id='displayTextSum" + strId + "' style='text-indent: 19px; white-space: pre-wrap;'>" + description + "</p>";
-            strHTML += "<i class='las la-pencil-alt' id='editIconSum" + strId + "' style='cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum(\"" + strId + "\", \"" + (description || '') + "\")'></i>";
-            strHTML += "</div>";
-        } else {
-            strHTML += "<div style='display:flex;'>";
-            strHTML += "<textarea id='commentSum" + strId + "' name='commentSum" + strId + "' rows='2' cols='33' value='' style='display:none;'></textarea>";
-            strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='btnSubmitSum" + strId + "' style='display:none;'>ยืนยัน</button>";
-            strHTML += "</div>";
-            strHTML += "<div style='display:flex;'>";
-            strHTML += "<p class='text-left pComment' id='displayTextSum" + strId + "' style='text-indent: 19px; white-space: pre-wrap;'></p>";
-            strHTML += "<i class='las la-pencil-alt' id='editIconSum" + strId + "' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum(\"" + strId + "\", \"" + (description || '') + "\")'></i>";
-            strHTML += "</div>";
-            
-        }
+       
+    }
+
+    // เรียกฟังก์ชัน fnAddEventListenersSum เมื่อ element ถูกสร้างใน DOM
+    // fnObserveElementCreation(`btnSubmitSum${strId}`, () => {
+    //     fnAddEventListenersSum(`${strId}`);
+    // });
+
+    // fnObserveElementCreation(`btnSubmitSum2_${strId}`, () => {
+    //     fnAddEventListenersSum(`2_${strId}`);
+    // });
+
+    // fnObserveElementCreation(`btnSubmitSum3_${strId}`, () => {
+    //     fnAddEventListenersSum(`3_${strId}`);
+    // });
+
+    return strHTML;
+}
+
+function fnCreateTextImprovement(strId, headId, strIdQR, risking, improve) {
+    var strHTML = "";
+    var strFix = "มีแนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้นดังนี้"
+
+    var combinedText = ''
+    if (risking && improve) {
+        combinedText = `${risking || ""} ${strFix} ${improve || ""}`.trim();
+    }
+
+    if (risking && improve) { // แก้ให้เป็น risking และ improvement  คล้าย ๆ ฟังก์ชัน fnCreateTextAreaAndButton
+        strHTML += "<div style='display:flex;'>";
+        strHTML += "<textarea id='commentSum" + strId + "' rows='2' cols='33' value='' style='display:none;'></textarea>";
+        strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='btnSubmitSum" + strId + "' style='display:none;'>ยืนยัน</button>";
+        strHTML += "</div>";
+        strHTML += `
+            <div style='display:flex;'>
+                <p class='text-left pComment' id='displayTextCombined${strId}' 
+                style='text-indent: 23px; ${combinedText ? "" : "display: none;"}'>
+                ${combinedText}
+                </p>
+                <i class='las la-pencil-alt' id='editIconSum${strId}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum("${strId}", "${risking}", "${improve}")'></i>
+            </div>
+        `;
+    } else {
+        strHTML += "<div style='display:flex;'>";
+        strHTML += "<textarea id='commentSum" + strId + "' rows='2' cols='33' value='' style='display:none;'></textarea>";
+        strHTML += "<button class='btn btn-secondary btn-sm' type='submit' id='btnSubmitSum" + strId + "' style='display:none;'>ยืนยัน</button>";
+        strHTML += "</div>";
+        strHTML += `
+            <div style='display:flex;'>
+                <p class='text-left pComment' id='displayTextCombined${strId}' 
+                style='text-indent: 23px; ${combinedText ? "" : "display: none;"}'>
+                ${combinedText}
+                </p>
+                <i class='las la-pencil-alt' id='editIconSum${strId}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum("${strId}", "${risking}")'></i>
+            </div>
+        `;
     }
 
     // เรียกฟังก์ชัน fnAddEventListenersSum เมื่อ element ถูกสร้างใน DOM
@@ -396,8 +467,8 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
     var dataCheckbox = await fnGetDataResultQR(strUserId, idSideFix) // call function 
     var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix) // call function 
     var checkboxIndex = 0;
-    var radioIndex = 0;
-    
+    var checkboxEndIndex = 0;
+    //แก้วันที่ 9/11/67
     var combinedArray = dataControl.map(formItem => {
         if (formItem.ischeckbox === 1 && checkboxIndex < dataCheckbox.length) {
             var checkboxData = dataCheckbox[checkboxIndex++];
@@ -405,15 +476,14 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
                 ...formItem,
                 idQR: checkboxData.id,
                 checkbox: checkboxData.checkbox,
-                descResultQR: checkboxData.descResultQR,
+                descRiskQR: checkboxData.descRiskQR,
+                descImproveQR: checkboxData.descImproveQR,
                 fileName: checkboxData.fileName
             };
         }
-        // แก้ล่าสุด 18/9/67
+    
         if (formItem.sum_id && formItem.head_id && formItem.isradio) {
-            // ใช้การวนลูปเพื่อเช็ค dataRadio ทั้งหมดแทนที่จะใช้ radioIndex
             dataRadio.forEach(radioDataItem => {
-                // ตรวจสอบว่า headID ของ radioDataItem ตรงกับ head_id ของ formItem
                 if (radioDataItem.headID == formItem.head_id) {
                     if (radioDataItem.radio == formItem.value) {
                         // ถ้า radio ตรงกับ value ให้เพิ่มข้อมูลเต็ม
@@ -421,7 +491,6 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
                             ...formItem,
                             idEndQR: radioDataItem.idEndQR,
                             radio: radioDataItem.radio,
-                            descResultEndQR: radioDataItem.descResultEndQR
                         };
                     } else {
                         // ถ้า radio ไม่ตรงกับ value ให้เพิ่มเฉพาะ idEndQR
@@ -433,48 +502,69 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
                 }
             });
         }
+        
+        // การปรับปรุงท้ายคำถาม 
+        if (formItem.risk_id && formItem.head_id && formItem.is_improvement) { 
+            var checkboxEndData = dataCheckbox[checkboxEndIndex++];
+            formItem = {
+                ...formItem,
+                idQR: checkboxEndData.id,
+                risking: checkboxEndData.descRiskQR,
+                improve: checkboxEndData.descImproveQR,
+            };
+        }
 
+    
         return formItem;
     });
     // console.log(combinedArray)
     var item = []  
     for (var i = 0; i < combinedArray .length; i++) {
         item = combinedArray [i];
-        if (item.mainControl_id !== undefined || item.sum_id !== undefined) {
+        if (item.mainControl_id !== undefined || item.sum_id !== undefined || item.risk_id !== undefined) {
             if (item.sum_id && item.value) { // ส่วนสรุป
-                strSumDetail = fnMapValueToCallFunction(item, '', 'main')
+                strSumDetail = fnMapValueToCallFunction(item, 'main')
                 if (item.value == 0) {// ใส่เส้น ล่างตาราง
-                    strHTML += "<tr class='trSidesSum-Line'><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                 } else {
-                    strHTML += "<tr><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                 }
+            } else if (item.is_improvement === 1) {
+                var improvementDetail = fnMapValueToCallFunction2(item, 'main');
+
+                if (item.risking && item.improve) { // ถ้ามีให้แสดง 
+                    strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                } else {
+                    strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                }
+                
             } else { // ส่วนอื่น ๆ วัตถุประสงค์ 
                 if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                    strHTML += "<tr><td style='width: 55%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                 } else { // หัวข้อหลัก 1,2,3,4,5
-                    strHTML += "<tr><td style='width: 55%;;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 50%;;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 }
                 if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                    strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                 }
                 if (item.objectName) { // เพื่อ ......
-                    strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-style: italic;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-style: italic;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                 }
             }
         } else { // หัวข้อย่อยทั้งหมด
             if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
                 if (item.id_subcontrol) {
-                    strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 } else {
-                    strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 }
-            } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
+            } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0  
                 if (item.id_innercontrol) { // 1
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                 } else if (item.id_subcontrol) {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                 } else {
-                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                    strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '17px', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                 }
             }
         }
@@ -483,7 +573,7 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
     return strHTML;
 }
 
-function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, ischeckbox, description, fileName, idQR, nameSides, isHide, isOrigin) {
+function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, ischeckbox, descRiskQR, descImproveQR, fileName, idQR, nameSides, isHide, isOrigin) {
     // Determine which checkbox should be checked
     var strHTML2 = '';
     var haveDataChecked = ischeckbox === 'y' ? 'checked' : '';
@@ -498,18 +588,18 @@ function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, isch
     }
 
     strHTML2 += "<tr>";
-    strHTML2 += "<td style='width: 55%; vertical-align: top; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
+    strHTML2 += "<td style='width: 50%; vertical-align: top; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
     strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
-    strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox "+ isHidden +"' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + haveDataChecked + "/>";
+    strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox " + isHidden + "' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + descRiskQR + "\", \"" +  descImproveQR + "\", \"" + fileName + "\", \"" + headId + "\")' " + haveDataChecked + "/>";
     strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label>";
     strHTML2 += "</td>";
-    strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
-    strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"2\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + nothaveDataChecked + "/>";
+    strHTML2 += "<td style='width: 10%;' class='text-center checkbox-container'>";
+    strHTML2 += "<input type='checkbox' id='nothaveData_" + id + "' class='nothave-checkbox' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"2\", \"" + id + "\", \"" + ischeckbox + "\", \"" + descRiskQR + "\", \"" +  descImproveQR + "\", \"" + fileName + "\", \"" + headId + "\")' " + nothaveDataChecked + "/>";
     strHTML2 += "<label for='nothaveData_" + id + "' id='lablenothaveData_" + id + "' class='hidden' style='width: 4%;'>&#10005;</label>";
-    strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox "+ isHidden +"' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"3\", \"" + id + "\", \"" + ischeckbox + "\", \"" + description + "\", \"" + fileName + "\")' " + notAppDataChecked + "/>";
+    strHTML2 += "<input type='checkbox' id='notAppData_" + id + "' class='notapp-checkbox " + isHidden + "' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"3\", \"" + id + "\", \"" + ischeckbox + "\", \"" + descRiskQR + "\", \"" +  descImproveQR + "\", \"" + fileName + "\", \"" + headId + "\")' " + notAppDataChecked + "/>";
     strHTML2 += "<label for='notAppData_" + id + "' id='lablenotAppData_" + id + "' class='hidden' style='width: 4%;'>NA</label>";
     strHTML2 += "</td>";
-    strHTML2 += "<td style='width: 29%;'>" + fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, nameSides, idQR) + "</td>";
+    strHTML2 += "<td style='width: 34%;'>" + fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, nameSides, idQR) + "</td>";
     strHTML2 += "</tr>";
 
     return strHTML2;
@@ -517,6 +607,18 @@ function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, isch
 
 $(document).on('change', 'input[type="checkbox"]', function() {
     let strCheckboxVal = $(this).val();
+    let strCheckbox = $(this).attr('id')
+    let numberPart = '';
+
+    if (strCheckbox) {
+        numberPart = strCheckbox.match(/\d+/)[0]
+    }
+
+    let strTextName = ''
+    let strBtnSubmitName = ''
+    let strBtnEditName = ''
+    let strDpTextName = ''
+
     let strSplitVal = strCheckboxVal.split(',')[0].trim();
     let strCheckVal = ''
     if (strSplitVal.includes('.')) {
@@ -524,20 +626,35 @@ $(document).on('change', 'input[type="checkbox"]', function() {
     } else {
         strCheckVal = strSplitVal
     }
-
     var checkedMainAT = $('input[name="mainActivities"]:checked').filter(function() {
         return $(this).val().startsWith(`${strSplitVal},`);
     });
 
-    let strTextArea = $(`#commentSum${strCheckVal}_0`)
-    let strButton = $(`#btnSubmitSum${strCheckVal}_0`)
-    let strDisplayText = $(`#displayTextSum${strCheckVal}_0`)
-    let strEditIcon = $(`#editIconSum${strCheckVal}_0`)
-
     let strInputEnough = $(`#inputRadioSumOfSide${strCheckVal}_1`);
     let strInputNotEnough = $(`#inputRadioSumOfSide${strCheckVal}_0`);
 
-    let strDescription = $(`#displayTextSum${strCheckVal}_0`).text()
+    let strSelectorPrefix = $(this).is(':checked') ? '#' : '[name="';
+
+    // ใช้ id เมื่อ checkbox ถูกเช็ค
+    // ใช้ name เมื่อ checkbox ไม่ถูกเช็ค
+    let strTextArea = strSelectorPrefix === '#' ? $(`#commentSum${strCheckVal}_0`) : $(`[name="commentSum${numberPart}"]`);
+    let strButton = strSelectorPrefix === '#' ? $(`#btnSubmitSum${strCheckVal}_0`) : $(`[name="btnSubmitSum${numberPart}"]`);
+    let strDisplayText = strSelectorPrefix === '#' ? $(`#displayTextSum${strCheckVal}_0`) : $(`[name="displayTextSum${numberPart}"]`);
+    let strEditIcon = strSelectorPrefix === '#' ? $(`#editIconSum${strCheckVal}_0`) : $(`[name="editIconSum${numberPart}"]`);
+
+    // let strTextArea2 = strSelectorPrefix === '#' ? $(`#commentSum2_${strCheckVal}_0`) : $(`[name="commentSum2_${numberPart}"]`);
+    // let strButton2 = strSelectorPrefix === '#' ? $(`#btnSubmitSum2_${strCheckVal}_0`) : $(`[name="btnSubmitSum2_${numberPart}"]`);
+    // let strDisplayText2 = strSelectorPrefix === '#' ? $(`#displayTextSum2_${strCheckVal}_0`) : $(`[name="displayTextSum2_${numberPart}"]`);
+    // let strEditIcon2 = strSelectorPrefix === '#' ? $(`#editIconSum2_${strCheckVal}_0`) : $(`[name="editIconSum2_${numberPart}"]`);
+
+    // let strTextArea3 = strSelectorPrefix === '#' ? $(`#commentSum3_${strCheckVal}_0`) : $(`[name="commentSum${numberPart}"]`);
+    // let strButton3 = strSelectorPrefix === '#' ? $(`#btnSubmitSum3_${strCheckVal}_0`) : $(`[name="btnSubmitSum${numberPart}"]`);
+    // let strDisplayText3 = strSelectorPrefix === '#' ? $(`#displayTextSum3_${strCheckVal}_0`) : $(`[name="displayTextSum${numberPart}"]`);
+    // let strEditIcon3 = strSelectorPrefix === '#' ? $(`#editIconSum3_${strCheckVal}_0`) : $(`[name="editIconSum${numberPart}"]`);
+
+    let strDescription = strSelectorPrefix === '#' ? $(`#displayTextSum${strCheckVal}_0`).text() : $(`[name="displayTextSum${numberPart}"]`).text();
+    // let strDescription2 = strSelectorPrefix === '#' ? $(`#displayTextSum2_${strCheckVal}_0`).text() : $(`[name="displayTextSum${numberPart}"]`).text();
+    // let strDescription3 = strSelectorPrefix === '#' ? $(`#displayTextSum3_${strCheckVal}_0`).text() : $(`[name="displayTextSum${numberPart}"]`).text();
 
     // นับจำนวน have-checkbox
     var haveCheckboxCount = checkedMainAT.filter('.have-checkbox').length;
@@ -558,11 +675,115 @@ $(document).on('change', 'input[type="checkbox"]', function() {
         nothave: nothaveCheckboxCount > 0,
         notapp: notAppCheckboxCount > 0
     };
+
+    const checkboxLength = {
+        have: haveCheckboxCount,
+        nothave: nothaveCheckboxCount,
+        notapp: notAppCheckboxCount
+    };
+
+    // if (!checkboxStates.nothave) {
+    //     strTextArea2.hide();       // ซ่อน textarea2
+    //     strButton2.hide();         // ซ่อน button2
+    //     strDisplayText2.hide();    // ซ่อนข้อความแสดงผล 3
+    // }
+
+    // ตรวจสอบว่า checkboxStates.nothave == 2 หรือไม่
+    // if (checkboxLength.nothave == 2) {
+    //      if (strDescription2 && strDescription2.trim() !== '') {
+    //         strTextArea2.hide();       // แสดง textarea2
+    //         strButton2.hide();         // แสดง button2
+    //         strEditIcon2.show();
+    //     } else {
+    //         strTextArea2.show();       // แสดง textarea2
+    //         strButton2.show();         // แสดง button2
+    //         strEditIcon2.hide();    // ซ่อน ไอคอนการแก้ไข2
+    //     }
+    //     strDisplayText2.show();        // ซ่อนข้อความแสดงผล
+
+    //     // เพิ่มการ add name ให้ input และ buntton
+    //     strTextName = 'commentSum' + numberPart
+    //     strBtnSubmitName = 'btnSubmitSum' + numberPart
+    //     strBtnEditName = 'editIconSum' + numberPart
+    //     strDpTextName = 'displayTextCombined' + numberPart
+    //     strTextArea2.attr('name', strTextName);
+    //     strButton2.attr('name', strBtnSubmitName);
+    //     strEditIcon2.attr('name', strBtnEditName);
+    //     strDisplayText2.attr('name', strDpTextName);
+    // }
+    // สมมติว่าคุณมีตัวแปร `isChecked` สำหรับตรวจสอบว่า checkbox2 ถูกเลือกหรือไม่
+    // if (checkboxLength.nothave == 1) {
+    //     // ซ่อนเมื่อไม่มี nothave-checkbox ใดๆ ถูกเลือก
+    //     strTextArea2.hide();
+    //     strButton2.hide();
+    //     strEditIcon2.hide();
+    //     strDisplayText2.hide();
+    // }
+    // ตรวจสอบว่า checkboxStates.nothave == 3 หรือไม่
+    // if (checkboxLength.nothave == 3) {
+    //     if (strDescription3 && strDescription3.trim() !== '') {
+    //         strTextArea3.hide();       // แสดง textarea3
+    //         strButton3.hide();         // แสดง button3
+    //         strDisplayText3.show();    // แสดงข้อความแสดงผล3
+    //         strEditIcon3.show();
+    //     } else {
+    //         strTextArea3.show();       // แสดง textarea3
+    //         strButton3.show();         // แสดง button3
+    //         strDisplayText3.hide();       // ซ่อน ข้อความแสดงผล3
+    //         strEditIcon3.hide();    // ซ่อน ไอคอนการแก้ไข3
+    //     }
+    //     strDisplayText3.show();        // ซ่อนข้อความแสดงผล
+
+    //     // เพิ่มการ add name ให้ input และ buntton
+    //     strTextName = 'commentSum' + numberPart
+    //     strBtnSubmitName = 'btnSubmitSum' + numberPart
+    //     strBtnEditName = 'editIconSum' + numberPart
+    //     strDpTextName = 'displayTextCombined' + numberPart
+    //     strTextArea3.attr('name', strTextName);
+    //     strButton3.attr('name', strBtnSubmitName);
+    //     strEditIcon3.attr('name', strBtnEditName);
+    //     strDisplayText3.attr('name', strDpTextName);
+    // }
+    // if (checkboxLength.nothave == 2) {
+    //     // ซ่อนเมื่อไม่มี nothave-checkbox ใดๆ ถูกเลือก
+    //     strTextArea3.hide();
+    //     strButton3.hide();
+    //     strEditIcon3.hide();
+    //     strDisplayText3.hide();
+    // }
+
+    if (checkboxLength.nothave > 3) {
+        Swal.fire({
+            title: "",
+            text: "ไม่สามารถเพิ่มความเสี่ยงในแต่ละหัวข้อได้เกิน 3 ข้อ ",
+            icon: "error",
+            confirmButtonText: "ตกลง"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $(this).prop('checked', false);
+                return;
+            }
+        });
+    }
+
+    // if (checkboxLength.nothave == 1) {
+    //     // เพิ่มการ add name ให้ input และ buntton
+    //     strTextName = 'commentSum' + numberPart
+    //     strBtnSubmitName = 'btnSubmitSum' + numberPart
+    //     strBtnEditName = 'editIconSum' + numberPart
+    //     strDpTextName = 'displayTextCombined' + numberPart
+    //     strTextArea.attr('name', strTextName);
+    //     strButton.attr('name', strBtnSubmitName);
+    //     strEditIcon.attr('name', strBtnEditName);
+    //     strDisplayText.attr('name', strDpTextName);
+    // }
+
+
     
     // ใช้ key เพื่อลดการเขียน if หลายครั้ง
     switch (true) {
         case checkboxStates.have && checkboxStates.nothave && checkboxStates.notapp:
-            console.log("มีทั้ง have-checkbox, nothave-checkbox และ notapp-checkbox");
+            // console.log("มีทั้ง have-checkbox, nothave-checkbox และ notapp-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
             if (strDescription && strDescription.trim() !== '') {
@@ -578,7 +799,7 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             break;
     
         case checkboxStates.have && checkboxStates.nothave && !checkboxStates.notapp:
-            console.log("มี have-checkbox และ nothave-checkbox แต่ไม่มี notapp-checkbox");
+            // console.log("มี have-checkbox และ nothave-checkbox แต่ไม่มี notapp-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
             if (strDescription && strDescription.trim() !== '') {
@@ -594,7 +815,7 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             break;
     
         case checkboxStates.have && !checkboxStates.nothave && checkboxStates.notapp:
-            console.log("มี have-checkbox และ notapp-checkbox แต่ไม่มี nothave-checkbox");
+            // console.log("มี have-checkbox และ notapp-checkbox แต่ไม่มี nothave-checkbox");
             strInputEnough.prop('checked', true);
             strInputNotEnough.prop('checked', false);
             strTextArea.hide();           // แสดง textarea
@@ -604,7 +825,7 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             break;
     
         case !checkboxStates.have && checkboxStates.nothave && checkboxStates.notapp:
-            console.log("มี nothave-checkbox และ notapp-checkbox แต่ไม่มี have-checkbox");
+            // console.log("มี nothave-checkbox และ notapp-checkbox แต่ไม่มี have-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
             if (strDescription && strDescription.trim() !== '') {
@@ -620,7 +841,7 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             break;
     
         case checkboxStates.have && !checkboxStates.nothave && !checkboxStates.notapp:
-            console.log("มีเฉพาะ have-checkbox");
+            // console.log("มีเฉพาะ have-checkbox");
             console.log(strInputEnough)
             strInputEnough.prop('checked', true);
             strInputNotEnough.prop('checked', false);
@@ -631,7 +852,7 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             break;
     
         case !checkboxStates.have && checkboxStates.nothave && !checkboxStates.notapp:
-            console.log("มีเฉพาะ nothave-checkbox");
+            // console.log("มีเฉพาะ nothave-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', true);
             if (strDescription && strDescription.trim() !== '') {
@@ -647,7 +868,7 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             break;
     
         case !checkboxStates.have && !checkboxStates.nothave && checkboxStates.notapp:
-            console.log("มีเฉพาะ notapp-checkbox");
+            // console.log("มีเฉพาะ notapp-checkbox");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', false);
             strTextArea.hide();           // แสดง textarea
@@ -657,7 +878,7 @@ $(document).on('change', 'input[type="checkbox"]', function() {
             break;
     
         default:
-            console.log("ไม่มี checkbox ใด ๆ ถูกเลือก");
+            // console.log("ไม่มี checkbox ใด ๆ ถูกเลือก");
             strInputEnough.prop('checked', false);
             strInputNotEnough.prop('checked', false);
             strTextArea.hide();           // แสดง textarea
@@ -674,7 +895,7 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
     var dataCheckbox = await fnGetDataResultQR(strUserId, idSideFix) // call function 
     var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix) // call function 
     var checkboxIndex = 0;
-    var radioIndex = 0;
+    var checkboxEndIndex = 0;
     
     var combinedArray = dataControl.map(formItem => {
         if (formItem.ischeckbox === 1 && checkboxIndex < dataCheckbox.length) {
@@ -683,21 +904,53 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                 ...formItem,
                 idQR: checkboxData.id,
                 checkbox: checkboxData.checkbox,
-                descResultQR: checkboxData.descResultQR,
+                descRiskQR: checkboxData.descRiskQR,
+                descImproveQR: checkboxData.descImproveQR,
                 fileName: checkboxData.fileName
             };
         }
-        if (formItem.sum_id && formItem.head_id && formItem.isradio && radioIndex < dataRadio.length) {
-            var radioData = dataRadio[radioIndex];
-            if (radioData.radio == formItem.value && radioData.headID == formItem.head_id) {
-                formItem = {
-                    ...formItem,
-                    idEndQR: radioData.idEndQR,
-                    radio: radioData.radio,
-                    descResultEndQR: radioData.descResultEndQR
-                };
-                radioIndex++; // เพิ่ม radioIndex เฉพาะเมื่อข้อมูลตรงเงื่อนไข
-            }
+        // if (formItem.sum_id && formItem.head_id && formItem.isradio && radioIndex < dataRadio.length) {
+        //     var radioData = dataRadio[radioIndex];
+        //     if (radioData.radio == formItem.value && radioData.headID == formItem.head_id) {
+        //         formItem = {
+        //             ...formItem,
+        //             idEndQR: radioData.idEndQR,
+        //             radio: radioData.radio,
+        //             descResultEndQR: radioData.descResultEndQR
+        //         };
+        //         radioIndex++; // เพิ่ม radioIndex เฉพาะเมื่อข้อมูลตรงเงื่อนไข
+        //     }
+        // }
+        if (formItem.sum_id && formItem.head_id && formItem.isradio) {
+            dataRadio.forEach(radioDataItem => {
+                if (radioDataItem.headID == formItem.head_id) {
+                    if (radioDataItem.radio == formItem.value) {
+                        // ถ้า radio ตรงกับ value ให้เพิ่มข้อมูลเต็ม
+                        formItem = {
+                            ...formItem,
+                            idEndQR: radioDataItem.idEndQR,
+                            radio: radioDataItem.radio,
+                        };
+                    } else {
+                        // ถ้า radio ไม่ตรงกับ value ให้เพิ่มเฉพาะ idEndQR
+                        formItem = {
+                            ...formItem,
+                            idEndQR: radioDataItem.idEndQR
+                        };
+                    }
+                }
+            });
+        }
+
+        // การปรับปรุงท้ายคำถาม 
+        if (formItem.risk_id && formItem.head_id && formItem.is_improvement) {
+            var checkboxEndData = dataCheckbox[checkboxEndIndex++];
+            formItem = {
+                ...formItem,
+                idQR: checkboxEndData.id,
+                risking: checkboxEndData.descRiskQR,
+                improve: checkboxEndData.descImproveQR,
+            };
         }
 
         return formItem; 
@@ -722,7 +975,7 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
     function fnAddMainHeadingIfNeeded(currentMainControlId) {
         var mainHeading = mainHeadings.find(heading => heading.id === currentMainControlId);
         if (mainHeading) {
-            strHTML += `<tr><td style='width: 55%; font-weight: bold;'>${fnConvertToThaiNumeralsAndPoint(mainHeading.id)}. ${mainHeading.text}</td><td></td><td></td><td></td></tr>`;
+            strHTML += `<tr><td style='width: 50%; font-weight: bold;'>${fnConvertToThaiNumeralsAndPoint(mainHeading.id)}. ${mainHeading.text}</td><td></td><td></td><td></td></tr>`;
             mainHeadings = mainHeadings.filter(heading => heading.id !== currentMainControlId);
         }
     }
@@ -740,43 +993,51 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                     fnAddMainHeadingIfNeeded(currentMainControlId);
                 }
 
-                if (item.mainControl_id !== undefined || item.sum_id !== undefined) {
+                if (item.mainControl_id !== undefined || item.sum_id !== undefined || item.risk_id !== undefined) {
                     if (item.sum_id && item.value) { // ส่วนสรุป
-                        strSumDetail = fnMapValueToCallFunction(item, '', 'main')
+                        strSumDetail = fnMapValueToCallFunction(item, 'main')
                         if (item.value == 0) {// ใส่เส้น ล่างตาราง
-                            strHTML += "<tr class='trSidesSum-Line'><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr class='trSidesSum-Line'><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                         } else {
-                            strHTML += "<tr><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                        }
+                    } else if (item.is_improvement === 1) {
+                        var improvementDetail = fnMapValueToCallFunction2(item, 'main');
+        
+                        if (item.risking && item.improve) { // ถ้ามีให้แสดง 
+                            strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                        } else {
+                            strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                         }
                     } else { // ส่วนอื่น ๆ วัตถุประสงค์ 
                         if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                            strHTML += "<tr><td style='width: 55%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                         } else { // หัวข้อหลัก 1,2,3,4,5
     
-                            strHTML += "<tr><td style='width: 55%;;font-weight: bold;text-indent: 5%;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;;font-weight: bold;text-indent: 5%;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                            strHTML += "<tr><td style='width: 55%;font-weight: bold;text-indent: 12%;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;font-weight: bold;text-indent: 12%;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.objectName) { // เพื่อ ......
-                            strHTML += "<tr><td style='width: 55%;font-style: italic;text-indent: 12%;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;font-style: italic;text-indent: 12%;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                         }
                     }
                 } else { // หัวข้อย่อยทั้งหมด
                     if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
                         if (item.id_subcontrol) { // ด้านการยุทธการ
-                            strHTML += "<tr><td style='width: 55%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         } else {
-                            strHTML += "<tr><td style='width: 55%;text-indent: 12%;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;text-indent: 12%;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         }
                  
                     } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
                         if (item.id_innercontrol) { // 1
-                                strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                                strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                         } else if (item.id_subcontrol) {
-                                strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                                strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                         } else {
-                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                         }
                     }
                 }
@@ -808,41 +1069,49 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                     strSubText = 'font-weight: bold;text-indent: 12%;'
                 }
 
-                if (item.mainControl_id !== undefined || item.sum_id !== undefined) {
+                if (item.mainControl_id !== undefined || item.sum_id !== undefined || item.risk_id !== undefined) {
                     if (item.sum_id && item.value) { // ส่วนสรุป
-                        strSumDetail = fnMapValueToCallFunction(item, '', 'main')
+                        strSumDetail = fnMapValueToCallFunction(item, 'main')
                         if (item.value == 0) {// ใส่เส้น ล่างตาราง
-                            strHTML += "<tr class='trSidesSum-Line'><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr class='trSidesSum-Line'><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                         } else {
-                            strHTML += "<tr><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                        }
+                    } else if (item.is_improvement === 1) {
+                        var improvementDetail = fnMapValueToCallFunction2(item, 'main');
+        
+                        if (item.risking && item.improve) { // ถ้ามีให้แสดง 
+                            strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                        } else {
+                            strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                         }
                     } else { // ส่วนอื่น ๆ วัตถุประสงค์ 
                         if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                            strHTML += "<tr><td style='width: 55%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                         } else { // หัวข้อหลัก 1,2,3,4,5
-                            strHTML += "<tr><td style='width: 55%;font-weight: bold;padding-top:5px;text-indent:"+ strTextMain +"'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;font-weight: bold;padding-top:5px;text-indent:"+ strTextMain +"'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                            strHTML += "<tr><td style='width: 55%;font-weight: bold;text-indent: "+ strTextObj +"'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;font-weight: bold;text-indent: "+ strTextObj +"'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.objectName) { // เพื่อ ......
-                            strHTML += "<tr><td style='width: 55%;font-style: italic;text-indent: "+ strTextObjName +"'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='width: 50%;font-style: italic;text-indent: "+ strTextObjName +"'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                         }
                     }
                 } else { // หัวข้อย่อยทั้งหมด
                     if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
                             if (item.id_subcontrol) {
-                                strHTML += "<tr><td style='width: 55%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                                strHTML += "<tr><td style='width: 50%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                             } else {
-                                strHTML += "<tr><td style='width: 55%; " + strSubText + "'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                                strHTML += "<tr><td style='width: 50%; " + strSubText + "'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                             }
                     } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
                         if (item.id_innercontrol) { // 1
-                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                         } else if (item.id_subcontrol) {
-                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                         } else {
-                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR  ? item.descResultQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
+                            strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '17px', item.checkbox ? item.checkbox : '', item.descRiskQR  ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName  ? item.fileName : '', item.idQR  ? item.idQR : '', nameSides, '', 'main');
                         }
                     }
                 }
@@ -859,6 +1128,7 @@ async function fnDrawTableReportAssessmentOther(strSides, arrSides, strUserId, i
     var strHTML = "" ;
     var arrSide = arrSides
     var radioIndex = 0;
+    var checkboxEndIndex = 0;
     // var arrObject = []
     var dataSQL = await fnGetDataResultOtherQR(strUserId, idSideFix)
     var index = arrSide.findIndex(item => item.key === strSides);
@@ -872,72 +1142,97 @@ async function fnDrawTableReportAssessmentOther(strSides, arrSides, strUserId, i
         nameSides = arrSide[arrSide.length - 1].NameSides;
     }
 
+    // input เก็บ idQR (Other)
+    // strHTML += "  <input type='hidden' id='inputOtherQR' name='inputOtherQR' value=''> "
     if (dataSQL && dataSQL.length > 0) {
         // if (1 == 0) {
-        var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix, dataSQL[0].id)
-        dataSQL.forEach(function(item) {
-            item.head_id = strHeadId // เพิ่ม head_id 
-        });
+        var dataRadio = await fnGetDataResultEndQR(strUserId, idSideFix, dataSQL[0].id);
 
-        var combinedArray = dataSQL.map(formItem => {
+        // เพิ่ม head_id ให้ dataSQL
+        dataSQL.forEach(function (item) {
+            item.head_id = strHeadId;
+        });
+        
+        // สร้าง combinedArray
+        var combinedArray = dataSQL.map((formItem) => {
+            // ตรวจสอบและเพิ่มข้อมูล radio
             if (formItem.sum_id && radioIndex < dataRadio.length) {
                 var radioData = dataRadio[radioIndex];
-                if ((radioData.radio == formItem.value) && radioData.headID ) {
-                    return {
+                if (radioData.radio === formItem.value && radioData.headID) {
+                    formItem = {
                         ...formItem,
                         idEndQR: radioData.idEndQR,
                         radio: radioData.radio,
-                        descResultEndQR: radioData.descResultEndQR
+                        descResultEndQR: radioData.descResultEndQR,
                     };
-                } else {
-                    return formItem;
+                    radioIndex++; // อัปเดต index เพื่อเลี่ยงข้อมูลซ้ำ
                 }
-            } else {
-                return formItem;
             }
+
+            // ตรวจสอบและเพิ่มข้อมูล improvement
+            // if (formItem.risk_id && formItem.head_id && formItem.is_improvement) { 
+            //     var checkboxEndData = dataSQL[checkboxEndIndex];
+            //     console.log(dataSQL)
+            //     formItem = {
+            //         ...formItem,
+            //         idQR: checkboxEndData.id,
+            //         risking: checkboxEndData.descRiskQR,
+            //         improve: checkboxEndData.descImproveQR,
+            //     };
+            //     checkboxEndData++; // อัปเดต index เพื่อเลี่ยงข้อมูลซ้ำ
+            // }
+        
+            return formItem;
         });
        
-    // console.log(combinedArray)
         var items = []
         for (var i = 0; i < combinedArray .length; i++) {
             items = combinedArray [i];
-            if (items.mainControl_id !== undefined || items.sum_id !== undefined) {
+            if (items.mainControl_id !== undefined || items.sum_id !== undefined || items.risk_id !== undefined) {
                 if (items.sum_id && items.value) { // ส่วนสรุป
-                    strSumDetail = fnMapValueToCallFunction(items, 'disabled', 'sub') // fix disabled เนื่องจากเป็นกรณีที่ checkbox
+                    strSumDetail = fnMapValueToCallFunction(items, 'sub') // fix disabled เนื่องจากเป็นกรณีที่ checkbox
                     if (items.value == 0) {// ใส่เส้น ล่างตาราง
-                        strHTML += "<tr class='trSidesSum-Line'><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                        strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                     } else {
-                        strHTML += "<tr><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                        strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    }
+                } else if (items.is_improvement === 1) {
+                    var improvementDetail = fnMapValueToCallFunction2(items, 'main');
+    
+                    if (items.risking && items.improve) { // ถ้ามีให้แสดง 
+                        strHTML += " <tr id='trSumText" + items.risk_id + "'><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    } else {
+                        strHTML += " <tr id='trSumText" + items.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                     }
                 } else { // ส่วนอื่น ๆ วัตถุประสงค์
                     if (items.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                        strHTML += "<tr><td style='width: 55%;font-weight: bold;'><u>สรุป</u> : " + items.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + items.text + "</td><td></td><td></td><td></td></tr>";
                     } else { // หัวข้อหลัก 1,2,3,4,5
-                        strHTML += "<tr><td style='width: 55%;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + '. อื่น ๆ ' + items.text + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (items.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                        strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-weight: bold;'>" + items.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + items.main_Obj + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (items.objectName) { // เพื่อ ......
-                        strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-style: italic;'>" + items.objectName + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-style: italic;'>" + items.objectName + "</td><td></td><td></td><td></td></tr>";
                     }
                 }
             } else { // หัวข้อย่อยทั้งหมด
                 if ((items.is_subcontrol && items.is_subcontrol == 1) || (items.is_innercontrol && items.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
-                    strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
                 } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ items.is_innercontrol == 0
                     if (items.id_innercontrol) { // 1
-                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_innercontrol, items.text, items.id, items.head_id, '26%', items.checkbox ? items.checkbox : '', items.descResultQR  ? items.descResultQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
+                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_innercontrol, items.text, items.id, items.head_id, '26%', items.checkbox ? items.checkbox : '', items.descRiskQR  ? items.descRiskQR : '', items.descImproveQR  ? items.descImproveQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
                     } else if (items.id_subcontrol) {
-                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_subcontrol, items.text, items.id, items.head_id, '12%', items.checkbox ? items.checkbox : '', items.descResultQR  ? items.descResultQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
+                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_subcontrol, items.text, items.id, items.head_id, '12%', items.checkbox ? items.checkbox : '', items.descRiskQR  ? items.descRiskQR : '', items.descImproveQR  ? items.descImproveQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
                     } else {
-                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_control, items.text, items.id, items.head_id, '17px', items.checkbox ? items.checkbox : '', items.descResultQR  ? items.descResultQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
+                        strHTML += fnCreateCheckboxAndTextAreaRow(items.id_control, items.text, items.id, items.head_id, '17px', items.checkbox ? items.checkbox : '', items.descRiskQR  ? items.descRiskQR : '', items.descImproveQR  ? items.descImproveQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
                     }
                 }
             }
         }
     } else {
-        strHTML += "    <tr id='trSidesOther'><td class='tdSidesOther' style='width: 55%;font-weight: bold;padding-top: 5px;'>"
+        strHTML += "    <tr id='trSidesOther'><td class='tdSidesOther' style='width: 50%;font-weight: bold;padding-top: 5px;'>"
         strHTML += "    <div> "+ fnConvertToThaiNumeralsAndPoint(strHeadId) +". อื่น ๆ "
         strHTML += "    <button id='btn_SidesOther' type='button' class='btn btn-success btn-sm' onclick='fnGetModalSidesOther(\"" + strSides + "\",\"" + strHeadId + "\",\"" + nameSides + "\",\"" + strUserId + "\",\"" + idSideFix + "\",\"" + valSides + "\")' style='margin-left : 5px;'  data-bs-toggle='modal' data-bs-target='#OtherRiskModal'>"
         strHTML += "    <i class='las la-plus mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>เพิ่มความเสี่ยงอื่นที่พบ</span>"
@@ -1078,20 +1373,43 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
     return strHTML;
 }
 
-function fnMapValueToCallFunction(items, isdisabled, isOrigin) {
+function fnMapValueToCallFunction(items, isOrigin) {
     // ตรวจสอบว่า items เป็น object หรือ array
     if (Array.isArray(items)) {
         // ฟังก์ชันในการกรองและอัปเดตข้อมูลถ้าเป็น array
         items = items.map(item => {
             if (item.sum_id !== null && item.sum_id !== undefined) {
-                item.text = fnCreateInputRadioAndSpan(item.text, item.head_id, item.value, (items.idEndQR ? items.idEndQR: ''), (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''), (isdisabled ? isdisabled: ''), (isOrigin ? isOrigin: ''));
+                
+                item.text = fnCreateInputRadioAndSpan(
+                    item.text,
+                    item.head_id,
+                    item.value,
+                    (item.idEndQR ? item.idEndQR : ''),
+                    (item.radio ? item.radio : ''),
+                    (isOrigin ? isOrigin : ''),
+                    // (item.idEndQR2 ? item.idEndQR2 : ''),
+                    // (item.descResultEndQR2 ? item.descResultEndQR2 : ''),
+                    // (item.idEndQR3 ? item.idEndQR3 : ''),
+                    // (item.descResultEndQR3 ? item.descResultEndQR3 : '')
+                );
             }
             return item;
         });
     } else if (items && typeof items === 'object') {
         // ฟังก์ชันในการอัปเดตข้อมูลถ้าเป็น object
         if (items.sum_id !== null && items.sum_id !== undefined) {
-            items.text = fnCreateInputRadioAndSpan(items.text, items.head_id, items.value, (items.idEndQR ? items.idEndQR: ''), (items.radio ? items.radio: ''), (items.descResultEndQR ? items.descResultEndQR: ''), (isdisabled ? isdisabled: ''), (isOrigin ? isOrigin: ''));
+            items.text = fnCreateInputRadioAndSpan(
+                items.text,
+                items.head_id,
+                items.value,
+                (items.idEndQR ? items.idEndQR : ''),
+                (items.radio ? items.radio : ''),
+                (isOrigin ? isOrigin : ''),
+                // (items.idEndQR2 ? items.idEndQR2 : ''),
+                // (items.descResultEndQR2 ? items.descResultEndQR2 : ''),
+                // (items.idEndQR3 ? items.idEndQR3 : ''),
+                // (items.descResultEndQR3 ? items.descResultEndQR3 : '')
+            );
         }
         return items;
     } else {
@@ -1099,14 +1417,48 @@ function fnMapValueToCallFunction(items, isdisabled, isOrigin) {
     }
 }
 
-function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, nameSides, idQR) {
+function fnMapValueToCallFunction2(items, isOrigin) {
+    // ตรวจสอบว่า items เป็น object หรือ array
+    if (Array.isArray(items)) {
+        // ฟังก์ชันในการกรองและอัปเดตข้อมูลถ้าเป็น array
+        items = items.map(item => {
+            if (item.risk_id !== null && item.risk_id !== undefined) {
+                console.log(item)
+                item.text = fnCreateTextImprovement(
+                    item.risk_id,
+                    item.head_id,
+                    (item.idQR ? item.idQR : ''),
+                    (item.risking ? item.risking : ''),
+                    (item.improve ? item.improve : ''),
+                );
+            }
+            return item;
+        });
+    } else if (items && typeof items === 'object') {
+        // ฟังก์ชันในการอัปเดตข้อมูลถ้าเป็น object
+        if (items.risk_id !== null && items.risk_id !== undefined) {
+            items.text = fnCreateTextImprovement(
+                items.risk_id,
+                items.head_id,
+                (items.idQR ? items.idQR : ''),
+                (items.risking ? items.risking : ''),
+                (items.improve ? items.improve : ''),
+            );
+        }
+        return items;
+    } else {
+        console.error("The provided items is neither an array nor a valid object");
+    }
+}
+
+function fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, nameSides, idQR) {
     var strHTML = ''
     if (ischeckbox == 'y') {
         if (fileName) { // ถ้ามีไฟล์แนบมา 
             strHTML += `
                 <div style='display:flex; align-items: center;'>
-                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
-                    <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1'  style='display:none;width: 100%;'></textarea>
+                    <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none;'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
                     <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'></p>
@@ -1122,19 +1474,19 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' title='${fileName}'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${descRiskQR}")' style='display:none;width: max-content;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
             `;
-        } else if (description) { // ถ้ามีการกรอกคำอธิบายมา 
+        } else if (descRiskQR) { // ถ้ามีการกรอกคำอธิบายมา 
             strHTML += `
                 <div style='display:flex; align-items: center;'>
-                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1'  style='display:none;width: 100%;'></textarea>
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1147,7 +1499,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${descRiskQR}")' style='display:none;width: max-content;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
@@ -1156,11 +1508,11 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
         } else { // แสดงปุ่มอัปโหลด กับ กรอกข้อมูล
             strHTML += `
                 <div style='display:flex; align-items: center;'>
-                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1'  style='display:none;width: 100%;'></textarea>
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1173,21 +1525,21 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${descRiskQR}")' style='width: max-content;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
             `;
         }
     } else if (ischeckbox == 'n' || ischeckbox == 'na') {
-        if (description) { // ถ้า description ไม่ใช่ค่าว่าง
+        if (descRiskQR) { // ถ้า descRiskQR ไม่ใช่ค่าว่าง
             strHTML += `
                 <div style='display:flex; align-items: center;'>
-                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1'  style='display:none;width: 100%;'></textarea>
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1200,7 +1552,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${descRiskQR}")' style='display:none;width: max-content;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
@@ -1208,11 +1560,11 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
         } else {  // แสดง Textarea และ ปุ่มยืนยืน
             strHTML += `
                 <div style='display:flex; align-items: center;'>
-                    <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15'></textarea>
+                    <textarea id='comment_${id}' name='comment_${id}' rows='1' style='width: 100%;'></textarea>
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1225,24 +1577,20 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                     <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                         <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                     </button>
-                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
+                    <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${descRiskQR}")' style='display:none;width: max-content;'>
                         <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                     </button>
                 </div>
         `;
-        // เรียกฟังก์ชัน fnAddEventListenersSum เมื่อ element ถูกสร้างใน DOM
-            fnObserveElementCreation(`submitButton${id}`, () => {
-                fnAddEventListeners(`${id}`);
-            });
         }
     }  else { // ถ้า ischeckbox เป็นค่า NULL 
         strHTML += `
             <div style='display:flex; align-items: center;'>
-                <textarea id='comment_${id}' name='comment_${id}' rows='1' cols='15' style='display:none'></textarea>
+                <textarea id='comment_${id}' name='comment_${id}' rows='1'  style='display:none;width: 100%;'></textarea>
                 <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
             </div>
             <div style='display:flex; align-items: center;'>
-                <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${description ? description : ''}</p>
+                <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                 <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
             </div>
             <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1255,7 +1603,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
                 <button id='btnViewDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnViewDocConfig("${text}", "${id}", "${idQR}")' style='display:none;'>
                     <i class='las la-search' aria-hidden='true'></i><span>ดูเอกสาร</span>
                 </button>
-                <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${description}")' style='display:none;'>
+                <button id='btnFillDoc${id}' type='button' class='btn btn-success btn-sm btn-custom2' onclick='fnChangeToFillDocConfig("${text}", "${id}", "${descRiskQR}")' style='display:none;width: max-content;'>
                     <i class='las la-pen' aria-hidden='true'></i><span>กรอกข้อมูล</span>
                 </button>
             </div>
@@ -1263,19 +1611,14 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, description, fileName, 
     }
     
     return strHTML;
-
-
 }
 
-function fnAddEventListeners(id) {
-    const buttons = document.querySelectorAll("[id^='submitButton']");
-    buttons.forEach(button => {
-        button.addEventListener('click', function(event) {
-            const id = button.id.replace('submitButton', '');
-            fnSubmitText(id, event);
-        });
-    });
-}
+document.addEventListener('click', function(event) {
+    if (event.target && event.target.matches('button[id^="submitButton"]')) {
+        const id = event.target.id.replace('submitButton', '');
+        fnSubmitText(id, event);
+    }
+});
 
 function fnAddSaveButtonEventListener(data, idSideFix) {
     const saveButton = document.getElementById('btnSaveData');
@@ -1424,18 +1767,17 @@ async function fnViewDocConfig(text, id, idQR) {
     }
 }
 
-function fnChangeToFillDocConfig(text, id, description) {
+function fnChangeToFillDocConfig(text, id, descRiskQR) {
     document.getElementById(`btnUploadDoc${id}`).style.display = 'none';
     document.getElementById(`btnFillDoc${id}`).style.display = 'none';
     document.getElementById(`comment_${id}`).style.display = 'block';
     document.getElementById(`submitButton${id}`).style.display = 'block';
     document.getElementById(`displayText${id}`).style.display = 'block';
 
-    if (description) {
-        document.getElementById(`comment_${id}`).value = description
+    if (descRiskQR) {
+        document.getElementById(`comment_${id}`).value = descRiskQR
     }
 
-    fnAddEventListeners(id) // Add event
 }
 
 function fnEditFileDocConfig (id) {
@@ -1456,31 +1798,25 @@ function fnSaveDataUploadDocument(id, idQR) {
     // var editIcon = ''
     // if (selectInput == 'verySecret') {
     //     $('#relateDocumentModal').modal('hide');
-
     //     checkbox = $('#checkbox' + id);
     //     displayText = $('#displayText' + id);
     //     editIcon = $('#editIcon' + id);
     //     displayText.css('display', 'block');
     //     editIcon.css('display', 'block');
-    //     displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับมาก');
-        
+    //     displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับมาก');   
     //     $('#btnUploadDoc'+ id).hide();
     //     $('#btnFillDoc'+ id).hide();
-        
     // } else if (selectInput == 'mostSecret') {
     //     $('#relateDocumentModal').modal('hide');
-
     //     checkbox = $('#checkbox' + id);
     //     displayText = $('#displayText' + id);
     //     editIcon = $('#editIcon' + id);
     //     displayText.css('display', 'block');
     //     editIcon.css('display', 'block');
-    //     displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับที่สุด');
-        
+    //     displayText.html('ไม่มีไฟล์แนบ เนื่องจากเป็นเอกสารลับที่สุด');  
     //     $('#btnUploadDoc'+ id).hide();
     //     $('#btnFillDoc'+ id).hide();
     // } else { // กรณีที่มีไฟล์แนบ
-
     // }
 
     $('#relateDocumentModal').modal('hide');
@@ -1589,27 +1925,15 @@ function fnGetModalSidesOther (sides, number, nameSides, strUserId, idSideFix, v
         strHTML += " </div> "
 
         strHTML += " <div class='form-group'> "
-        strHTML += " <label for='nameActivity' class='lableHead label-required'>รายการกิจกรรม 1</label> "
+        strHTML += " <label for='nameActivity' class='lableHead label-required'>รายการกิจกรรม</label> "
         strHTML += " <input type='text' id='nameActivity' class='form-control' value=''> "
-        strHTML += " <div id='nameActivityError' class='error'>กรุณาใส่รายการกิจกรรม 1</div> "
+        strHTML += " <div id='nameActivityError' class='error'>กรุณาใส่รายการกิจกรรม</div> "
         strHTML += " </div> "
 
         strHTML += " <div class='form-group'> "
         strHTML += " <label for='description' class='lableHead label-required'>คำอธิบาย/คำตอบ</label> "
         strHTML += " <textarea class='form-control' id='description'></textarea> "
         strHTML += " <div id='descriptionError' class='error'>กรุณาใส่คำอธิบาย/คำตอบ</div> "
-        strHTML += " </div> "
-
-        strHTML += " <div class='form-group' class='lableHead'> "
-        strHTML += " <label for='nameActivity2' class='lableHead'>รายการกิจกรรม (2)</label> "
-        strHTML += " <input type='text' id='nameActivity2' class='form-control' value=''> "
-        strHTML += " <div id='nameActivity2Error' class='error'>กรุณาใส่รายการกิจกรรม (2)</div> "
-        strHTML += " </div> "
-
-        strHTML += " <div class='form-group' class='lableHead'> "
-        strHTML += " <label for='description2' class='lableHead'>คำอธิบาย/คำตอบ (2)</label> "
-        strHTML += " <input type='text' id='description2' class='form-control' value=''> "
-        strHTML += " <div id='description2Error' class='error'>กรุณาใส่คำอธิบาย/คำตอบ</div> "
         strHTML += " </div> "
 
         strHTML += " <div class='form-group'> "
@@ -2218,83 +2542,96 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
         var objective = $('#nameObjective').val();
         var activityName1 = $('#nameActivity').val();
         var description1 = $('#description').val();
-        var activityName2 = $('#nameActivity2').val();
-        var description2 = $('#description2').val();
         var improvement = $('#improvement').val();
+
+        // var activityName2 = $('#nameActivity2').val();
+        // var description2 = $('#description2').val();
+        // var improvement2 = $('#improvement2').val();
+        
+        // var strIdControlSub = ''
+        // var strTextSub = ''
+        // var strDescSub = ''
 
         var strResultDocSQL= await fnGetDataResultDoc(strUserId, idSideFix)
         var strUserDocId = (strResultDocSQL && strResultDocSQL.length > 0) ? strResultDocSQL[0].id : '';
         var strUserName = fnGetCookie("username")
     
-        var strIdControlSub = ''
-        var strTextSub = ''
-        var strDescSub = ''
     
         var newId = new Date().getTime();
     
         let strHTML = '';
     
         var arrNew = [
-            { id: newId, id_control: number + '.', head_id: number, mainControl_id: number, text: "อื่น ๆ " + activityTitle, main_Obj: "วัตถุประสงค์ของการควบคุม", objectName: objective },
-            { id: newId, id_control: number + '.1', head_id: number, text: activityName1, is_subcontrol: 0 , ischeckbox:1, checkbox: 'n', descResultQR : description1},
+            { id_control: number + '.', head_id: number, mainControl_id: number, text: "อื่น ๆ " + activityTitle, main_Obj: "วัตถุประสงค์ของการควบคุม", objectName: objective },
+            { id_control: number + '.1', head_id: number, text: activityName1, is_subcontrol: 0 , ischeckbox:1, checkbox: 'n', descRiskQR : description1},
         ];
     
-        if (activityName2) {
-            strIdControlSub = number + '.2'
-            strTextSub = activityName2
-            strDescSub = description2
-            arrNew.push({ id: newId, id_control: strIdControlSub, head_id: number, text: strTextSub, is_subcontrol: 0 , ischeckbox:1, checkbox: 'n', descResultQR : strDescSub});
+        // if (activityName2) {
+        //     strIdControlSub = number + '.2'
+        //     strTextSub = activityName2
+        //     strDescSub = description2
+        //     arrNew.push({ id: newId, id_control: strIdControlSub, head_id: number, text: strTextSub, is_subcontrol: 0 , ischeckbox:1, checkbox: 'n', descRiskQR : strDescSub});
         
-        } 
+        // } 
         arrNew = arrNew.concat([
-            { id: newId + 1, head_id: number, sum_id: newId, value: '', text: "การรักษาความปลอดภัยเกี่ยวกับบุคคล" },
-            { id: newId + 1, head_id: number, sum_id: newId, value: '1', text: "มีการควบคุมเพียงพอ" },
-            { id: newId + 1, head_id: number, sum_id: newId, value: '0', text: "กรณีไม่เพียงพอมีแนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้น ดังนี้",isradio: 1, radio: "0", descResultEndQR: improvement }
+            { head_id: number, sum_id: newId, value: '', text: "การรักษาความปลอดภัยเกี่ยวกับบุคคล" },
+            { head_id: number, sum_id: newId, value: '1', text: "มีการควบคุมเพียงพอ" },
+            { head_id: number, sum_id: newId, value: '0', text: "กรณีไม่เพียงพอมีแนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้น ดังนี้",isradio: 1, radio: "0" },
+
+            { head_id: 1, risk_id: 10001, is_improvement: 1, risking: description1, improve: improvement},
         ]);
     
         globalTest = globalTest.concat(arrNew);
     
         arrNew.map(item => {
-            if (item.mainControl_id !== undefined || item.sum_id !== undefined) {
+            if (item.mainControl_id !== undefined || item.sum_id !== undefined || item.risk_id !== undefined) {
                 if (item.sum_id && item.value) {
-                    let strSumDetail = fnMapValueToCallFunction(item, '', 'sub');
+                    let strSumDetail = fnMapValueToCallFunction(item, 'sub');
                     if (item.value == 0) {
-                        strHTML += "<tr class='trSidesSum-Line'><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
                     } else {
-                        strHTML += "<tr><td style='width: 55%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
+                    }
+                } else if (item.is_improvement === 1) {
+                    var improvementDetail = fnMapValueToCallFunction2(item, 'sub');
+                    console.log(improvementDetail)
+                    if (item.risking && item.improve) { // ถ้ามีให้แสดง 
+                        strHTML += " <tr id='trSumText" + item.risk_id + "'><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    } else {
+                        strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                     }
                 } else {
                     if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                        strHTML += "<tr><td style='width: 55%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                     } else { // หัวข้อหลัก 1,2,3,4,5
-                        strHTML += "<tr><td style='width: 55%;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                        strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (item.objectName) { // เพื่อ ......
-                        strHTML += "<tr><td style='width: 55%;text-indent: 17px;font-style: italic;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-style: italic;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                     }
                 }
             } else {
                 if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) {
                     if (item.id_subcontrol) {
-                        strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     } else {
-                        strHTML += "<tr><td style='width: 55%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     }
                 } else {
                     if (item.id_innercontrol) {
-                        strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descResultQR ? item.descResultQR : '', item.fileName ? item.fileName : '', item.idQR ? item.idQR : '', nameSides, '1', 'sub');
+                        strHTML += fnCreateCheckboxAndTextAreaRow(item.id_innercontrol, item.text, item.id, item.head_id, '26%', item.checkbox ? item.checkbox : '', item.descRiskQR ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName ? item.fileName : '', item.idQR ? item.idQR : '', nameSides, '1', 'sub');
                     } else if (item.id_subcontrol) {
-                        strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descResultQR ? item.descResultQR : '', item.fileName ? item.fileName : '', item.idQR ? item.idQR : '', nameSides, '1', 'sub');
+                        strHTML += fnCreateCheckboxAndTextAreaRow(item.id_subcontrol, item.text, item.id, item.head_id, '12%', item.checkbox ? item.checkbox : '', item.descRiskQR ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName ? item.fileName : '', item.idQR ? item.idQR : '', nameSides, '1', 'sub');
                     } else {
-                        strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '17px', item.checkbox ? item.checkbox : '', item.descResultQR ? item.descResultQR : '', item.fileName ? item.fileName : '', item.idQR ? item.idQR : '', nameSides, '1', 'sub');
+                        strHTML += fnCreateCheckboxAndTextAreaRow(item.id_control, item.text, item.id, item.head_id, '17px', item.checkbox ? item.checkbox : '', item.descRiskQR ? item.descRiskQR : '', item.descImproveQR  ? item.descImproveQR : '', item.fileName ? item.fileName : '', item.idQR ? item.idQR : '', nameSides, '1', 'sub');
                     }
                 }
             }
         }).join('');
-    
+
             // call api and
             var data = {
             userId: strUserId,
@@ -2303,17 +2640,14 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
             username: strUserName,
             idControlHead: number + '.',
             idControlSub: number + '.1',
-            idControlSub2: strIdControlSub,
             headId : number, // mainControl ใช้ตัวนี้
             headText: activityTitle,
             subText: activityName1,
-            subText2: strTextSub,
             objectName : objective,
-            descSub : description1,
-            descSub2 : strDescSub,
-            descEndQR : improvement
+            descRisking : description1,
+            descImprove : improvement,
         }
-    
+        console.log(data)
         Swal.fire({
             title: "",
             text: "คุณต้องการบันทึกข้อมูลคำถามอื่น ๆ ใช่หรือไม่?",
@@ -2427,202 +2761,221 @@ function fnValidateFormOther() {
     return isValid;
 }
 
-function fnToggleTextarea(checkbox, coloums, id, ischeckbox, description, fileName) {
-    var strCheckbox = ischeckbox // เช็คเพิ่ม กรณี 
+const selectedHeadIds = new Map();
+// ฟังก์ชันสำหรับอัปเดตจำนวน checkbox ที่ถูกเลือก
+function fnUpdateSelectedCount(headId, isChecked) {
+    let currentCount = selectedHeadIds.get(headId) || 0;  // ใช้ 0 เป็นค่าเริ่มต้น
+
+    // อัปเดตจำนวน checkbox
+    currentCount = isChecked ? currentCount + 1 : currentCount - 1;
+
+    // อัปเดตจำนวนที่เลือกใน Map
+    selectedHeadIds.set(headId, currentCount);
+
+    // คืนค่าจำนวนที่เลือก
+    return currentCount;
+}
+
+function fnToggleTextarea(checkbox, coloums, id, oldValue, descRiskQR, descImproveQR, fileName, headId) {
     var btnUploads = document.getElementById('btnUploadDoc' + id);
     var btnViewDoc = document.getElementById('btnViewDoc' + id);
     var btnFillDoc = document.getElementById('btnFillDoc' + id);
+    var btnEditFile = document.getElementById('btnEditFile' + id);
+
     var textareaComment = document.getElementById('comment_' + id);
-    var btnSubmit = document.getElementById('submitButton'+ id);
+    var btnSubmit = document.getElementById('submitButton' + id);
     var displayText = document.getElementById('displayText' + id);
     var editIcon = document.getElementById('editIcon' + id);
+
+    var trTableSum = document.getElementById('trSumText' + id)
+    var textareaCommentSum = document.getElementById('commentSum' + id);
+    var btnSubmitSum = document.getElementById('btnSubmitSum' + id);
+    var displayTextCombined = document.getElementById('displayTextCombined' + id);
+    var editIconSum = document.getElementById('editIconSum' + id);
+
+    var strImproveFix =  ' มีแนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้นดังนี้ '
+    
+    
+
+    function fnToggleElements(elements, condition) {
+        elements.forEach(function(element) {
+            if (element) {
+                element.style.display = condition ? '' : 'none';
+            }
+        });
+    }
+
     if (coloums == 1) { // กด checkbox แรก
-        if (strCheckbox == 'y') {
+        if (oldValue == 'y') {
             if (fileName) {
-                btnUploads.style.display = checkbox.checked ? 'block' : 'none';
-                btnViewDoc.style.display = checkbox.checked ? 'block' : 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = 'none';
+                console.log(1)
+                fnToggleElements([btnEditFile, btnViewDoc], checkbox.checked);
+                fnToggleElements([btnUploads, btnFillDoc, textareaComment, btnSubmit, displayText, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
                 textareaComment.value = '';
-                btnSubmit.style.display  = 'none';
-                displayText.style.display  = 'none';
+                textareaCommentSum.value = '';
                 displayText.innerHTML = '';
-                editIcon.style.display = 'none';
-            } else if (description) {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = 'none';
-                textareaComment.value = '';
-                btnSubmit.style.display  = 'none';
-                displayText.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.innerHTML = description;
-                editIcon.style.display = checkbox.checked ? 'block' : 'none';
+                displayTextCombined.innerHTML = '';
+            } else if (descRiskQR && descImproveQR) {
+                console.log(2)
+                fnToggleElements([displayText, editIcon], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, btnEditFile, textareaComment, btnSubmit, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
+                // displayText.style.display = checkbox.checked ? 'block' : 'none';
+                // editIcon.style.display = checkbox.checked ? 'block' : 'none';
+                displayText.innerHTML = descRiskQR;
+                displayTextCombined.innerHTML = '';
             } else {
-                btnUploads.style.display = checkbox.checked ? 'block' : 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = checkbox.checked ? 'block' : 'none';
-                textareaComment.style.display = 'none';
+                console.log(3)
+                fnToggleElements([btnUploads, btnFillDoc], checkbox.checked);
+                fnToggleElements([btnViewDoc, textareaComment, btnSubmit, displayText, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
                 textareaComment.value = '';
-                btnSubmit.style.display  = 'none';
-                displayText.style.display  = 'none';
                 displayText.innerHTML = '';
-                editIcon.style.display = 'none';
+                displayTextCombined.innerHTML = '';
             }
-
-        } else if (strCheckbox == 'n' || strCheckbox == 'na' ) {
-            if (description) {
-                btnUploads.style.display = checkbox.checked ? 'block' : 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = checkbox.checked ? 'block' : 'none';
-                textareaComment.style.display = 'none';
+        } else if (oldValue == 'n') {
+            if (descRiskQR && descImproveQR) {
+                console.log(4)
+                fnToggleElements([btnUploads, btnFillDoc], checkbox.checked);
+                fnToggleElements([btnViewDoc, btnEditFile, textareaComment, btnSubmit, displayText, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
                 textareaComment.value = '';
-                btnSubmit.style.display  = 'none';
-                displayText.style.display = 'none';
-                displayText.innerText = '';
-                editIcon.style.display = 'none';
+                displayText.innerHTML = '';
+                displayTextCombined.innerHTML = '';
             } else {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+                console.log(5)
+                fnToggleElements([displayText, textareaComment, btnSubmit], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnEditFile, btnFillDoc, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
                 textareaComment.value = '';
-                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.style.display = checkbox.checked ? 'block' : 'none';
-                displayText.innerText = '';
-                editIcon.style.display = 'none';
-                fnAddEventListeners(id)
+                displayText.innerHTML = '';
+                displayTextCombined.innerHTML = '';
+            }
+        } else if (oldValue == 'na') {
+            if (descRiskQR) {
+                console.log(5.1)
+                fnToggleElements([btnUploads, btnFillDoc], checkbox.checked);
+                fnToggleElements([btnViewDoc, textareaComment, btnSubmit, displayText, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined], false);
+                textareaComment.value = '';
+                displayText.innerHTML = '';
+                displayTextCombined.innerHTML = '';
+            } else {
+                console.log(5.2)
+                fnToggleElements([displayText, textareaComment, btnSubmit], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
+                textareaComment.value = '';
+                displayText.innerHTML = '';
+                displayTextCombined.innerHTML = '';
             }
         } else {
-            btnUploads.style.display = checkbox.checked ? 'block' : 'none';
-            btnViewDoc.style.display = 'none';
-            btnFillDoc.style.display = checkbox.checked ? 'block' : 'none';
-            textareaComment.style.display = 'none';
+            console.log(6)
+            fnToggleElements([btnUploads, btnFillDoc], checkbox.checked);
+            fnToggleElements([btnViewDoc, btnEditFile, textareaComment, btnSubmit, displayText, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
             textareaComment.value = '';
-            btnSubmit.style.display  = 'none';
-            displayText.style.display  = 'none';
             displayText.innerHTML = '';
-            editIcon.style.display = 'none';
+            displayTextCombined.innerHTML = '';
         }
-    } else if (coloums == 2) {  // กด checkbox สอง    
-        if (strCheckbox == 'y') {
-            if (fileName) {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
+    } 
+    else if (coloums == 2) { // กด checkbox สอง
+        console.log(oldValue)
+        const isChecked = checkbox.checked;  // ตรวจสอบว่า checkbox ถูกเลือกหรือไม่
+        const currentCount = fnUpdateSelectedCount(headId, isChecked);
+        if (currentCount <= 3) {
+            if (oldValue == 'y') { // ค่าเดิมเป็น y
+                if (fileName) {
+                    console.log(7)
+                    fnToggleElements([displayText, textareaComment, btnSubmit, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined], checkbox.checked);
+                    fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, editIcon, editIconSum, btnEditFile], false);
+                    textareaComment.value = '';
+                    displayText.innerHTML = '';
+                    // editIcon.style.display = 'none';
+                } else if (descRiskQR) {
+                    console.log(8)
+                    fnToggleElements([displayText, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined], checkbox.checked);
+                    fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, textareaComment, btnSubmit, editIconSum], false);
+                    // displayText.style.isplay = checkbox.checked ? 'block' : 'none';
+                    // editIcon.style.display = checkbox.checked ? 'block' : 'none';
+                    displayText.innerHTML = descRiskQR;
+                } else {
+                    console.log(9)
+                    fnToggleElements([displayText, textareaComment, btnSubmit, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined], checkbox.checked);
+                    fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
+                    textareaComment.value = '';
+                    displayText.innerHTML = '';
+                    // editIcon.style.display = 'none';
+                }
+            } else if (oldValue == 'n') { // ค่าเดิมเป็น n
+                console.log(10)
+                if (descRiskQR && descImproveQR) {
+                    fnToggleElements([displayText, textareaComment, btnSubmit, editIcon, trTableSum, displayTextCombined, editIconSum], checkbox.checked);
+                    fnToggleElements([btnUploads, btnViewDoc, btnEditFile, textareaCommentSum, btnSubmitSum, btnFillDoc, textareaComment, btnSubmit], false);
+                    // displayText.style.display = checkbox.checked ? 'block' : 'none';
+                    // editIcon.style.display = checkbox.checked ? 'block' : 'none';
+                    displayText.innerHTML = descRiskQR;
+                    displayTextCombined.innerHTML = descRiskQR + strImproveFix + descImproveQR;
+                } else {
+                    fnToggleElements([displayText, editIcon, textareaComment, btnSubmit, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], checkbox.checked);
+                    fnToggleElements([btnUploads, btnViewDoc, btnEditFile, btnFillDoc, textareaComment, btnSubmit], false);
+                    // displayText.style.display = checkbox.checked ? 'block' : 'none';
+                    // editIcon.style.display = checkbox.checked ? 'block' : 'none';
+                    displayText.innerHTML = descRiskQR;
+                }
+            } else if (oldValue == 'na') { // ค่าเดิมเป็น na
+                console.log(11)
+                fnToggleElements([displayText, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnEditFile, btnFillDoc, textareaComment, btnSubmit, editIconSum], false);
+                // displayText.style.display = checkbox.checked ? 'block' : 'none';
+                // editIcon.style.display = checkbox.checked ? 'block' : 'none';
+                displayText.innerHTML = descRiskQR;
+            } else { // ค่าเริ่มต้น
+                console.log(12)
+                fnToggleElements([displayText, textareaComment, btnSubmit, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, btnEditFile, editIconSum], false);
                 textareaComment.value = '';
-                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.style.display  = '';
                 displayText.innerHTML = '';
                 editIcon.style.display = 'none';
-                fnAddEventListeners(id)
-            } else if (description) {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = 'none';
-                textareaComment.value = '';
-                btnSubmit.style.display  = 'none';
-                displayText.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.innerHTML = description;
-                editIcon.style.display = checkbox.checked ? 'block' : 'none';
-            } else {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
-                textareaComment.value = '';
-                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.style.display  = '';
-                displayText.innerHTML = '';
-                editIcon.style.display = 'none';
-                fnAddEventListeners(id)
             }
-        } else if (strCheckbox == 'n' || strCheckbox == 'na' ) {
-            btnUploads.style.display = 'none';
-            btnViewDoc.style.display = 'none';
-            btnFillDoc.style.display = 'none';
-            textareaComment.style.display = 'none';
-            textareaComment.value = '';
-            btnSubmit.style.display  = 'none';
-            displayText.style.display = checkbox.checked ? 'block' : 'none';
-            displayText.innerText = description;
-            editIcon.style.display = checkbox.checked ? 'block' : 'none';
-        } else {
-            btnUploads.style.display = 'none';
-            btnViewDoc.style.display = 'none';
-            btnFillDoc.style.display = 'none';
-            textareaComment.style.display = checkbox.checked ? 'block' : 'none';
-            textareaComment.value = '';
-            btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
-            displayText.style.display  = '';
-            displayText.innerHTML = '';
-            editIcon.style.display = 'none';
-            fnAddEventListeners(id)
         }
-    } else {  // กด checkbox สาม
-        if (strCheckbox == 'y') {
-            if (fileName) {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
-                textareaComment.value = '';
-                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.style.display  = '';
-                displayText.innerHTML = '';
-                editIcon.style.display = 'none';
-                fnAddEventListeners(id)
-            } else if (description) {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = 'none';
-                textareaComment.value = '';
-                btnSubmit.style.display  = 'none';
-                displayText.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.innerHTML = description;
-                editIcon.style.display = checkbox.checked ? 'block' : 'none';
-            } else {
-                btnUploads.style.display = 'none';
-                btnViewDoc.style.display = 'none';
-                btnFillDoc.style.display = 'none';
-                textareaComment.style.display = checkbox.checked ? 'block' : 'none';
-                textareaComment.value = '';
-                btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
-                displayText.style.display  = '';
-                displayText.innerHTML = '';
-                editIcon.style.display = 'none';
-                fnAddEventListeners(id)
-            }
-        } else if (strCheckbox == 'n' || strCheckbox == 'na' ) {
-            btnUploads.style.display = 'none';
-            btnViewDoc.style.display = 'none';
-            btnFillDoc.style.display = 'none';
-            textareaComment.style.display = 'none';
-            textareaComment.value = '';
-            btnSubmit.style.display  = 'none';
-            displayText.style.display = checkbox.checked ? 'block' : 'none';
-            displayText.innerText = description;
-            editIcon.style.display = checkbox.checked ? 'block' : 'none';
-        } else {
-            btnUploads.style.display = 'none';
-            btnViewDoc.style.display = 'none';
-            btnFillDoc.style.display = 'none';
-            textareaComment.style.display = checkbox.checked ? 'block' : 'none';
-            textareaComment.value = '';
-            btnSubmit.style.display  = checkbox.checked ? 'block' : 'none';
-            displayText.style.display  = '';
-            displayText.innerHTML = '';
-            editIcon.style.display = 'none';
-            fnAddEventListeners(id)
 
+    } else if (coloums == 3) { // กด checkbox สาม
+        if (oldValue == 'y') {
+            if (fileName) {
+                console.log(13)
+                fnToggleElements([displayText, textareaComment, btnSubmit], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, btnEditFile, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
+                textareaComment.value = '';
+                displayText.innerHTML = '';
+                editIcon.style.display = 'none';
+            } else if (descRiskQR) {
+                console.log(14)
+                fnToggleElements([displayText, editIcon], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, btnEditFile, textareaComment, btnSubmit, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
+                // displayText.style.display = checkbox.checked ? 'block' : 'none';
+                // editIcon.style.display = checkbox.checked ? 'block' : 'none';
+                displayText.innerHTML = descRiskQR;
+            } else {
+                console.log(15)
+                fnToggleElements([displayText, textareaComment, btnSubmit], checkbox.checked);
+                fnToggleElements([btnUploads, btnViewDoc, btnFillDoc, btnEditFile, editIcon], false);
+                textareaComment.value = '';
+                displayText.innerHTML = '';
+                // editIcon.style.display = 'none';
+            }
+        } else if (oldValue == 'n' || oldValue == 'na') {
+            console.log(16)
+            fnToggleElements([displayText, editIcon], checkbox.checked);
+            fnToggleElements([btnUploads, btnViewDoc, btnEditFile, btnFillDoc, textareaComment, btnSubmit, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
+            // displayText.style.display = checkbox.checked ? 'block' : 'none';
+            // editIcon.style.display = checkbox.checked ? 'block' : 'none';
+            displayText.innerHTML = descRiskQR;
+        } else {
+            console.log(17)
+            fnToggleElements([displayText, textareaComment, btnSubmit], checkbox.checked);
+            fnToggleElements([btnUploads, btnViewDoc, btnFillDoc , btnEditFile, editIcon, trTableSum, textareaCommentSum, btnSubmitSum, displayTextCombined, editIconSum], false);
+            textareaComment.value = '';
+            displayText.innerHTML = '';
+            // editIcon.style.display = 'none';
         }
     }
 }
 
-function fnToggleTextSum(val, val2, description) {
+function fnToggleTextSum(val, val2, descRiskQR) {
     var textarea = '';
     var button = '';
     var displayText = '';
@@ -2642,11 +2995,11 @@ function fnToggleTextSum(val, val2, description) {
         displayText.innerHTML = '';
         editIcon.style.display = 'none';
     } else {
-        if (description) {
+        if (descRiskQR) {
             textarea.style.display = 'none';
             button.style.display  = 'none';
             displayText.style.display  = '';
-            displayText.innerHTML = description;
+            displayText.innerHTML = descRiskQR;
             editIcon.style.display = '';
             fnAddEventListenersSum(newVal)
         } else {
@@ -2695,25 +3048,48 @@ function fnSubmitTextSum(val, event) {
 
     const textarea = document.getElementById('commentSum' + val);
     const button = document.getElementById('btnSubmitSum' + val);
-    const displayText = document.getElementById('displayTextSum' + val);
+    const displayText = document.getElementById('displayTextCombined' + val);
     const editIcon = document.getElementById('editIconSum' + val);
-    let format = ''
-    if (textarea.value) {
-        format = textarea.value.replace(/\n/g, '<br>');
-        displayText.innerHTML = format
+    let format = '';
 
-        /* ซ่อน textarea และปุ่ม */
-        textarea.style.display = 'none';
-        button.style.display = 'none';  
-        editIcon.style.display = 'inline';
+    const risking = document.getElementById('displayText' + val) // ความเสี่ยง
+    var strRisking = ''
+    if (risking.innerText) {
+        strRisking =  risking.innerText + ' ' + 'มีแนวทางหรือวิธีการปรับปรุงการควบคุมภายในให้ดีขึ้นดังนี้'
+
+        if (textarea.value) {
+            // แปลงข้อความใน textarea ให้รองรับการแสดงผลหลายบรรทัด
+            format = textarea.value.replace(/\n/g, '<br>'); 
+    
+            // ต่อข้อความ strRisking ก่อนที่จะแสดงใน displayTextCombined
+            const combinedText = `${strRisking || ""} ${format}`.trim();
+    
+            // แสดงข้อความที่กรอกใน displayTextCombined
+            displayText.innerHTML = combinedText;
+    
+            // ซ่อน textarea และปุ่ม
+            textarea.style.display = 'none';
+            button.style.display = 'none';  
+            
+            // แสดงไอคอนแก้ไข
+            editIcon.style.display = 'inline';
+        } else {
+            // ถ้า textarea ว่าง แสดงข้อความแจ้งเตือน
+            Swal.fire({
+                title: "",
+                text: "กรุณากรอกข้อมูลให้ครบถ้วน",
+                icon: "warning"
+            });
+        }
     } else {
         Swal.fire({
             title: "",
-            text: "กรุณากรอกข้อมูลให้ครบถ้วน",
+            text: "กรุณากรอกความเสี่ยงของกิจกรรมก่อน",
             icon: "warning"
         });
     }
 
+    
 }
 
 /* ฟังก์ชันสำหรับการแก้ไขข้อความ */
@@ -2762,23 +3138,82 @@ function fnEditText(id) {
     }
 }
 
-function fnEditTextSum(val) {
+// function fnEditTextSum(val) {
+//     // สำหรับ id หลัก
+//     const textarea = document.getElementById('commentSum' + val);
+//     const button = document.getElementById('btnSubmitSum' + val);
+//     const editIcon = document.getElementById('editIconSum' + val);
+//     // ตรวจสอบและเพิ่ม event listener ถ้าปุ่มมีอยู่
+//     if (button) {
+//         fnAddEventListenersSum(val);
+//     }
+//     // แสดง textarea และปุ่ม
+//     if (textarea) {
+//         textarea.style.display = 'inline';
+//         textarea.value = document.getElementById('displayTextSum' + val).innerText.trim();
+//     }
+//     if (button) {
+//         button.style.display = 'inline';
+//     }
+//     if (editIcon) {
+//         editIcon.style.display = 'none';
+//     }
+//     // ตรวจสอบเพิ่มเติมสำหรับ idEndQR2 และ idEndQR3
+//     ['2', '3'].forEach(suffix => {
+//         const additionalTextarea = document.getElementById('commentSum' + val + 'QR' + suffix);
+//         const additionalButton = document.getElementById('btnSubmitSum' + val + 'QR' + suffix);
+//         const additionalEditIcon = document.getElementById('editIconSum' + val + 'QR' + suffix);
+//         if (additionalTextarea) {
+//             additionalTextarea.style.display = 'inline';
+//             additionalTextarea.value = document.getElementById('displayTextSum' + val + 'QR' + suffix)?.innerText.trim() || '';
+//         }
+//         if (additionalButton) {
+//             additionalButton.style.display = 'inline';
+//         }
+//         if (additionalEditIcon) {
+//             additionalEditIcon.style.display = 'none';
+//         }
+//     });
+// }
+
+/* ฟังก์ชันสำหรับการแก้ไขข้อความ */
+function fnEditTextSum(val, strRisking) {
+    // สำหรับ id หลัก
     const textarea = document.getElementById('commentSum' + val);
     const button = document.getElementById('btnSubmitSum' + val);
     const editIcon = document.getElementById('editIconSum' + val);
 
+    // ตรวจสอบและเพิ่ม event listener ถ้าปุ่มมีอยู่
     if (button) {
-        fnAddEventListenersSum(val)
+        // เพิ่ม event listener ให้กับปุ่ม submit
+        button.addEventListener('click', function(event) {
+            fnSubmitTextSum(val, event, strRisking);  // เรียกฟังก์ชันยืนยันข้อมูล
+        });
     }
-    /* แสดง textarea และปุ่ม */
-    textarea.style.display = 'inline';
-    button.style.display = 'inline';
 
-    /* ซ่อนไอคอนแก้ไข */
-    editIcon.style.display = 'none';
+    // ตรวจสอบว่า displayTextElement มีอยู่หรือไม่
+    const displayTextElement = document.getElementById('displayTextCombined' + val);
+    let combinedText = displayTextElement ? fnGetTextAfterKeyword(displayTextElement.innerText, 'ดังนี้') : ''; // กำหนดค่าเริ่มต้นหากไม่พบ
 
-    /* เติมข้อความที่จะแก้ไขใน textarea */
-    textarea.value = document.getElementById('displayTextSum' + val).innerText.trim();
+    // หากไม่พบ displayTextElement ให้แสดงข้อความเตือนหรือค่าดีฟอลต์
+    if (!combinedText) {
+        console.warn(`Element with id 'displayTextCombined${val}' not found.`);
+        combinedText = 'ข้อความเริ่มต้น'; // หรือใช้ค่าอื่นตามที่ต้องการ
+    }
+
+    const descRiskQRPart = strRisking ? combinedText.replace(strRisking, '').trim() : combinedText.trim();
+
+    // แสดง textarea และปุ่ม
+    if (textarea) {
+        textarea.style.display = 'inline';
+        textarea.value = descRiskQRPart; // ใช้เฉพาะ descRiskQR ใน textarea
+    }
+    if (button) {
+        button.style.display = 'inline';
+    }
+    if (editIcon) {
+        editIcon.style.display = 'none';
+    }
 }
 
 function fnSubmitTextCommentEV(event) {

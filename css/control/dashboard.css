@@ -178,14 +178,15 @@ Sidebar
   margin: 2rem 0rem;
 }
 .sidebar-avatar img {
-  width: 40px;
+  width: 50px;
   border-radius: 10px;
   margin: 5px 0;
 }
 .avatar-info {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .headMenuTitle{
@@ -338,20 +339,24 @@ header {
   text-align: center;
 }
 .analytic:first-child .analytic-icon {
-  background-color: #dce5ff;
+  background-color: #ebf7f5;
   color: #2ec3a3;
+  margin-top: 20px;
 }
 .analytic:nth-child(2) .analytic-icon {
   background-color: #ebf7f5;
   color: red;
+  margin-top: 20px;
 }
 .analytic:nth-child(3) .analytic-icon {
   background-color: #ebf7f5;
   color: #FFBF00;
+  margin-top: 20px;
 }
 .analytic:nth-child(4) .analytic-icon {
-  background-color: var(--main-accent);
+  background-color: #ebf7f5;
   color: #000;
+  margin-top: 20px;
 }
 .analytic-icon {
   width: 40px;

@@ -196,13 +196,13 @@ Sidebar
   margin: 2rem 0rem;
 }
 .sidebar-avatar img {
-  width: 40px;
+  width: 50px;
   border-radius: 10px;
   margin: 5px 0;
 }
 .avatar-info {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 

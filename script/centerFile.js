@@ -311,3 +311,17 @@ function fnProcessTextASM(text) {
       return text;
   }
 }
+
+function fnGetTextAfterKeyword(text, keyword) {
+  if (!text) {
+      // ตรวจสอบกรณีที่ text เป็น null, undefined หรือเป็นสตริงว่าง
+      return '';
+  }
+
+  var index = text.indexOf(keyword);
+  if (index !== -1) {
+      // ตัดข้อความหลังจากคำว่า keyword และลบช่องว่างส่วนเกินออก
+      return text.substring(index + keyword.length).trim();
+  }
+  return ''; // กรณีที่ไม่พบคำ keyword
+}

@@ -68,7 +68,6 @@ function fnSetHeaderSendReportUser(){
 }
 
 async function fnDrawTable(access ,sideId ,objData, namePages) {
-     // Get data selete before create table 
     var strHTML = ''
     var data = objData
  
@@ -108,7 +107,6 @@ async function fnGetDataTrAdmin(access, sideId, namePages) {
     var strStatus = $('#selectStatus').val() || ''
     
     var dataSQL = await fnGetResultDocCondition(strUnitId, sideId, strYear, strStatus)
-
     if (dataSQL.length > 0) {
         for (var i = 0; i < dataSQL.length; i++) {
             strHTML += "<tr>"
@@ -249,7 +247,6 @@ function fnGetDataTrUser(access, data, sideId, namePages) {
 async function fnDrawTableCollation (access) {
     var strHTML = ''
     var strUserName = fnGetCookie("username")
-
     strHTML += "<table id='tb_Form' class='table table-hover table-nowrap' width: 100%;>"
     strHTML += "<thead class='table-light'>"
 
@@ -597,15 +594,15 @@ async function fnGetDataSelect(access ,sideId, isPages) {
     $("#dvHeadSelectAssessment")[0].innerHTML = strHTML
 
     $('#selectUnit').on('change', function() {
-        fnDrawTable(access ,sideId)
+        fnDrawTable(access , sideId, '', isPages)
     });
 
     $('#selectBudget').on('change', function() {
-        fnDrawTable(access ,sideId)
+        fnDrawTable(access , sideId, '',  isPages)
     });
 
     $('#selectStatus').on('change', function() {
-        fnDrawTable(access ,sideId)
+        fnDrawTable(access , sideId, '',  isPages)
     });
 
 
@@ -627,6 +624,144 @@ async function fnGetDataSelect(access ,sideId, isPages) {
     
 }
 
+async function fnDrawDataStatusDoc (userId , username, authen) {
+    var strHTML = ""
+    var strHTML2 = ""
+
+    var strStatus = ""
+    var strNotprocess = ""
+    var strProcess = ""
+    var strIncomplete = ""
+    var strSuccess = ""
+
+    if (authen == 'admin') {
+        strStatus = await fnGetResultStatusDocAdmin(userId, username)
+        strNotprocess = (strStatus && strStatus.length > 0) ? strStatus[0].notprocess : 0;
+        strProcess = (strStatus && strStatus.length > 0) ? strStatus[0].process : 0;
+        strIncomplete = (strStatus && strStatus.length > 0) ? strStatus[0].incomplete : 0;
+        strSuccess = (strStatus && strStatus.length > 0) ? strStatus[0].success : 0;
+
+        strHTML  += " <h3 class='section-head' style='margin-top: 30px;'>ความก้าวหน้าการดำเนินการทั้ง 42 หน่วย</h3> "  
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-check-circle' style='font-size: 24px;'></span></div>  "
+        strHTML2 += "     <div class='analytic-info'> "
+        strHTML2 += "         <h4>สมบูรณ์ครบถ้วน</h4> "
+        strHTML2 += "        <h1 class='text-success'> " + strSuccess + " <small style='font-size: 20px;' >หน่วย</small></h1> "
+        strHTML2 += "     </div> "
+        strHTML2 += " </div> "
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-exclamation-circle' style='font-size: 24px;'></span></div> "
+        strHTML2 += "     <div class='analytic-info'> "
+        strHTML2 += "         <h4>เอกสารไม่สมบูรณ์</h4> "
+        strHTML2 += "         <h1 class='text-danger'> " + strIncomplete + " <small style='font-size: 20px;' >หน่วย</small></h1> "
+        strHTML2 += "     </div> "
+        strHTML2 += " </div> "
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-spinner' <span class='las la-check-circle' style='font-size: 24px;'></span></div> "
+        strHTML2 += "   <div class='analytic-info'> "
+        strHTML2 += "     <h4>กำลังดำเนินการ</h4> "
+        strHTML2 += "     <h1 class='text-warning'> " + strProcess + " <small style='font-size: 20px;' >หน่วย</small></h1> "
+        strHTML2 += "   </div> "
+        strHTML2 += " </div> "
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-minus-circle' style='font-size: 24px;'></span></div> "
+        strHTML2 += "   <div class='analytic-info'> "
+        strHTML2 += "     <h4>ยังไม่ดำเนินการ</h4> "
+        strHTML2 += "     <h1> " + strNotprocess + " <small style='font-size: 20px;'>หน่วย</small></h1> "
+        strHTML2 += "   </div> "
+        strHTML2 += " </div> "
+
+    } else {
+        strStatus = await fnGetResultStatusDocUser(userId)
+        strNotprocess = (strStatus && strStatus.length > 0) ? strStatus[0].notprocess : 0;
+        strProcess = (strStatus && strStatus.length > 0) ? strStatus[0].process : 0;
+        strIncomplete = (strStatus && strStatus.length > 0) ? strStatus[0].incomplete : 0;
+        strSuccess = (strStatus && strStatus.length > 0) ? strStatus[0].success : 0;
+
+        strHTML  += " <h3 class='section-head' style='margin-top: 30px;'>ความก้าวหน้าการดำเนินการด้านต่าง ๆ</h3> "  
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-check-circle' style='font-size: 24px;'></span></div>  "
+        strHTML2 += "     <div class='analytic-info'> "
+        strHTML2 += "         <h4>สมบูรณ์ครบถ้วน</h4> "
+        strHTML2 += "        <h1 class='text-success'> " + strSuccess + " <small style='font-size: 20px;' >ด้าน</small></h1> "
+        strHTML2 += "     </div> "
+        strHTML2 += " </div> "
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-exclamation-circle' style='font-size: 24px;'></span></div> "
+        strHTML2 += "     <div class='analytic-info'> "
+        strHTML2 += "         <h4>เอกสารไม่สมบูรณ์</h4> "
+        strHTML2 += "         <h1 class='text-danger'> " + strIncomplete + " <small style='font-size: 20px;' >ด้าน</small></h1> "
+        strHTML2 += "     </div> "
+        strHTML2 += " </div> "
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-spinner' <span class='las la-check-circle' style='font-size: 24px;'></span></div> "
+        strHTML2 += "   <div class='analytic-info'> "
+        strHTML2 += "     <h4>กำลังดำเนินการ</h4> "
+        strHTML2 += "     <h1 class='text-warning'> " + strProcess + " <small style='font-size: 20px;' >ด้าน</small></h1> "
+        strHTML2 += "   </div> "
+        strHTML2 += " </div> "
+        strHTML2 += " <div class='analytic'> "
+        strHTML2 += "   <div class='analytic-icon'><span class='las la-minus-circle' style='font-size: 24px;'></span></div> "
+        strHTML2 += "   <div class='analytic-info'> "
+        strHTML2 += "     <h4>ยังไม่ดำเนินการ</h4> "
+        strHTML2 += "     <h1> " + strNotprocess + " <small style='font-size: 20px;'>ด้าน</small></h1> "
+        strHTML2 += "   </div> "
+        strHTML2 += " </div> "
+    }
+    $("#titleProgress")[0].innerHTML = strHTML
+    $("#contentStatusDoc")[0].innerHTML = strHTML2
+
+}
+
+async function fnGetResultStatusDocAdmin(userId, username) {
+    var dataSend = {
+        userId : userId,
+        username : username
+    }
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultStatusDocAdmin', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        console.log(error); // แสดง error ใน console เพื่อดูรายละเอียด
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ลองใหม่อีกครั้ง\n' + error.message,
+            icon: 'error'
+        });
+        return [];
+    }
+}
+
+
+async function fnGetResultStatusDocUser(userId) {
+    var dataSend = {
+        userId : userId
+    }
+    try {
+        const response = await axios.post(apiUrl + '/api/documents/fnGetResultStatusDocUser', dataSend)
+        var res = response.data.result
+        if (res.length > 0) {
+            return res
+        } else {
+            return []
+        }
+    } catch (error) {
+        console.log(error); // แสดง error ใน console เพื่อดูรายละเอียด
+        await Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ลองใหม่อีกครั้ง\n' + error.message,
+            icon: 'error'
+        });
+        return [];
+    }
+}
+
+
 async function fnGetResultDocCondition(unitId,sideId,strYear,strStatus) {
     var dataSend = {
         unitId : unitId,
@@ -643,12 +778,13 @@ async function fnGetResultDocCondition(unitId,sideId,strYear,strStatus) {
             return []
         }
     } catch (error) {
+        console.log(error); // แสดง error ใน console เพื่อดูรายละเอียด
         await Swal.fire({
             title: 'เกิดข้อผิดพลาด',
-            text: 'ลองใหม่อีกครั้ง',
+            text: 'ลองใหม่อีกครั้ง\n' + error.message,
             icon: 'error'
-        })
-        return []
+        });
+        return [];
     }
 }
 
@@ -668,12 +804,13 @@ async function fnGetResultCollation(userId, strYear, strStatus, sendId) {
             return []
         }
     } catch (error) {
+        console.log(error); // แสดง error ใน console เพื่อดูรายละเอียด
         await Swal.fire({
             title: 'เกิดข้อผิดพลาด',
-            text: 'ลองใหม่อีกครั้ง',
+            text: 'ลองใหม่อีกครั้ง\n' + error.message,
             icon: 'error'
-        })
-        return []
+        });
+        return [];
     }
 }
 
@@ -691,12 +828,13 @@ async function fnGetDataUserControl(username) {
             return []
         }
     } catch (error) {
+        console.log(error); // แสดง error ใน console เพื่อดูรายละเอียด
         await Swal.fire({
             title: 'เกิดข้อผิดพลาด',
-            text: 'userId หรือ sideId ไม่ถูกต้อง',
+            text: 'ลองใหม่อีกครั้ง\n' + error.message,
             icon: 'error'
-        })
-        return []
+        });
+        return [];
     }
 }
 
