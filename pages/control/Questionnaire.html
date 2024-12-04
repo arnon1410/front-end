@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='th'>
 <head>
     <meta charset='UTF-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
@@ -322,6 +322,49 @@
         display: inline-block; /* Ensures the dotted underline is correctly applied */
         margin-bottom: 5px; /* Optional: Adds space between the sections */
         text-align: center;
+    }
+    .tdObjectName {
+        width: 50%;
+        font-style: italic;
+        text-align: justify; /* จัดข้อความกระจายเต็มบรรทัด */
+        text-justify: distribute; /* ปรับการกระจายให้เหมาะสม */
+        word-break: break-word; /* ตัดคำอัตโนมัติเมื่อข้อความยาวเกิน */
+        line-break: anywhere; /* รองรับการตัดคำภาษาไทย */
+        hyphens: none; /* ปิดการตัดคำด้วยขีดกลาง */
+        letter-spacing: 0.05em; 
+        word-spacing: 0.1em; 
+    }
+
+    .tdIsControl {
+        width: 50%;
+        vertical-align: top;
+        text-align: justify;
+        text-justify: distribute; /* ปรับการกระจายให้เหมาะสม */
+        word-break: break-word; /* จัดการการตัดคำ */
+        line-break: anywhere; /* สำหรับภาษาไทย */
+        letter-spacing: 0.05em; /* เพิ่มระยะระหว่างตัวอักษรเล็กน้อย */
+        word-spacing: 0.1em; /* เพิ่มระยะระหว่างคำ */
+    }
+
+    @media print {
+        th.textHeadTable { 
+            position: static !important; /* ปิด sticky */
+            z-index: auto !important;   /* ปิด z-index */
+        }
+        body {
+            visibility: visible;
+        }
+        #dvFormReport {
+            visibility: visible;
+            display: block;
+        }
+        * {
+            color: black !important; /* ป้องกันสีไม่แสดง */
+        }
+        /* ซ่อน checkbox ที่ไม่ได้ถูกเลือก */
+        input[type="checkbox"]:not(:checked) {
+            display: none !important;
+        }
     }
 
     .hidden-print {

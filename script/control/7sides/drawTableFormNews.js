@@ -6,7 +6,7 @@ function fnSetHeader(){
     strHTML += "<th class='text-center textHeadTable' style='width: 8%;'>ไม่มี/ ไม่ใช่</th>";
     strHTML += "<th class='text-center textHeadTable' style='width: 34%;'>คำอธิบาย/คำตอบ</th>"
 
-    strHTML += "<tr>";
+    strHTML += "<tr id='trSymbolHeadTable'>";
     strHTML += "<td></td>";
     strHTML += "<td class='text-center tdUnderline' style='width: 10%;' >&#10003;</td>";
     strHTML += "<td class='text-center tdUnderline' style='width: 10%;' >&#10005; (NA)</td>";
@@ -82,7 +82,7 @@ async function fnDrawTableForm(access, valSides, objData) {
     strHTML += " <div class='dvFooterForm'> "
     if (access !== 'admin') {
         strHTML += "    <button type='submit' class='btn btn-primary' id='btnSaveData'>บันทึกฉบับร่าง</button>"
-        // strHTML += "    <button type='submit' class='btn btn-success' id='btnPrintData'>พิมพ์ฉบับร่าง</button>"
+        strHTML += "    <button type='submit' class='btn btn-success' id='btnPrintData'>พิมพ์ฉบับร่าง</button>"
     }
     strHTML += " </div> "
 
@@ -93,7 +93,7 @@ async function fnDrawTableForm(access, valSides, objData) {
     $("#dvFormReport")[0].innerHTML = strHTML
     if (access !== 'admin') {
         fnAddSaveButtonEventListener(data, idSideFix)
-        // fnPrintDataButtonEventListener()
+        fnPrintDataButtonEventListener()
     }
     
 }
@@ -331,7 +331,7 @@ async function fnSaveDraftDocument(data , idSideFix, event) {
 
 }
 
-async function fnPrintDataDraftDocument (event) {
+async function fnPrintDataDraftDocument(event) {
     Swal.fire({
         title: 'ยืนยันการพิมพ์?',
         text: "ต้องการซ่อนข้อมูลชั่วคราวเพื่อพิมพ์ใช่ไหม?",
@@ -343,14 +343,21 @@ async function fnPrintDataDraftDocument (event) {
         cancelButtonText: 'ยกเลิก'
     }).then((result) => {
         if (result.isConfirmed) {
-            // ซ่อนองค์ประกอบที่ไม่ต้องการให้แสดงใน preview
-            // $('#btnSaveData, #btnPrintData').addClass('hidden-print');
+            // เก็บสถานะ button ที่มองเห็นในปัจจุบัน
+            const buttons = Array.from(document.querySelectorAll('i, button, .swal2-container, #trSymbolHeadTable, #btnEditSignature, #btnSignatureUpload ,#btnSignatureEPen, #commentEvaluation'));
+            const visibleButtons = buttons.filter(btn => btn.offsetParent !== null); // ปุ่มที่แสดงอยู่
 
-            // เปิดหน้าต่างการ preview print
+            // ซ่อนปุ่มที่มองเห็น
+            visibleButtons.forEach(btn => btn.style.display = 'none');
+
+            // Debug เนื้อหาที่จะพิมพ์
+            console.log(document.getElementById('dvFormReport').innerHTML);
+
+            // เรียก print
             window.print();
 
-            // แสดงองค์ประกอบกลับหลังพิมพ์เสร็จ
-            $('#btnSaveData, #btnPrintData').removeClass('hidden-print');
+            // แสดงปุ่มกลับมาหลังจากพิมพ์เสร็จ
+            visibleButtons.forEach(btn => btn.style.display = '');
         }
     });
 }
@@ -548,15 +555,15 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
                     strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                 }
                 if (item.objectName) { // เพื่อ ......
-                    strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-style: italic;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td class='tdObjectName' style='text-indent: 17px;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                 }
             }
         } else { // หัวข้อย่อยทั้งหมด
             if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
                 if (item.id_subcontrol) {
-                    strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td class='tdIsControl' style='text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 } else {
-                    strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td class='tdIsControl' style='text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 }
             } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0  
                 if (item.id_innercontrol) { // 1
@@ -588,7 +595,7 @@ function fnCreateCheckboxAndTextAreaRow(id_control, text, id, headId, size, isch
     }
 
     strHTML2 += "<tr>";
-    strHTML2 += "<td style='width: 50%; vertical-align: top; text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
+    strHTML2 += "<td class='tdIsControl' style='text-indent: " + size + "'>" + (id_control ? fnConvertToThaiNumeralsAndPoint(id_control) + ' ' : '') + text + "</td>";
     strHTML2 += "<td style='width: 8%;' class='text-center checkbox-container'>";
     strHTML2 += "<input type='checkbox' id='haveData_" + id + "' class='have-checkbox " + isHidden + "' name='" + strOrigin + "' value='" + headId + "," + idQR + "' onchange='fnToggleTextarea(this, \"1\", \"" + id + "\", \"" + ischeckbox + "\", \"" + descRiskQR + "\", \"" +  descImproveQR + "\", \"" + fileName + "\", \"" + headId + "\")' " + haveDataChecked + "/>";
     strHTML2 += "<label for='haveData_" + id + "' id='lablehaveData_" + id + "' class='hidden'>&#10003;</label>";
@@ -1020,15 +1027,15 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                             strHTML += "<tr><td style='width: 50%;font-weight: bold;text-indent: 12%;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.objectName) { // เพื่อ ......
-                            strHTML += "<tr><td style='width: 50%;font-style: italic;text-indent: 12%;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td class='tdObjectName' style='text-indent: 12%;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                         }
                     }
                 } else { // หัวข้อย่อยทั้งหมด
                     if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
                         if (item.id_subcontrol) { // ด้านการยุทธการ
-                            strHTML += "<tr><td style='width: 50%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td class='tdIsControl' style='text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         } else {
-                            strHTML += "<tr><td style='width: 50%;text-indent: 12%;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td class='tdIsControl' style='text-indent: 12%;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         }
                  
                     } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
@@ -1095,15 +1102,15 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                             strHTML += "<tr><td style='width: 50%;font-weight: bold;text-indent: "+ strTextObj +"'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.objectName) { // เพื่อ ......
-                            strHTML += "<tr><td style='width: 50%;font-style: italic;text-indent: "+ strTextObjName +"'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td class='tdObjectName' style='text-indent: "+ strTextObjName +"'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                         }
                     }
                 } else { // หัวข้อย่อยทั้งหมด
                     if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
                             if (item.id_subcontrol) {
-                                strHTML += "<tr><td style='width: 50%;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                                strHTML += "<tr><td class='tdIsControl' style='text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                             } else {
-                                strHTML += "<tr><td style='width: 50%; " + strSubText + "'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                                strHTML += "<tr><td class='tdIsControl' style='" + strSubText + "'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                             }
                     } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ item.is_innercontrol == 0
                         if (item.id_innercontrol) { // 1
@@ -1214,12 +1221,12 @@ async function fnDrawTableReportAssessmentOther(strSides, arrSides, strUserId, i
                         strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + items.main_Obj + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (items.objectName) { // เพื่อ ......
-                        strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-style: italic;'>" + items.objectName + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td class='tdObjectName' style='text-indent: 17px;'>" + items.objectName + "</td><td></td><td></td><td></td></tr>";
                     }
                 }
             } else { // หัวข้อย่อยทั้งหมด
                 if ((items.is_subcontrol && items.is_subcontrol == 1) || (items.is_innercontrol && items.is_innercontrol == 1)) { // ถ้ามีหัวข้อย่อย 
-                    strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td class='tdIsControl' style='text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(items.id_control) + ' ' + items.text + "</td><td></td><td></td><td></td></tr>";
                 } else { // ไม่มีหัวข้อย่อย is_subcontrol == 0 หรือ items.is_innercontrol == 0
                     if (items.id_innercontrol) { // 1
                         strHTML += fnCreateCheckboxAndTextAreaRow(items.id_innercontrol, items.text, items.id, items.head_id, '26%', items.checkbox ? items.checkbox : '', items.descRiskQR  ? items.descRiskQR : '', items.descImproveQR  ? items.descImproveQR : '', items.fileName  ? items.fileName : '', items.idQR  ? items.idQR : '', nameSides, '1', 'sub');
@@ -1282,7 +1289,7 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
         strHTML += " </div> "
     } else {
         strHTML += " <div> "
-        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style=''></textarea> "
+        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style='width: 100%;'></textarea> "
         strHTML += " </div> "
         strHTML += " <div class='text-end'> "
         strHTML += " <button class='btn btn-secondary' type='submit' id='submitbtnCommentEV' style='width: 100px;'>ยืนยัน</button> "
@@ -2610,15 +2617,15 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
                         strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (item.objectName) { // เพื่อ ......
-                        strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-style: italic;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td class='tdObjectName' style='text-indent: 17px;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
                     }
                 }
-            } else {
+            } else { // หัวข้อย่อยทั้งหมด
                 if ((item.is_subcontrol && item.is_subcontrol == 1) || (item.is_innercontrol && item.is_innercontrol == 1)) {
                     if (item.id_subcontrol) {
-                        strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td class='tdIsControl' style='text-indent: 12%'>"+ fnConvertToThaiNumeralsAndPoint(item.id_subcontrol) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     } else {
-                        strHTML += "<tr><td style='width: 50%;vertical-align: top;text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td class='tdIsControl' style='text-indent: 17px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     }
                 } else {
                     if (item.id_innercontrol) {
