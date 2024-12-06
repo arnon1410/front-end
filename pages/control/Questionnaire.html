@@ -324,26 +324,28 @@
         text-align: center;
     }
     .tdObjectName {
-        width: 50%;
+        /* width: 50%; */
         font-style: italic;
         text-align: justify; /* จัดข้อความกระจายเต็มบรรทัด */
-        text-justify: distribute; /* ปรับการกระจายให้เหมาะสม */
-        word-break: break-word; /* ตัดคำอัตโนมัติเมื่อข้อความยาวเกิน */
-        line-break: anywhere; /* รองรับการตัดคำภาษาไทย */
-        hyphens: none; /* ปิดการตัดคำด้วยขีดกลาง */
-        letter-spacing: 0.05em; 
-        word-spacing: 0.1em; 
+        word-break: break-word; /* ตัดคำเมื่อข้อความยาวเกิน */
+        overflow-wrap: break-word; /* ป้องกันข้อความล้น */
+        white-space: normal; /* ทำให้ข้อความตัดคำได้ */
+        hyphens: auto; /* เปิดการตัดคำสำหรับภาษา */
+        font-size: 18px; /* กำหนดขนาดฟอนต์ */
+        letter-spacing: 0.02em;
+        word-spacing: 0.1em;
     }
 
     .tdIsControl {
-        width: 50%;
         vertical-align: top;
-        text-align: justify;
-        text-justify: distribute; /* ปรับการกระจายให้เหมาะสม */
-        word-break: break-word; /* จัดการการตัดคำ */
-        line-break: anywhere; /* สำหรับภาษาไทย */
-        letter-spacing: 0.05em; /* เพิ่มระยะระหว่างตัวอักษรเล็กน้อย */
-        word-spacing: 0.1em; /* เพิ่มระยะระหว่างคำ */
+        text-align: justify; /* จัดข้อความกระจายเต็มบรรทัด */
+        word-break: break-word; /* ตัดคำเมื่อข้อความยาวเกิน */
+        overflow-wrap: break-word; /* ป้องกันข้อความล้น */
+        white-space: normal; /* ทำให้ข้อความตัดคำได้ */
+        hyphens: auto; /* เปิดการตัดคำสำหรับภาษา */
+        font-size: 18px; /* กำหนดขนาดฟอนต์ */
+        letter-spacing: 0.02em; /* ระยะห่างระหว่างตัวอักษร */
+        word-spacing: 0.1em; /* ระยะห่างระหว่างคำ */
     }
 
     @media print {

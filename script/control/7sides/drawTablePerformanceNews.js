@@ -167,28 +167,21 @@ async function fnDrawTablePerformance(objData, strUserId, idSideFix) { /* ด้
         
         // ChanceRisk
         strHTML += "<td class='text-center align-middle' style=''>";
-        strHTML += "<div>";
-        strHTML += "<span id='spanChanceRisk" + data[i].id + "'>" + (data[i].chanceRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].chanceRiskScore) : '-') + "</span>";
-        strHTML += "</div>";
-        strHTML += "<div>";
+        strHTML += "<span id='spanChanceRisk" + data[i].id + "'>" + (data[i].chanceRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].chanceRiskScore) : '') + "</span>";
+
         // strHTML += "<button id='btnChanceRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnOpenModalAndSetChanceRisk(\"ChanceRisk" +  data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\")'>";
         strHTML += "<button id='btnChanceRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnDrawChanceRiskModal(\"" + data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\",)' data-bs-toggle='modal' data-bs-target='#chanceRiskModal'>";
         strHTML += "<i class='las la-pen' aria-hidden='true'></i>";
         strHTML += "</button>";
-        strHTML += "</div>";
         strHTML += "</td>";
         
         // EffectRisk
-        strHTML += "<td class='text-center align-middl e' style=''>";
-        strHTML += "<div>";
-        strHTML += "<span id='spanEffectRisk" + data[i].id + "'>" + (data[i].effectRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].effectRiskScore) : '-') + "</span>";
-        strHTML += "</div>";
-        strHTML += "<div>";
+        strHTML += "<td class='text-center align-middle' style=''>";
+        strHTML += "<span id='spanEffectRisk" + data[i].id + "'>" + (data[i].effectRiskScore ? fnConvertToThaiNumeralsAndPoint(data[i].effectRiskScore) : '') + "</span>";
         // strHTML += "<button id='btnEffectRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnOpenModalAndSetEffectRisk(\"EffectRisk" +  data[i].id + "\")'>";
         strHTML += "<button id='btnEffectRisk" + data[i].id + "' type='button' class='btn btn-warning mt-2' onclick='fnDrawEffectRiskModal(\"" + data[i].id + "\", \"" + strUserId + "\", \"" + idSideFix + "\",)' data-bs-toggle='modal' data-bs-target='#effectRiskModal'>"
         strHTML += "<i class='las la-pen' aria-hidden='true'></i>";
         strHTML += "</button>";
-        strHTML += "</div>";
         strHTML += "</td>";
 
         // RankRisk
@@ -279,7 +272,6 @@ async function fnDrawCommentDivEvaluation(prefixAsessor, signPath, position, dat
         strHTML += "    <i class='las la-pen mr-1' aria-hidden=;'true' style='margin-right:5px'></i><span>กรอกข้อมูลผู้ประเมิน<span> "
         strHTML += "    </button> "
         strHTML += " </div> "
-        strHTML += " </div> "; // เพิ่ม
     }
 
     return strHTML
@@ -1041,10 +1033,10 @@ function fnSetRankRiskTable (index, strUserId, idSideFix, isUpdate) {
 
     } else {
         strHTML += "<div>"
-        strHTML += "<span id='spanRankRisk" + index + "'> - </span>"
+        strHTML += "<span id='spanRankRisk" + index + "'> </span>"
         strHTML += "</div>";
         strHTML += "<div>"
-        strHTML += "<span id='spanDesRankRisk" + index + "'> (-) </span>"
+        strHTML += "<span id='spanDesRankRisk" + index + "'></span>"
         strHTML += "</div>";
         strHTML += "<div>";
         strHTML += "<button id='btnMatrixRank" + index  + "' type='button' class='btn btn-primary mt-2' onclick='fnOpenModalAndSetRankRisk(\"" + index + "\")'>"

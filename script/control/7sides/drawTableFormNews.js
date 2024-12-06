@@ -422,7 +422,7 @@ function fnCreateTextImprovement(strId, headId, strIdQR, risking, improve) {
         strHTML += `
             <div style='display:flex;'>
                 <p class='text-left pComment' id='displayTextCombined${strId}' 
-                style='text-indent: 23px; ${combinedText ? "" : "display: none;"}'>
+                style='font-size: 18px;text-indent: 23px; ${combinedText ? "" : "display: none;"}'>
                 ${combinedText}
                 </p>
                 <i class='las la-pencil-alt' id='editIconSum${strId}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum("${strId}", "${risking}", "${improve}")'></i>
@@ -436,7 +436,7 @@ function fnCreateTextImprovement(strId, headId, strIdQR, risking, improve) {
         strHTML += `
             <div style='display:flex;'>
                 <p class='text-left pComment' id='displayTextCombined${strId}' 
-                style='text-indent: 23px; ${combinedText ? "" : "display: none;"}'>
+                style='font-size: 18px;text-indent: 23px; ${combinedText ? "" : "display: none;"}'>
                 ${combinedText}
                 </p>
                 <i class='las la-pencil-alt' id='editIconSum${strId}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditTextSum("${strId}", "${risking}")'></i>
@@ -532,27 +532,27 @@ async function fnDrawTableReportAssessment(data, strUserId, idSideFix, nameSides
             if (item.sum_id && item.value) { // ส่วนสรุป
                 strSumDetail = fnMapValueToCallFunction(item, 'main')
                 if (item.value == 0) {// ใส่เส้น ล่างตาราง
-                    strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    strHTML += "<tr><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                 } else {
-                    strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    strHTML += "<tr><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                 }
             } else if (item.is_improvement === 1) {
                 var improvementDetail = fnMapValueToCallFunction2(item, 'main');
 
                 if (item.risking && item.improve) { // ถ้ามีให้แสดง 
-                    strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                    strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='font-size: 18px;width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                 } else {
                     strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                 }
                 
             } else { // ส่วนอื่น ๆ วัตถุประสงค์ 
                 if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                    strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                 } else { // หัวข้อหลัก 1,2,3,4,5
-                    strHTML += "<tr><td style='width: 50%;;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='font-size: 18px;width: 50%;;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                 }
                 if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                    strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                    strHTML += "<tr><td style='font-size: 18px;width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                 }
                 if (item.objectName) { // เพื่อ ......
                     strHTML += "<tr><td class='tdObjectName' style='text-indent: 17px;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
@@ -982,7 +982,7 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
     function fnAddMainHeadingIfNeeded(currentMainControlId) {
         var mainHeading = mainHeadings.find(heading => heading.id === currentMainControlId);
         if (mainHeading) {
-            strHTML += `<tr><td style='width: 50%; font-weight: bold;'>${fnConvertToThaiNumeralsAndPoint(mainHeading.id)}. ${mainHeading.text}</td><td></td><td></td><td></td></tr>`;
+            strHTML += `<tr><td style='font-size: 18px;width: 50%; font-weight: bold;'>${fnConvertToThaiNumeralsAndPoint(mainHeading.id)}. ${mainHeading.text}</td><td></td><td></td><td></td></tr>`;
             mainHeadings = mainHeadings.filter(heading => heading.id !== currentMainControlId);
         }
     }
@@ -1004,27 +1004,27 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                     if (item.sum_id && item.value) { // ส่วนสรุป
                         strSumDetail = fnMapValueToCallFunction(item, 'main')
                         if (item.value == 0) {// ใส่เส้น ล่างตาราง
-                            strHTML += "<tr class='trSidesSum-Line'><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr class='trSidesSum-Line'><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                         } else {
-                            strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                         }
                     } else if (item.is_improvement === 1) {
                         var improvementDetail = fnMapValueToCallFunction2(item, 'main');
         
                         if (item.risking && item.improve) { // ถ้ามีให้แสดง 
-                            strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='font-size: 18px;width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                         } else {
                             strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                         }
                     } else { // ส่วนอื่น ๆ วัตถุประสงค์ 
                         if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                            strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                         } else { // หัวข้อหลัก 1,2,3,4,5
     
-                            strHTML += "<tr><td style='width: 50%;;font-weight: bold;text-indent: 5%;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;;font-weight: bold;text-indent: 5%;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                            strHTML += "<tr><td style='width: 50%;font-weight: bold;text-indent: 12%;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;text-indent: 12%;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.objectName) { // เพื่อ ......
                             strHTML += "<tr><td class='tdObjectName' style='text-indent: 12%;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
@@ -1080,26 +1080,26 @@ async function fnDrawTableReportAssessmentFix (data, strUserId, idSideFix, nameS
                     if (item.sum_id && item.value) { // ส่วนสรุป
                         strSumDetail = fnMapValueToCallFunction(item, 'main')
                         if (item.value == 0) {// ใส่เส้น ล่างตาราง
-                            strHTML += "<tr class='trSidesSum-Line'><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr class='trSidesSum-Line'><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                         } else {
-                            strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>"
                         }
                     } else if (item.is_improvement === 1) {
                         var improvementDetail = fnMapValueToCallFunction2(item, 'main');
         
                         if (item.risking && item.improve) { // ถ้ามีให้แสดง 
-                            strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                            strHTML += " <tr id='trSumText" + item.risk_id + "' ><td style='font-size: 18px;width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                         } else {
                             strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                         }
                     } else { // ส่วนอื่น ๆ วัตถุประสงค์ 
                         if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                            strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                         } else { // หัวข้อหลัก 1,2,3,4,5
-                            strHTML += "<tr><td style='width: 50%;font-weight: bold;padding-top:5px;text-indent:"+ strTextMain +"'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;padding-top:5px;text-indent:"+ strTextMain +"'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                            strHTML += "<tr><td style='width: 50%;font-weight: bold;text-indent: "+ strTextObj +"'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                            strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;text-indent: "+ strTextObj +"'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                         }
                         if (item.objectName) { // เพื่อ ......
                             strHTML += "<tr><td class='tdObjectName' style='text-indent: "+ strTextObjName +"'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
@@ -1284,7 +1284,7 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
         strHTML += " <button class='btn btn-secondary' type='submit' id='submitbtnCommentEV' style='display:none; width: 100px;'>ยืนยัน</button> "
         strHTML += " </div> "
         strHTML += " <div class='text-start' style='text-indent:4%'> "
-        strHTML += " <span id='displayTextCommentEV' style='text-indent: 17px;white-space: pre-wrap;'> " + descConQR + " </span> "
+        strHTML += " <span id='displayTextCommentEV' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'> " + descConQR + " </span> "
         strHTML += " <i class='las la-pencil-alt' id='editIconCommentEV' style='cursor:pointer; margin-left: 10px;' onclick='fnEditTextCommentEV()'></i> "
         strHTML += " </div> "
     } else {
@@ -1295,7 +1295,7 @@ async function fnDrawCommentDivEvaluation(data, strUserId, idSideFix, access) {
         strHTML += " <button class='btn btn-secondary' type='submit' id='submitbtnCommentEV' style='width: 100px;'>ยืนยัน</button> "
         strHTML += " </div> "
         strHTML += " <div class='text-start'> "
-        strHTML += " <span id='displayTextCommentEV' style='text-indent: 17px;white-space: pre-wrap;'></span> "
+        strHTML += " <span id='displayTextCommentEV' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'></span> "
         strHTML += " <i class='las la-pencil-alt' id='editIconCommentEV' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditTextCommentEV()'></i> "
         strHTML += " </div> "
     }
@@ -1468,7 +1468,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, n
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none;'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'></p>
+                    <p class='text-left pComment' id='displayText${id}' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'></p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1493,7 +1493,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, n
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'>${descRiskQR}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1519,7 +1519,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, n
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1546,7 +1546,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, n
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1571,7 +1571,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, n
                     <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}'>ยืนยัน</button>
                 </div>
                 <div style='display:flex; align-items: center;'>
-                    <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
+                    <p class='text-left pComment' id='displayText${id}' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                     <i class='las la-pencil-alt' id='editIcon${id}' style='display:none;cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
                 </div>
                 <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -1597,7 +1597,7 @@ function fnCreateTextAreaAndButton(text, id, ischeckbox, descRiskQR, fileName, n
                 <button class='btn btn-secondary btn-sm' type='submit' id='submitButton${id}' style='display:none'>ยืนยัน</button>
             </div>
             <div style='display:flex; align-items: center;'>
-                <p class='text-left pComment' id='displayText${id}' style='text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
+                <p class='text-left pComment' id='displayText${id}' style='font-size: 18px;text-indent: 17px;white-space: pre-wrap;'>${descRiskQR ? descRiskQR : ''}</p>
                 <i class='las la-pencil-alt' id='editIcon${id}' style='display:none; cursor:pointer; margin-left: 10px;' onclick='fnEditText("${id}")'></i>
             </div>
             <div id='dvUploadDoc${id}' class='text-center align-middle' style='display: flex;justify-content: center;'>
@@ -2595,26 +2595,26 @@ async function fnAddNewRowFromModal(number, strUserId, idSideFix, nameSides, val
                 if (item.sum_id && item.value) {
                     let strSumDetail = fnMapValueToCallFunction(item, 'sub');
                     if (item.value == 0) {
-                        strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
                     } else {
-                        strHTML += "<tr><td style='width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='font-size: 18px;width: 50%;'>" + strSumDetail.text + "</td><td></td><td></td><td></td></tr>";
                     }
                 } else if (item.is_improvement === 1) {
                     var improvementDetail = fnMapValueToCallFunction2(item, 'sub');
                     console.log(improvementDetail)
                     if (item.risking && item.improve) { // ถ้ามีให้แสดง 
-                        strHTML += " <tr id='trSumText" + item.risk_id + "'><td style='width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
+                        strHTML += " <tr id='trSumText" + item.risk_id + "'><td style='font-size: 18px;width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                     } else {
                         strHTML += " <tr id='trSumText" + item.risk_id + "' style='display:none;'><td style=' width: 50%;'>" + improvementDetail.text + "</td><td></td><td></td><td></td></tr>"
                     }
                 } else {
                     if (item.sum_id) { // ตรงส่วนสรุปแต่ละคำถาม
-                        strHTML += "<tr><td style='width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;'><u>สรุป</u> : " + item.text + "</td><td></td><td></td><td></td></tr>";
                     } else { // หัวข้อหลัก 1,2,3,4,5
-                        strHTML += "<tr><td style='width: 50%;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='font-size: 18px;width: 50%;font-weight: bold;padding-top: 5px;'>"+ fnConvertToThaiNumeralsAndPoint(item.id_control) + ' ' + item.text + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (item.main_Obj) { //วัตถุประสงค์ของการควบคุม ใช้ร่วมกัน
-                        strHTML += "<tr><td style='width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
+                        strHTML += "<tr><td style='font-size: 18px;width: 50%;text-indent: 17px;font-weight: bold;'>" + item.main_Obj + "</td><td></td><td></td><td></td></tr>";
                     }
                     if (item.objectName) { // เพื่อ ......
                         strHTML += "<tr><td class='tdObjectName' style='text-indent: 17px;'>" + item.objectName + "</td><td></td><td></td><td></td></tr>";
