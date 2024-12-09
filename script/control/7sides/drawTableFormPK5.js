@@ -120,32 +120,32 @@ async function fnDrawTablePerformance(data) {
 
             if (isObjRiskSame) {
                 // ถ้า objRisk เหมือนกันทั้งหมด
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${tab}กิจกรรม</span> `;
+                strHTML += " <div style='text-indent: 17px;'> ";
+                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>กิจกรรม</span> `;
                 strHTML += " </div> ";
                 strHTML += " <div> ";
                 strHTML += ` <span style='display: block; padding-left: 17px;' id='spanHeadRisk${foundRisks[0].id}'>- ${headRisks}</span> `;
                 strHTML += " </div> ";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>${tab}วัตถุประสงค์</span> `;
+                strHTML += " <div style='text-indent: 17px;'> ";
+                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' style='font-weight: bold;'>วัตถุประสงค์</span> `;
                 strHTML += " </div> ";
-                strHTML += " <div> ";
-                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' class='text-left align-top'>${tab}${strObjRisk}</span> `;
+                strHTML += " <div style='text-indent: 17px;'> ";
+                strHTML += ` <span id='spanHeadRisk${foundRisks[0].id}' class='text-left align-top'>${strObjRisk}</span> `;
                 strHTML += " </div> ";
             } else {
                 // ถ้า objRisk ไม่เหมือนกัน
                 foundRisks.forEach(risk => {
-                    strHTML += " <div> ";
-                    strHTML += ` <span id='spanHeadRisk${risk.id}' style='font-weight: bold;'>${tab}กิจกรรม</span> `;
+                    strHTML += " <div style='text-indent: 17px;'> ";
+                    strHTML += ` <span id='spanHeadRisk${risk.id}' style='font-weight: bold;'>กิจกรรม</span> `;
                     strHTML += " </div> ";
                     strHTML += " <div> ";
                     strHTML += ` <span style='display: block; padding-left: 17px;' id='spanHeadRisk${risk.id}'>- ${risk.headRisk}</span> `;
                     strHTML += " </div> ";
-                    strHTML += " <div> ";
-                    strHTML += ` <span id='spanHeadRisk${risk.id}' style='font-weight: bold;'>${tab}วัตถุประสงค์</span> `;
+                    strHTML += " <div style='text-indent: 17px;'> ";
+                    strHTML += ` <span id='spanHeadRisk${risk.id}' style='font-weight: bold;'>วัตถุประสงค์</span> `;
                     strHTML += " </div> ";
-                    strHTML += " <div> ";
-                    strHTML += ` <span id='spanHeadRisk${risk.id}' class='text-left align-top'>${tab}${risk.objRisk}</span> `;
+                    strHTML += " <div style='text-indent: 17px;'> ";
+                    strHTML += ` <span id='spanHeadRisk${risk.id}' class='text-left align-top'>${risk.objRisk}</span> `;
                     strHTML += " </div> ";
                 });
             }
