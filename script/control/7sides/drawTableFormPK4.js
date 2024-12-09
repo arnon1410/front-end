@@ -158,7 +158,7 @@ async function fnCreateTextAreaAndButton(idNO, idPK4, description, strUserId, na
     } else {
         if (description) {
             strHTML += " <div style='display:flex;'> "
-            strHTML += " <textarea id='comment_" + idPK4 + "' name='comment_" + idPK4 + "' rows='1' cols='30' style='display:none;'></textarea> "
+            strHTML += " <textarea id='comment_" + idPK4 + "' name='comment_" + idPK4 + "' rows='1' cols='30' style='width: 100%;display:none;'></textarea> "
             strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + idPK4 + "' onclick='fnSubmitText(" + idPK4 + ")' style='display:none;'>ยืนยัน</button> "
             strHTML += " </div> "
             strHTML += " <div style='display:flex;'> "
@@ -167,7 +167,7 @@ async function fnCreateTextAreaAndButton(idNO, idPK4, description, strUserId, na
             strHTML += " </div> "
         } else {
             strHTML += " <div style='display:flex;'> "
-            strHTML += " <textarea id='comment_" + idPK4 + "' name='comment_" + idPK4 + "' rows='1' cols='30'></textarea> "
+            strHTML += " <textarea id='comment_" + idPK4 + "' name='comment_" + idPK4 + "' rows='1' cols='30' style='width: 100%'></textarea> "
             strHTML += " <button class='btn btn-secondary' type='submit' id='submitButton" + idPK4 + "' onclick='fnSubmitText(" + idPK4 + ")'>ยืนยัน</button> "
             strHTML += " </div> "
             strHTML += " <div style='display:flex;'> "
@@ -323,7 +323,7 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
     strHTML += " <div class='dvEvaluation'>ผลการประเมินโดยรวม</div> "
     if (descConASM) {
         strHTML += " <div> "
-        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style='display:none;'></textarea> "
+        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style='width: 100%display:none;'></textarea> "
         strHTML += " </div> "
         strHTML += " <div class='text-end'> "
         strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEvaluation' onclick='fnSubmitTextCommentEvaluation()' style='display:none; width: 100px;'>ยืนยัน</button> "
@@ -334,7 +334,7 @@ async function fnDrawCommentDivEvaluation(idConPK4, descConASM, prefixAsessor, s
         strHTML += " </div> "
     } else {
         strHTML += " <div> "
-        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83'></textarea> "
+        strHTML += " <textarea id='commentEvaluation' name='commentEvaluation' rows='5' cols='83' style='width: 100%'></textarea> "
         strHTML += " </div> "
         strHTML += " <div class='text-end'> "
         strHTML += " <button class='btn btn-secondary' type='submit' id='submitButtonCommentEvaluation' onclick='fnSubmitTextCommentEvaluation()' style='width: 100px;'>ยืนยัน</button> "

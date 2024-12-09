@@ -755,7 +755,7 @@ function fnSaveChanceRiskModal(strPFM_EVId, strUserId, idSideFix) {
             var strObjRisk = $('#inputObjRisk' + strPFM_EVId).html()
             var strRisking = $('#risking' + strPFM_EVId).text()
             var strActControl = $('#displayTextActivityControl' + strPFM_EVId).text()
-            var strImpControl = $('#displayTextImprovementControl' + strPFM_EVId).text()
+            var strImpControl = $('#improvementControl' + strPFM_EVId).text()
             console.log(strCheckedValue)
             if (strCheckedValue) {
                 var dataSend = {
@@ -873,7 +873,7 @@ function fnSaveEffectRiskModal(strPFM_EVId, strUserId, idSideFix) {
             var strObjRisk = $('#inputObjRisk' + strPFM_EVId).html()
             var strRisking = $('#risking' + strPFM_EVId).text()
             var strActControl = $('#displayTextActivityControl' + strPFM_EVId).text()
-            var strImpControl = $('#displayTextImprovementControl' + strPFM_EVId).text()
+            var strImpControl = $('#improvementControl' + strPFM_EVId).text()
             if (strCheckedValue) {
                 var dataSend = {
                     idPFM: strPFM_EVId,
@@ -1069,7 +1069,7 @@ function fnSaveDraftDocument(data , strUserId, strSideId, strUserDocId, event)  
     data.forEach(formItem => {
         strIdQR = $('#inputIdQR' + formItem.id).val()
         strDisplayTextAC = $('#displayTextActivityControl' + formItem.id).text();
-        strDisplayTextIM = $('#displayTextImprovementControl' + formItem.id).text();
+        strDisplayTextIM = $('#improvementControl' + formItem.id).text();
         activityControl = formItem.activityControl === null ? '' : formItem.activityControl;
         // improvementControl = formItem.improvementControl === null ? '' : formItem.improvementControl;
     
@@ -1082,8 +1082,8 @@ function fnSaveDraftDocument(data , strUserId, strSideId, strUserDocId, event)  
                 userDocId: strUserDocId,
                 sideId: strSideId,  // ตรวจสอบว่ามีการประกาศ strSideId หรือไม่
                 username: strUserName,
-                activityControl: strDisplayTextAC
-                // ,improvementControl: strDisplayTextIM
+                activityControl: strDisplayTextAC,
+                improvementControl: strDisplayTextIM
             });
         }
     });

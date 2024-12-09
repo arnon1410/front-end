@@ -190,33 +190,40 @@ async function fnDrawTablePerformance(data) {
                 strHTML += "</div>";
                 strHTML += "</td>";
             }
-            if (foundRisks[0].existingRisk) {
-                strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                strHTML += "<div style='text-align: center;'>";
-                strHTML += "    <textarea id='textExistingRisk" + foundRisks[0].id + "' name='textExistingRisk" + foundRisks[0].id + "' style='display:none;' rows='6' cols='10' ></textarea> ";
-                strHTML += "</div> ";
-                strHTML += "<div class='text-end'>";
-                strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[0].id + "' style='display:none;' onclick='fnSubmitText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
-                strHTML += "</div>";
-                strHTML += " <div style='text-indent: 17px;'> ";
-                strHTML += ` <span id='displayTextExistingRisk${foundRisks[0].id}'>${foundRisks[0].existingRisk}</span> `;
-                strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[0].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'></i> ";
-                strHTML += " </div> ";
-                strHTML += "</td>";
-            } else {
-                strHTML += "<td id='ExistingRisk" + foundRisks[0].id + "' class='text-left align-top' style='width: 12%;'>";
-                strHTML += "<div style='text-align: center;'>";
-                strHTML += "    <textarea id='textExistingRisk" + foundRisks[0].id + "' name='textExistingRisk" + foundRisks[0].id + "' rows='6' cols='10'></textarea> ";
-                strHTML += "</div> ";
-                strHTML += "<div class='text-end'>";
-                strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[0].id + "' onclick='fnSubmitText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
-                strHTML += "</div>";
-                strHTML += "<div class='text-start' style='text-indent: 17px;'>";
-                strHTML += "    <span id='displayTextExistingRisk" + foundRisks[0].id + "' style='white-space: pre-wrap;'></span>";
-                strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[0].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'></i> ";
-                strHTML += "</div>";
-                strHTML += "</td>";
-            }
+
+            strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+            strHTML += " <div style='text-indent: 17px;'> ";
+            strHTML += ` <span id='displayTextExistingRisk${foundRisks[0].id}'>${foundRisks[0].risking ? foundRisks[0].risking : ''}</span> `;
+            strHTML += " </div> ";
+            strHTML += "</td>";
+
+            // if (foundRisks[0].existingRisk) {
+            //     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+            //     strHTML += "<div style='text-align: center;'>";
+            //     strHTML += "    <textarea id='textExistingRisk" + foundRisks[0].id + "' name='textExistingRisk" + foundRisks[0].id + "' style='display:none;' rows='6' cols='10' ></textarea> ";
+            //     strHTML += "</div> ";
+            //     strHTML += "<div class='text-end'>";
+            //     strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[0].id + "' style='display:none;' onclick='fnSubmitText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
+            //     strHTML += "</div>";
+            //     strHTML += " <div style='text-indent: 17px;'> ";
+            //     strHTML += ` <span id='displayTextExistingRisk${foundRisks[0].id}'>${foundRisks[0].existingRisk}</span> `;
+            //     strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[0].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'></i> ";
+            //     strHTML += " </div> ";
+            //     strHTML += "</td>";
+            // } else {
+            //     strHTML += "<td id='ExistingRisk" + foundRisks[0].id + "' class='text-left align-top' style='width: 12%;'>";
+            //     strHTML += "<div style='text-align: center;'>";
+            //     strHTML += "    <textarea id='textExistingRisk" + foundRisks[0].id + "' name='textExistingRisk" + foundRisks[0].id + "' rows='6' cols='10'></textarea> ";
+            //     strHTML += "</div> ";
+            //     strHTML += "<div class='text-end'>";
+            //     strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[0].id + "' onclick='fnSubmitText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
+            //     strHTML += "</div>";
+            //     strHTML += "<div class='text-start' style='text-indent: 17px;'>";
+            //     strHTML += "    <span id='displayTextExistingRisk" + foundRisks[0].id + "' style='white-space: pre-wrap;'></span>";
+            //     strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[0].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[0].id + "\", \"ExistingRisk\")'></i> ";
+            //     strHTML += "</div>";
+            //     strHTML += "</td>";
+            // }
 
             strHTML += "<td class='text-left align-top' style='width: 12%;'>";
             strHTML += " <div style='text-indent: 17px;'> ";
@@ -299,33 +306,39 @@ async function fnDrawTablePerformance(data) {
                     strHTML += "</td>";
                 }
 
-                if (foundRisks[i].existingRisk) {
-                    strHTML += "<td class='text-left align-top' style='width: 12%;'>";
-                    strHTML += "<div style='text-align: center;'>";
-                    strHTML += "    <textarea id='textExistingRisk" + foundRisks[i].id + "' name='textExistingRisk" + foundRisks[i].id + "' style='display:none;' rows='6' cols='10'></textarea> ";
-                    strHTML += "</div> ";
-                    strHTML += "<div class='text-end'>";
-                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[i].id + "' style='display:none;' onclick='fnSubmitText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
-                    strHTML += "</div>";
-                    strHTML += " <div style='text-indent: 17px;'> ";
-                    strHTML += ` <span id='displayTextExistingRisk${foundRisks[i].id}'>${foundRisks[i].existingRisk}</span> `;
-                    strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[i].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'></i> ";
-                    strHTML += " </div> ";
-                    strHTML += "</td>";
-                } else {
-                    strHTML += "<td id='ExistingRisk" + foundRisks[i].id + "' class='text-left align-top' style='width: 12%;'>";
-                    strHTML += "<div style='text-align: center;'>";
-                    strHTML += "    <textarea id='textExistingRisk" + foundRisks[i].id + "' name='textExistingRisk" + foundRisks[i].id + "' rows='6' cols='10'></textarea> ";
-                    strHTML += "</div> ";
-                    strHTML += "<div class='text-end'>";
-                    strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[i].id + "' onclick='fnSubmitText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
-                    strHTML += "</div>";
-                    strHTML += "<div class='text-start' style='text-indent: 17px;'>";
-                    strHTML += "    <span id='displayTextExistingRisk" + foundRisks[i].id + "' style='white-space: pre-wrap;'></span>";
-                    strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[i].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'></i> ";
-                    strHTML += "</div>";
-                    strHTML += "</td>";
-                }
+                // if (foundRisks[i].existingRisk) {
+                //     strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+                //     strHTML += "<div style='text-align: center;'>";
+                //     strHTML += "    <textarea id='textExistingRisk" + foundRisks[i].id + "' name='textExistingRisk" + foundRisks[i].id + "' style='display:none;' rows='6' cols='10'></textarea> ";
+                //     strHTML += "</div> ";
+                //     strHTML += "<div class='text-end'>";
+                //     strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[i].id + "' style='display:none;' onclick='fnSubmitText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
+                //     strHTML += "</div>";
+                //     strHTML += " <div style='text-indent: 17px;'> ";
+                //     strHTML += ` <span id='displayTextExistingRisk${foundRisks[i].id}'>${foundRisks[i].existingRisk}</span> `;
+                //     strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[i].id + "' style='cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'></i> ";
+                //     strHTML += " </div> ";
+                //     strHTML += "</td>";
+                // } else {
+                //     strHTML += "<td id='ExistingRisk" + foundRisks[i].id + "' class='text-left align-top' style='width: 12%;'>";
+                //     strHTML += "<div style='text-align: center;'>";
+                //     strHTML += "    <textarea id='textExistingRisk" + foundRisks[i].id + "' name='textExistingRisk" + foundRisks[i].id + "' rows='6' cols='10'></textarea> ";
+                //     strHTML += "</div> ";
+                //     strHTML += "<div class='text-end'>";
+                //     strHTML += "    <button class='btn btn-secondary' type='submit' id='submitExistingRisk" + foundRisks[i].id + "' onclick='fnSubmitText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'>ยืนยัน</button>";
+                //     strHTML += "</div>";
+                //     strHTML += "<div class='text-start' style='text-indent: 17px;'>";
+                //     strHTML += "    <span id='displayTextExistingRisk" + foundRisks[i].id + "' style='white-space: pre-wrap;'></span>";
+                //     strHTML += "    <i class='las la-pencil-alt' id='editIconExistingRisk" + foundRisks[i].id + "' style='display:none; cursor:pointer;' onclick='fnEditText(\"" + foundRisks[i].id + "\", \"ExistingRisk\")'></i> ";
+                //     strHTML += "</div>";
+                //     strHTML += "</td>";
+                // }
+
+                strHTML += "<td class='text-left align-top' style='width: 12%;'>";
+                strHTML += " <div style='text-indent: 17px;'> ";
+                strHTML += ` <span id='displayTextExistingRisk${foundRisks[i].id}'>${foundRisks[i].risking ? foundRisks[i].risking : '-'}</span> `;
+                strHTML += " </div> ";
+                strHTML += "</td>";
 
                 strHTML += "<td class='text-left align-top' style='width: 12%;'>";
                 strHTML += " <div style='text-indent: 17px;'> ";
@@ -645,21 +658,21 @@ function fnSaveDraftDocument(data , strUserId, strUserDocId, event)  {
     // Loop ผ่าน data เพื่อเปรียบเทียบและ push ข้อมูลลงใน dataSend
     data.forEach(formItem => {
         strDisplayTextEV = $('#displayTextEvaluationControl' + formItem.id).text();
-        strDisplayTextER = $('#displayTextExistingRisk' + formItem.id).text();
+        // strDisplayTextER = $('#displayTextExistingRisk' + formItem.id).text(); // edit 9/12/67
         strDisplayTextRA = $('#displayTextResponsibleAgency' + formItem.id).text();
 
         evaluationControl = formItem.evaluationControl === null ? '' : formItem.evaluationControl;
-        existingRisk = formItem.existingRisk === null ? '' : formItem.existingRisk;
+        // existingRisk = formItem.existingRisk === null ? '' : formItem.existingRisk; // edit 9/12/67
         responsibleAgency = formItem.responsibleAgency === null ? '' : formItem.responsibleAgency;
         
-        if ((evaluationControl !== strDisplayTextEV ) || (existingRisk !== strDisplayTextER) || (responsibleAgency !== strDisplayTextRA)) { // หาข้อมูลที่มีการแก้ไข
+        if ((evaluationControl !== strDisplayTextEV ) || (responsibleAgency !== strDisplayTextRA)) { // หาข้อมูลที่มีการแก้ไข
             dataSend.push({
                 idPK5: formItem.id,
                 userId: strUserId,  // หรือใช้ strUserId ถ้ามีการประกาศ
                 userDocId: strUserDocId,
                 username: strUserName,
                 evaluationControl: strDisplayTextEV,
-                existingRisk: strDisplayTextER,
+                // existingRisk: strDisplayTextER, // edit 9/12/67
                 responsibleAgency: strDisplayTextRA
             });
         }
@@ -675,14 +688,14 @@ function fnSaveDraftDocument(data , strUserId, strUserDocId, event)  {
             return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
         }
 
-        if (!dataSend[0].existingRisk) {
-            Swal.fire({
-                title: "",
-                text: "กรุณากรอกความเสี่ยงที่ยังมีอยู่",
-                icon: "warning"
-            });
-            return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
-        }
+        // if (!dataSend[0].existingRisk) {
+        //     Swal.fire({
+        //         title: "",
+        //         text: "กรุณากรอกความเสี่ยงที่ยังมีอยู่",
+        //         icon: "warning"
+        //     });
+        //     return; // ออกจากฟังก์ชันทันทีถ้าค่าทั้งหมดว่าง
+        // }
 
         if (!dataSend[0].responsibleAgency) {
             Swal.fire({
